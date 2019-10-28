@@ -1,0 +1,4 @@
+.idea
+electron-markdown.iml
+node_modules
+dist

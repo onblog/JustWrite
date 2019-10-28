@@ -1,0 +1,74 @@
+body {
+    width: 100%;
+    height: 100%;
+    padding-top: 25px; /*与#header的高度相同*/
+}
+
+/*编辑器*/
+
+.editor {
+    display: none;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+}
+.editor > div.editormd-dialog.editormd-help-dialog > div.editormd-dialog-container > div.markdown-body {
+    height: 70% !important;
+}
+div.editormd-dialog.editormd-help-dialog {
+    width: 70% !important;
+    height: 70% !important;
+}
+
+/*标签页*/
+
+.close{
+    color: #999999;
+    font-size: 12px;
+    float: right;
+    margin-top: 2px;
+}
+.close:hover{
+    color: #666666;
+}
+#myTab > li.active >a {
+    background-color: #fff !important;
+}
+#myTab > li > a:hover {
+    background-color: #ccc;
+}
+#myTab > li > a {
+    position: absolute;
+    width: 100%;
+    border-radius: inherit;
+    top: 0;
+    background-color: #eee;
+    height: 26px;
+    text-align: center;
+    margin-right: 0;
+    font-size: 12px;
+    padding-top: 3px;
+    color: #666;
+    border-bottom-width: 0;
+    border-top-width: 0;
+}
+
+
+#myTab > li {
+    display: inline-block;
+    min-width: 100px;
+    width: inherit;
+    height: 26px;
+}
+
+ul#myTab {
+    position: absolute;
+    top: 0;
+    height: initial;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-bottom: 0;
+    overflow-y: hidden;
+    width: 100%;
+    display: inline-flex;
+}
