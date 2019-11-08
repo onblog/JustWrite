@@ -2,41 +2,29 @@ body {
     width: 100%;
     height: 100%;
     padding-top: 25px; /*与#header的高度相同*/
+    overflow: hidden;
 }
 
-/*编辑器*/
-
-.editor {
-    display: none;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: 0 !important;
-}
-.editor > div.editormd-dialog.editormd-help-dialog > div.editormd-dialog-container > div.markdown-body {
-    height: 70% !important;
-}
-div.editormd-dialog.editormd-help-dialog {
-    width: 70% !important;
-    height: 70% !important;
+img {
+    max-width: 100%;
+    display: inline;
 }
 
-/*标签页*/
+/*标题栏*/
+/*滚动条宽度*/
+#myTab::-webkit-scrollbar {
+    height: 0;
+    width: 0;
+}
 
-.close{
-    color: #999999;
-    font-size: 12px;
-    float: right;
-    margin-top: 2px;
-}
-.close:hover{
-    color: #666666;
-}
-#myTab > li.active >a {
+#myTab > li.active > a {
     background-color: #fff !important;
 }
+
 #myTab > li > a:hover {
     background-color: #ccc;
 }
+
 #myTab > li > a {
     position: absolute;
     width: 100%;
@@ -46,13 +34,11 @@ div.editormd-dialog.editormd-help-dialog {
     height: 26px;
     text-align: center;
     margin-right: 0;
-    font-size: 12px;
+    font-size: 13px;
     padding-top: 3px;
     color: #666;
-    border-bottom-width: 0;
-    border-top-width: 0;
+    border: 0;
 }
-
 
 #myTab > li {
     display: inline-block;
@@ -61,7 +47,7 @@ div.editormd-dialog.editormd-help-dialog {
     height: 26px;
 }
 
-ul#myTab {
+#myTab {
     position: absolute;
     top: 0;
     height: initial;
@@ -71,4 +57,124 @@ ul#myTab {
     overflow-y: hidden;
     width: 100%;
     display: inline-flex;
+}
+
+/*关闭按钮*/
+.close {
+    color: #999999;
+    font-size: 10px;
+    float: right;
+    font-weight: 100;
+    margin: 5px;
+}
+
+.close:hover {
+    color: #666666;
+}
+
+.tip {
+    color: #999;
+}
+
+/**内容页*/
+.page-header {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-bottom: 0;
+}
+
+/*编辑器*/
+.edit {
+    width: 100%;
+    box-shadow: none;
+    padding: 20px;
+    font-family: initial;
+    border-width: 0;
+    height: 100% !important;
+    resize: none;
+    font-size: 16px;
+    color: #444;
+    overflow-y: auto;
+}
+
+.edit:focus {
+    outline: none;
+    box-shadow: none;
+    border-width: 0;
+}
+
+/*展示区*/
+.col {
+    padding: 0;
+    height: 95%;
+    overflow: hidden;
+}
+
+.editor {
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+    word-wrap: break-word;
+    word-break: break-all;
+    display: block;
+    color: #444;
+    padding: 0 20px;
+    font-size: 16px;
+}
+
+pre {
+    padding: 0 !important;
+    min-height: 30px !important;
+}
+
+/*代码滚动条*/
+pre code span {
+    white-space: nowrap;
+}
+
+pre code {
+    overflow-x: auto;
+    font-weight: normal;
+    word-spacing: 0;
+    letter-spacing: 0;
+}
+
+pre code::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+/*滚动条*/
+::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0);
+    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0);
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.12);
+    -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/*toast*/
+.toast-close {
+    font-weight: bold;
+    font-size: 19px;
+    padding: 0;
+    margin: 0;
+}
+
+.toast {
+    position: fixed;
+    z-index: 99;
+    top: 1.5em;
+    right: 1.5em;
 }

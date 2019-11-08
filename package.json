@@ -1,21 +1,56 @@
 {
-  "name": "electron-markdown",
+  "name": "justwrite",
+  "productName": "JustWrite",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder"
   },
-  "keywords": [],
+  "keywords": [
+    "write"
+  ],
   "author": "yueshutong",
-  "license": "ISC",
+  "license": "GPL3.0",
+  "repository": "https://github.com/yueshutong/JustWrite/",
   "dependencies": {
     "bootstrap": "^3.4.1",
-    "editor.md": "^1.5.0",
     "electron-store": "^5.0.0",
-    "jquery": "^3.4.1"
+    "highlight.js": "^9.15.10",
+    "jQuery.print": "^1.5.1",
+    "jquery": "^3.4.1",
+    "jsdom": "^15.2.1",
+    "marked": "^0.7.0",
+    "request": "^2.88.0",
+    "urlencode": "^1.1.0"
   },
   "devDependencies": {
-    "electron": "^6.0.12"
+    "electron": "^6.0.12",
+    "electron-builder": "^22.1.0"
+  },
+  "build": {
+    "appId": "com.github.yueshutong.justwrite",
+    "productName": "JustWrite-Beta1",
+    "mac": {
+      "icon": "build/app.icns",
+      "type": "development",
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg"
+      ]
+    },
+    "win": {
+      "icon": "app.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "category": "Office",
+      "target": [
+        "AppImage"
+      ]
+    }
   }
 }
