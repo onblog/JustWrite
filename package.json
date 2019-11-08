@@ -31,7 +31,7 @@
   },
   "build": {
     "appId": "com.github.yueshutong.justwrite",
-    "productName": "JustWrite-Beta1",
+    "productName": "JustWrite",
     "mac": {
       "icon": "build/app.icns",
       "type": "development",
