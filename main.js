@@ -21,7 +21,7 @@ function createWindow() {
                                        titleBarStyle: "hidden"
                                    })
     mainWindow.loadFile('./src/index.html').then()
-    mainWindow.webContents.openDevTools()
+    // mainWindow.webContents.openDevTools()
     mainWindow.on('close', (event) => {
         if (global.sharedObject.closeAllWindow) { //询问
             dialog.showMessageBox(options).then(function (result) {
@@ -58,15 +58,15 @@ app.on('ready', () => {
     dataStore.initStore(cMenu.DefaultCodeStyle, cMenu.DefaultHtmlStyle)
 
     //测试版试用时间到期
-    if (dataStore.isOutUseTime()) {
-        dialog.showMessageBox({
-                                  title: '试用已到期',
-                                  message: '您当前软件是测试体验版，48小时试用时间已到期，如需正式版，请联系邮箱yster@foxmail.com购买',
-                                  buttons: ['确定']
-                              }).then((result) => {
-                                  app.quit()
-        })
-    }
+    // if (dataStore.isOutUseTime()) {
+    //     dialog.showMessageBox({
+    //                               title: '试用已到期',
+    //                               message: '您当前软件是测试体验版，48小时试用时间已到期，如需正式版，请联系邮箱yster@foxmail.com购买',
+    //                               buttons: ['确定']
+    //                           }).then((result) => {
+    //                               app.quit()
+    //     })
+    // }
 
     //新建一个文件
     ipcMain.on('new-md-file', (event, id) => {

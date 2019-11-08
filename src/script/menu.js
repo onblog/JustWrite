@@ -301,9 +301,9 @@ exports.createMenuItems = (mainWindow, app) => {
                     }
                 }, {
                     type: 'separator'
-                },{
+                }, {
                     label: '表格',
-                    accelerator:  (function () {
+                    accelerator: (function () {
                         if (process.platform === 'darwin') {
                             return 'Alt+Command+T'
                         } else {
@@ -313,9 +313,9 @@ exports.createMenuItems = (mainWindow, app) => {
                     click: (item, focusedWindow, event) => {
                         mainWindow.send('quick-key-insert-txt', item.accelerator)
                     }
-                },{
+                }, {
                     label: '代码块',
-                    accelerator:  (function () {
+                    accelerator: (function () {
                         if (process.platform === 'darwin') {
                             return 'Alt+Command+C'
                         } else {
@@ -325,20 +325,121 @@ exports.createMenuItems = (mainWindow, app) => {
                     click: (item, focusedWindow, event) => {
                         mainWindow.send('quick-key-insert-txt', item.accelerator)
                     }
-                },{
-                    label: '公式块',
-                    visible: false,
-                    accelerator:  (function () {
+                }, {
+                    label: '引用',
+                    accelerator: (function () {
                         if (process.platform === 'darwin') {
-                            return 'Alt+Command+B'
+                            return 'Alt+Command+Q'
                         } else {
-                            return 'Ctrl+Shift+B'
+                            return 'Ctrl+Shift+Q'
+                        }
+                    })(),
+                    click: (item, focusedWindow, event) => {
+                        mainWindow.send('quick-key-insert-txt', item.accelerator)
+                    }
+                }, {
+                    type: 'separator'
+                }, {
+                    label: '有序列表',
+                    accelerator: (function () {
+                        if (process.platform === 'darwin') {
+                            return 'Alt+Command+O'
+                        } else {
+                            return 'Ctrl+Shift+O'
+                        }
+                    })(),
+                    click: (item, focusedWindow, event) => {
+                        mainWindow.send('quick-key-insert-txt', item.accelerator)
+                    }
+                }, {
+                    label: '无序列表',
+                    accelerator: (function () {
+                        if (process.platform === 'darwin') {
+                            return 'Alt+Command+U'
+                        } else {
+                            return 'Ctrl+Shift+U'
+                        }
+                    })(),
+                    click: (item, focusedWindow, event) => {
+                        mainWindow.send('quick-key-insert-txt', item.accelerator)
+                    }
+                }, {
+                    label: '任务列表',
+                    accelerator: (function () {
+                        if (process.platform === 'darwin') {
+                            return 'Alt+Command+X'
+                        } else {
+                            return 'Ctrl+Shift+X'
+                        }
+                    })(),
+                    click: (item, focusedWindow, event) => {
+                        mainWindow.send('quick-key-insert-txt', item.accelerator)
+                    }
+                }, {
+                    type: 'separator'
+                }, {
+                    label: '水平分割线',
+                    accelerator: (function () {
+                        if (process.platform === 'darwin') {
+                            return 'Alt+Command+-'
+                        } else {
+                            return 'Ctrl+Shift+-'
                         }
                     })(),
                     click: (item, focusedWindow, event) => {
                         mainWindow.send('quick-key-insert-txt', item.accelerator)
                     }
                 }
+            ]
+        }, {
+            label: '格式',
+            submenu: [{
+                label: '加粗',
+                accelerator: 'CmdOrCtrl+B',
+                click: (item, focusedWindow, event) => {
+                    mainWindow.send('quick-key-insert-txt', item.accelerator)
+                }
+            },{
+                label: '斜体',
+                accelerator: 'CmdOrCtrl+I',
+                click: (item, focusedWindow, event) => {
+                    mainWindow.send('quick-key-insert-txt', item.accelerator)
+                }
+            },{
+                label: '下划线',
+                accelerator: 'CmdOrCtrl+U',
+                click: (item, focusedWindow, event) => {
+                    mainWindow.send('quick-key-insert-txt', item.accelerator)
+                }
+            }, {
+                type: 'separator'
+            }, {
+                label: '代码',
+                accelerator: 'Ctrl+`',
+                click: (item, focusedWindow, event) => {
+                    mainWindow.send('quick-key-insert-txt', item.accelerator)
+                }
+            }, {
+                type: 'separator'
+            }, {
+                label: '删除线',
+                accelerator: 'Shift+Ctrl+`',
+                click: (item, focusedWindow, event) => {
+                    mainWindow.send('quick-key-insert-txt', item.accelerator)
+                }
+            },{
+                label: '注释',
+                accelerator: 'Ctrl+-',
+                click: (item, focusedWindow, event) => {
+                    mainWindow.send('quick-key-insert-txt', item.accelerator)
+                }
+            },{
+                label: '超链接',
+                accelerator: 'CmdOrCtrl+K',
+                click: (item, focusedWindow, event) => {
+                    mainWindow.send('quick-key-insert-txt', item.accelerator)
+                }
+            }
             ]
         }, {
             label: '主题',

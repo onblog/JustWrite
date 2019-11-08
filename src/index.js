@@ -226,6 +226,13 @@ myTabs.get(0).addEventListener('click', function (event) {
     }
 })
 
+//阻止内容页的a标签的点击事件
+myTabsContent.get(0).addEventListener('click', function (event) {
+    if(event.target.tagName === 'A'){
+        event.preventDefault()
+    }
+})
+
 //已获取是否保存文本的结果
 ipcRenderer.on('or-save-md-file-result', (event, result, id) => {
     if (!result) {
@@ -549,27 +556,66 @@ ipcRenderer.on('export-pdf-file', function () {
 ipcRenderer.on('quick-key-insert-txt', (event, args) => {
     switch (args) {
         case 'CmdOrCtrl+1':
-            insertTextareaValue(tab, '\n# ')
+            insertTextareaValue(tab, '# ')
             break
         case 'CmdOrCtrl+2':
-            insertTextareaValue(tab, '\n## ')
+            insertTextareaValue(tab, '## ')
             break
         case 'CmdOrCtrl+3':
-            insertTextareaValue(tab, '\n### ')
+            insertTextareaValue(tab, '### ')
             break
         case 'CmdOrCtrl+4':
-            insertTextareaValue(tab, '\n#### ')
+            insertTextareaValue(tab, '#### ')
             break
         case 'CmdOrCtrl+5':
-            insertTextareaValue(tab, '\n##### ')
+            insertTextareaValue(tab, '##### ')
             break
         case 'CmdOrCtrl+6':
-            insertTextareaValue(tab, '\n######')
+            insertTextareaValue(tab, '######')
             break
         case 'Alt+Command+T' || 'Ctrl+Shift+T':
-            insertTextareaValue(tab, '\n\n|   行   |      |\n'
+            insertTextareaValue(tab, '\n|   -   |      |\n'
                                      + '| ---- | ---- |\n'
-                                     + '|   列   |      |\n')
+                                     + '|   -   |      |\n')
+            break
+        case 'Alt+Command+C' || 'Ctrl+Shift+C':
+            insertTextareaValue(tab,'\n```\n\n```')
+            break
+        case 'Alt+Command+Q' || 'Ctrl+Shift+Q':
+            insertTextareaValue(tab,'\n> ')
+            break
+        case 'Alt+Command+O' || 'Ctrl+Shift+O':
+            insertTextareaValue(tab,'\n1. ')
+            break
+        case 'Alt+Command+U' || 'Ctrl+Shift+U':
+            insertTextareaValue(tab,'\n- ')
+            break
+        case 'Alt+Command+X' || 'Ctrl+Shift+X':
+            insertTextareaValue(tab,'\n- [x] \n- [ ] ')
+            break
+        case 'Alt+Command+-' || 'Ctrl+Shift+-':
+            insertTextareaValue(tab,'\n---')
+            break
+        case 'CmdOrCtrl+B':
+            insertTextareaValue(tab, '** **')
+            break
+        case 'CmdOrCtrl+I':
+            insertTextareaValue(tab, '* *')
+            break
+        case 'CmdOrCtrl+U':
+            insertTextareaValue(tab, '<i> </i>')
+            break
+        case 'Ctrl+`':
+            insertTextareaValue(tab, '` `')
+            break
+        case 'Shift+Ctrl+`':
+            insertTextareaValue(tab, '<s> </s>')
+            break
+        case 'Ctrl+-':
+            insertTextareaValue(tab, '<!-- -->')
+            break
+        case 'CmdOrCtrl+K':
+            insertTextareaValue(tab, '[]()')
             break
     }
 })
