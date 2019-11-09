@@ -15,7 +15,7 @@ exports.DefaultCodeStyle = codeItems[0]
 exports.DefaultHtmlStyle = htmlItems[0]
 
 exports.createMenuItems = (mainWindow, app) => {
-    //排版风格
+    //主题风格
     const htmlMenuClick = function (menuItem,) {
         if (menuItem.checked) {
             dataStore.set(dataStore.htmlStyleKey, menuItem.label)

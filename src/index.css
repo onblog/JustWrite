@@ -27,6 +27,7 @@ img {
 
 #myTab > li > a {
     position: absolute;
+    text-decoration: blink;
     width: 100%;
     border-radius: inherit;
     top: 0;
@@ -38,6 +39,7 @@ img {
     padding-top: 3px;
     color: #666;
     border: 0;
+    /* border-image-width: 0; */
 }
 
 #myTab > li {

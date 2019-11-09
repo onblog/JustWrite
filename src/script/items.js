@@ -23,4 +23,5 @@ exports.codeItems =
      "sunburst", "tomorrow-night-blue", "tomorrow-night-bright", "tomorrow-night-eighties",
      "tomorrow-night", "tomorrow", "vs", "vs2015", "xcode", "xt256", "zenburn"]
 
-exports.HTMlItems = ['default','red','green','blue','black']
+exports.HTMlItems = ['github','gothic','newsprint','night','pixyll','whitey'
+     ,'default','red','green','blue','black']
