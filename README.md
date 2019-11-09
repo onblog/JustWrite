@@ -3,12 +3,10 @@
 ## *写作舒适，自带图床，一处复制、处处粘贴！*
 
 ![](https://img.shields.io/github/license/yueshutong/JustWrite)
-
+![](https://img.shields.io/static/v1?label=electron&message=6.0.12&color=)
 ![](https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg)
 
-![](https://img.shields.io/static/v1?label=electron&message=6.0.12&color=)
-
-## [下载](https://github.com/yueshutong/JustWrite/releases)
+## *[下载mac、window客户端](https://github.com/yueshutong/JustWrite/releases)*
 
 ## 功能
 
@@ -37,9 +35,11 @@
 
 ## About
 
-Blog：https://yueshutong.cnblogs.com/
+Blog：<https://yueshutong.cnblogs.com/>
 
 Email：[yster@foxmail.com](mailto:yster@foxmail.com)
+
+Github：<https://github.com/yueshutong/JustWrite>
 
 交流QQ群：781927207
 
