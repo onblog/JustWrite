@@ -105,9 +105,8 @@ h4 {
 
 */
 
-.md2html {
+.md2html,.editor {
 	font-family: "Merriweather", "PT Serif", Georgia, "Times New Roman", "STSong", Serif, serif;
-	line-height: 1.5rem;
 	font-weight: 400;
 }
 

@@ -2,11 +2,11 @@
 	font-size: 19px;
 }
 
-.md2html {
+.md2html, .editor {
 	margin: auto;
 	background: #fefefe;
 }
-.md2html {
+.md2html, .editor {
 	font-family: "Vollkorn", Palatino, Times, serif;
 	color: #333;
 	line-height: 1.4em;

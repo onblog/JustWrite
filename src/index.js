@@ -1,12 +1,34 @@
 const {remote, clipboard, ipcRenderer} = require('electron')
 const https = require('https');
 const urlEncode = require('urlencode')
-const marked = require('marked')
 const fs = require("fs")
 const path = require('path')
-const highlight = require('highlight.js')
+const hljs = require('highlight.js')
 const DataStore = require('./script/store')
 const Tab = require('./script/Tab')
+const marked = require('markdown-it')({
+                                          html: true,
+                                          xhtmlOut: true,
+                                          typographer: true,
+                                          highlight: function (str, lang) {
+                                              if (lang && hljs.getLanguage(lang)) {
+                                                  try {
+                                                      return '<pre><code class="hljs">' +
+                                                             hljs.highlight(lang, str, true).value +
+                                                             '</code></pre>';
+                                                  } catch (__) {
+                                                  }
+                                              }
+                                              return '<pre><code class="hljs">'
+                                                     + marked.utils.escapeHtml(str)
+                                                     + '</code></pre>';
+                                          },
+                                      })
+    .use(require('markdown-it-emoji'))
+    .use(require('markdown-it-footnote'))
+    .use(require('markdown-it-sup'))
+    .use(require('markdown-it-abbr'))
+    .use(require('markdown-it-deflist'))
 
 const tempPath = remote.getGlobal('sharedObject').temp
 
@@ -19,21 +41,6 @@ cutNightMode(dataStore.getNightMode())
 
 let tabs = new Map() //标签页集合
 let tab //当前标签页
-
-highlight.initHighlightingOnLoad()
-marked.setOptions({
-                      renderer: new marked.Renderer(),
-                      highlight: function (code) {
-                          return highlight.highlightAuto(code).value;
-                      },
-                      pedantic: false,
-                      gfm: true,
-                      breaks: false,
-                      sanitize: false,
-                      smartLists: true,
-                      smartypants: false,
-                      xhtml: false
-                  })
 
 //控制close图标的显示
 function closeDisplay() {
@@ -105,20 +112,11 @@ function insertTextareaValue(t, txt) {
 //改变输入框的文字
 function changeTextareaValue(t, txt) {
     t.getTextarea().value = txt
-    t.getMarked().innerHTML = marked(txt) // {baseUrl: t.getPath()}
-    fixDocument()
+    t.getMarked().innerHTML = marked.render(txt) // {baseUrl: t.getPath()}
     //是否已保存编辑部分
     t.isEditChangeIco(txt)
     //窗口关闭提醒
     remote.getGlobal('sharedObject').closeAllWindow = t.isEdit()
-}
-
-//修改md-html后的document
-function fixDocument() {
-    let nodeList = document.querySelectorAll('pre code')
-    for (let i = 0; i < nodeList.length; i++) {
-        nodeList[i].classList.add('hljs')
-    }
 }
 
 //新建一个标签页
@@ -229,7 +227,7 @@ myTabs.get(0).addEventListener('click', function (event) {
 
 //阻止内容页的a标签的点击事件
 myTabsContent.get(0).addEventListener('click', function (event) {
-    if (event.target.tagName === 'A') {
+    if (event.target.tagName === 'A' && !$(event.target).attr('href').startsWith('#')) {
         event.preventDefault()
     }
 })
@@ -592,7 +590,8 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             insertTextareaValue(tab, '\n- ')
             break
         case 'Alt+Command+X' || 'Ctrl+Shift+X':
-            insertTextareaValue(tab, '\n- [x] \n- [ ] ')
+            insertTextareaValue(tab,
+                                '\n- <input type="checkbox" disabled checked> \n- <input type="checkbox" disabled>')
             break
         case 'Alt+Command+-' || 'Ctrl+Shift+-':
             insertTextareaValue(tab, '\n---')
@@ -604,13 +603,13 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             insertTextareaValue(tab, '* *')
             break
         case 'CmdOrCtrl+U':
-            insertTextareaValue(tab, '<i> </i>')
+            insertTextareaValue(tab, '<u> </u>')
             break
         case 'Ctrl+`':
             insertTextareaValue(tab, '` `')
             break
         case 'Shift+Ctrl+`':
-            insertTextareaValue(tab, '<s> </s>')
+            insertTextareaValue(tab, '~~ ~~')
             break
         case 'Ctrl+-':
             insertTextareaValue(tab, '<!-- -->')

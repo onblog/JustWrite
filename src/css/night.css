@@ -33,7 +33,7 @@
     font-size: 16px;
 }
 
-.md2html {
+.md2html,.editor {
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
     background: #363B40;
@@ -381,11 +381,8 @@ a:hover {
     color: #81b1db;
 }
 
-b,
-th,
-dt,
-strong {
-    color: #DEDEDE;
+b, th, dt, strong, li, .editor,body, textarea, .md2html, table, h1,h2,h3,h4,h5,h6,table tr,blockquote,table th,p, thead,table tr:nth-child(2n) {
+    color: #DEDEDE !important;
     /* variable */
 }
 

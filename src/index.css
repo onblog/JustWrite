@@ -6,7 +6,7 @@ body {
 }
 
 img {
-    max-width: 100%;
+    max-width: 35%;
     display: inline;
 }
 
@@ -92,7 +92,6 @@ img {
     width: 100%;
     box-shadow: none;
     padding: 20px;
-    font-family: initial;
     border: 0 !important;
     height: 100% !important;
     border-radius: 0;

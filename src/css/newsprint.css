@@ -53,9 +53,9 @@ pre {
 	font-size: 16px;
 }
 
-.md2html {
+.md2html, .editor {
 	background-color: #f3f2ee;
-	font-family: "PT Serif", 'Times New Roman', Times, serif;
+	font-family: "PT Serif", 'Times New Roman', Times, serif !important;
 	color: #1f0909;
 	line-height: 1.5em;
 }

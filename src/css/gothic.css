@@ -58,8 +58,7 @@
 	height: auto;
 }
 
-.md2html,
-#write{
+.md2html, #write, .editor{
 	background: #fcfcfc;
 	background: var(--bg-color);
 	font-family: 'TeXGyreAdventor', "Century Gothic", "Didact Gothic", "Yu Gothic", sans-serif;

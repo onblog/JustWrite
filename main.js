@@ -6,7 +6,7 @@ let mainWindow
 
 const options = {
     type: 'info',
-    buttons: ['不了', '返回保存',],
+    buttons: ['退出', '返回保存',],
     defaultId: 1,
     message: '是否保存已编辑的文本？',
     cancelId: 0,
@@ -21,7 +21,7 @@ function createWindow() {
                                        titleBarStyle: "hidden"
                                    })
     mainWindow.loadFile('./src/index.html').then()
-    // mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
     mainWindow.on('close', (event) => {
         if (global.sharedObject.closeAllWindow) { //询问
             dialog.showMessageBox(options).then(function (result) {
