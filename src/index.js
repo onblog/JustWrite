@@ -481,9 +481,8 @@ document.addEventListener('paste', function (event) {
 /**
  * 上传图片到新浪微博
  * @param filePath
- * @param callback
  */
-function uploadPictureToWeiBo(filePath, callback) {
+function uploadPictureToWeiBo(filePath) {
     let image_url = 'https://picupload.weibo.com/interface/pic_upload.php?mime=image%2Fjpeg&data=base64&url=0&markpos=1&logo=&nick=0&marks=1&app=miniblog'
     fs.readFile(filePath, {encoding: 'base64'}, function (err, data) {
         if (err) {
