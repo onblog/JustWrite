@@ -8,6 +8,8 @@
 
 ![](https://img.shields.io/static/v1?label=electron&message=6.0.12&color=)
 
+## [下载](https://github.com/yueshutong/JustWrite/releases)
+
 ## 功能
 
 - [x] 支持图片拖拽到文档，并可自动上传到图床
