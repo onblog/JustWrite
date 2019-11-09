@@ -88,7 +88,7 @@ img {
 }
 
 /*编辑器*/
-.edit {
+.editor {
     width: 100%;
     box-shadow: none;
     padding: 20px;
@@ -102,7 +102,7 @@ img {
     overflow-y: auto;
 }
 
-.edit:focus {
+.editor:focus {
     outline: none;
     box-shadow: none;
     border-width: 0;
@@ -115,7 +115,7 @@ img {
     overflow: hidden;
 }
 
-.editor {
+.md2html {
     height: 100%;
     width: 100%;
     overflow-y: auto;

@@ -58,7 +58,7 @@
 	height: auto;
 }
 
-.editor,
+.md2html,
 #write{
 	background: #fcfcfc;
 	background: var(--bg-color);

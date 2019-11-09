@@ -29,11 +29,11 @@
     --search-select-bg-color: #428bca;
 }
 
-.editor {
+.md2html {
     font-size: 16px;
 }
 
-.editor {
+.md2html {
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
     background: #363B40;
@@ -46,7 +46,7 @@
     max-width: 914px;
 }
 
-.editor, button, input, select, textarea, div.code-tooltip-content, table {
+.md2html, button, input, select, textarea, div.code-tooltip-content, table {
     color: #E0E0E0;
     border-color: transparent;
 }

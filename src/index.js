@@ -142,10 +142,10 @@ function createNewTab(...dataAndPath) {
    <div class="row" >
       <div id="${tab1.getLeftId()}" class="col-xs-6 col-sm-6 col" style="border-right: 1px solid #f5f5f5;">
           <textarea id="${tab1.getTextareaId()}" data-id="${tab1.getId()}" autocapitalize="none" 
-          autocomplete="off" autofocus spellcheck="false" class="form-control edit"></textarea>
+          autocomplete="off" autofocus spellcheck="false" class="form-control editor"></textarea>
        </div>
       <div id="${tab1.getRightId()}" class="col-xs-6 col-sm-6 col">
-         <div id="${tab1.getMarkedId()}" data-id="${tab1.getId()}" class="editor"></div>
+         <div id="${tab1.getMarkedId()}" data-id="${tab1.getId()}" class="md2html"></div>
       </div>
    </div>
 </div>
