@@ -1,9 +1,10 @@
-# JustWrite
-
-## 一处复制、处处粘贴！
+# JustWrite *一处复制、处处粘贴！*
 
 ![](https://img.shields.io/github/license/yueshutong/JustWrite)
+
 ![](https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg)
+
+![](https://img.shields.io/static/v1?label=electron&message=6.0.12&color=)
 
 ### 功能
 
@@ -29,3 +30,17 @@
 ### 鸣谢
 
 李晨阳（图标创作者）
+
+# About
+
+Blog：https://yueshutong.cnblogs.com/
+
+Email：[yster@foxmail.com](mailto:yster@foxmail.com)
+
+交流QQ群：781927207
+
+如果帮助到你了，请不吝赞赏！谢谢！
+
+![](https://user-images.githubusercontent.com/31175877/67548917-af6d1600-f735-11e9-9807-351e6a2db269.png)
+
+![](https://user-images.githubusercontent.com/31175877/67549023-e17e7800-f735-11e9-89d4-5ca7dac0486d.png)
