@@ -5,6 +5,9 @@ class DataStore extends Store {
     codeStyleKey = 'code-style-key'
     htmlStyleKey = 'html-style-key'
 
+    //夜间模式
+    nightModeKey = 'night-mode-key'
+
     //新浪微博图床设置
     weiBoCookiesKey = 'wei-Bo-cookies-key'
     weiBoUploadKey = 'wei-Bo-upload-key'
@@ -32,6 +35,10 @@ class DataStore extends Store {
         return this.get(this.htmlStyleKey, this.defaultHtmlStyle)
     }
 
+    getNightMode() {
+        return this.get(this.nightModeKey, false)
+    }
+
     getWeiBoUpload() {
         return this.get(this.weiBoUploadKey, false)
     }
@@ -43,22 +50,23 @@ class DataStore extends Store {
     getWeiBoCookies() {
         return this.get(this.weiBoCookiesKey, null)
     }
+
     setWeiBoCookies(v) {
         return this.set(this.weiBoCookiesKey, v)
     }
 
-    isOutUseTime(){
-        const key = 'out-time'
-        const timestamp = new Date().getTime()
-        if (this.has(key)){
-            if (timestamp - parseInt(this.get(key))>172800000){
-                return true
-            }
-        }else {
-            this.set(key,timestamp)
-        }
-        return false
-    }
+    // isOutUseTime(){
+    //     const key = 'out-time'
+    //     const timestamp = new Date().getTime()
+    //     if (this.has(key)){
+    //         if (timestamp - parseInt(this.get(key))>172800000){
+    //             return true
+    //         }
+    //     }else {
+    //         this.set(key,timestamp)
+    //     }
+    //     return false
+    // }
 
 }
 

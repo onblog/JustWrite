@@ -26,7 +26,7 @@ exports.createMenuItems = (mainWindow, app) => {
     for (let i = 0; i < htmlItems.length; i++) {
         htmlMenuItems.push({
                                label: htmlItems[i],
-                               type: 'radio', //单选框
+                               type: 'radio', //多选一
                                checked: dataStore.isChecked(dataStore.htmlStyleKey, htmlItems[i]),
                                click: htmlMenuClick
                            })
@@ -42,7 +42,7 @@ exports.createMenuItems = (mainWindow, app) => {
     for (let i = 0; i < codeItems.length; i++) {
         codeMenuItems.push({
                                label: codeItems[i],
-                               type: 'radio', //单选框
+                               type: 'radio', //多选一
                                checked: dataStore.isChecked(dataStore.codeStyleKey, codeItems[i]),
                                click: codeMenuClick
                            })
@@ -117,12 +117,27 @@ exports.createMenuItems = (mainWindow, app) => {
     }
     //启动时自动检查更新
     updateApp(false)
+    //夜间模式
+    const nightMode = {
+        label: '夜间模式',
+        type: 'checkbox',
+        checked: dataStore.isChecked(dataStore.nightModeKey, true),
+        click: (menuItem => {
+            if (menuItem.checked) {
+                dataStore.set(dataStore.nightModeKey, true)
+                mainWindow.send('cut-night-mode', true)
+            } else {
+                dataStore.set(dataStore.nightModeKey, false)
+                mainWindow.send('cut-night-mode', false)
+            }
+        })
+    }
     return [
         {
             label: app.getName(),
             submenu: [
                 {
-                    label: '关于' + app.getName(),
+                    label: '关于',
                     click: function (item, focusedWindow) {
                         if (focusedWindow) {
                             const options = {
@@ -399,13 +414,13 @@ exports.createMenuItems = (mainWindow, app) => {
                 click: (item, focusedWindow, event) => {
                     mainWindow.send('quick-key-insert-txt', item.accelerator)
                 }
-            },{
+            }, {
                 label: '斜体',
                 accelerator: 'CmdOrCtrl+I',
                 click: (item, focusedWindow, event) => {
                     mainWindow.send('quick-key-insert-txt', item.accelerator)
                 }
-            },{
+            }, {
                 label: '下划线',
                 accelerator: 'CmdOrCtrl+U',
                 click: (item, focusedWindow, event) => {
@@ -427,13 +442,13 @@ exports.createMenuItems = (mainWindow, app) => {
                 click: (item, focusedWindow, event) => {
                     mainWindow.send('quick-key-insert-txt', item.accelerator)
                 }
-            },{
+            }, {
                 label: '注释',
                 accelerator: 'Ctrl+-',
                 click: (item, focusedWindow, event) => {
                     mainWindow.send('quick-key-insert-txt', item.accelerator)
                 }
-            },{
+            }, {
                 label: '超链接',
                 accelerator: 'CmdOrCtrl+K',
                 click: (item, focusedWindow, event) => {
@@ -548,7 +563,10 @@ exports.createMenuItems = (mainWindow, app) => {
                             focusedWindow.toggleDevTools()
                         }
                     }
-                }]
+                }, {
+                    type: 'separator'
+                }, nightMode
+                ]
         },
         {
             label: '窗口',

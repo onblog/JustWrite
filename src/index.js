@@ -15,6 +15,7 @@ const dataStore = new DataStore()
 //恢复上次设置的主题与代码风格
 cutCodeStyle(dataStore.getCodeStyle())
 cutHTMLStyle(dataStore.getHTMLStyle())
+cutNightMode(dataStore.getNightMode())
 
 let tabs = new Map() //标签页集合
 let tab //当前标签页
@@ -228,7 +229,7 @@ myTabs.get(0).addEventListener('click', function (event) {
 
 //阻止内容页的a标签的点击事件
 myTabsContent.get(0).addEventListener('click', function (event) {
-    if(event.target.tagName === 'A'){
+    if (event.target.tagName === 'A') {
         event.preventDefault()
     }
 })
@@ -579,22 +580,22 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
                                      + '|   -   |      |\n')
             break
         case 'Alt+Command+C' || 'Ctrl+Shift+C':
-            insertTextareaValue(tab,'\n```\n\n```')
+            insertTextareaValue(tab, '\n```\n\n```')
             break
         case 'Alt+Command+Q' || 'Ctrl+Shift+Q':
-            insertTextareaValue(tab,'\n> ')
+            insertTextareaValue(tab, '\n> ')
             break
         case 'Alt+Command+O' || 'Ctrl+Shift+O':
-            insertTextareaValue(tab,'\n1. ')
+            insertTextareaValue(tab, '\n1. ')
             break
         case 'Alt+Command+U' || 'Ctrl+Shift+U':
-            insertTextareaValue(tab,'\n- ')
+            insertTextareaValue(tab, '\n- ')
             break
         case 'Alt+Command+X' || 'Ctrl+Shift+X':
-            insertTextareaValue(tab,'\n- [x] \n- [ ] ')
+            insertTextareaValue(tab, '\n- [x] \n- [ ] ')
             break
         case 'Alt+Command+-' || 'Ctrl+Shift+-':
-            insertTextareaValue(tab,'\n---')
+            insertTextareaValue(tab, '\n---')
             break
         case 'CmdOrCtrl+B':
             insertTextareaValue(tab, '** **')
@@ -618,4 +619,17 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             insertTextareaValue(tab, '[]()')
             break
     }
+})
+
+function cutNightMode(args) {
+    if (args) {
+        document.getElementById('night-mode').setAttribute('href', './css/nightMode.css')
+    } else {
+        document.getElementById('night-mode').setAttribute('href', '')
+    }
+}
+
+//切换夜间模式
+ipcRenderer.on('cut-night-mode', (event, args) => {
+    cutNightMode(args)
 })

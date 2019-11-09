@@ -81,8 +81,9 @@ img {
 /**内容页*/
 .page-header {
     width: 100%;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 0px;
+    padding-bottom: 0;
+    margin-bottom: 0;
     border-bottom: 0;
 }
 
@@ -92,8 +93,9 @@ img {
     box-shadow: none;
     padding: 20px;
     font-family: initial;
-    border-width: 0;
+    border: 0 !important;
     height: 100% !important;
+    border-radius: 0;
     resize: none;
     font-size: 16px;
     color: #444;
@@ -109,7 +111,7 @@ img {
 /*展示区*/
 .col {
     padding: 0;
-    height: 95%;
+    height: 100%;
     overflow: hidden;
 }
 
