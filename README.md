@@ -1,4 +1,6 @@
-## JustWrite：自带图床、一处复制、处处粘贴！
+# JustWrite
+
+## 一处复制、处处粘贴！
 
 ![](https://img.shields.io/github/license/yueshutong/JustWrite)
 ![](https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg)
@@ -16,8 +18,14 @@
 
 ### 预览
 
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g8rx460zjij313u0u04bs.jpg)
 
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g8rx58ewzsj313u0u0dsm.jpg)
 
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g8rx5k645uj313u0u0h0a.jpg)
 
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g8rxbp31ldj313u0u0dtq.jpg)
 
-### 关于
+### 鸣谢
+
+李晨阳（图标创作者）

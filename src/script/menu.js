@@ -489,8 +489,7 @@ exports.createMenuItems = (mainWindow, app) => {
                     }
                 }, {
                     type: 'separator'
-                },
-                {
+                }, {
                     label: '图片自动上传',
                     type: 'submenu',
                     submenu: [{
@@ -503,6 +502,15 @@ exports.createMenuItems = (mainWindow, app) => {
                         click: function (menuItem) {
                             dataStore.setWeiBoUpload(menuItem.checked)
                             mainWindow.send('cut-weiBo-upload', menuItem.checked)
+                        }
+                    }, {
+                        type: 'separator'
+                    }, {
+                        label: '帮助',
+                        click: () => {
+                            dialog.showMessageBox(
+                                {message: '依次打开【图片】-> 【图片自动上传】->【设置新浪图床】，在打开的新浪网站登陆，登陆成功后返回，点击【开启图片上传】即可。'})
+                                .then()
                         }
                     }]
                 }, {

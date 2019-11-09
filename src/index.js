@@ -29,6 +29,8 @@ const marked = require('markdown-it')({
     .use(require('markdown-it-sup'))
     .use(require('markdown-it-abbr'))
     .use(require('markdown-it-deflist'))
+    .use(require('markdown-it-ins'))
+    .use(require('markdown-it-mark'))
 
 const tempPath = remote.getGlobal('sharedObject').temp
 
