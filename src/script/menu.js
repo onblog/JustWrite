@@ -47,7 +47,7 @@ exports.createMenuItems = (mainWindow, app) => {
                                click: codeMenuClick
                            })
     }
-    //设置新浪图床
+    //登录新浪图床
     const setWebBoPicture = function (item, focusedWindow, event) {
         let win = new BrowserWindow({width: 800, height: 600, title: '登陆新浪微博后关闭窗口即可完成设置'})
         win.loadURL('https://www.weibo.com/login.php').then()
@@ -61,6 +61,29 @@ exports.createMenuItems = (mainWindow, app) => {
                         cookieString += cookie.name + '=' + cookie.value + '; '
                     }
                     dataStore.setWeiBoCookies(cookieString.trim())
+                }).catch((error) => {
+                console.log(error)
+            })
+        })
+        win.on('page-title-updated', (e) => {
+            //阻止窗口标题更改
+            e.preventDefault()
+        })
+    }
+    //登录博客园
+    const loginCnBlogs = function (item, focusedWindow, event) {
+        let win = new BrowserWindow({width: 800, height: 600, title: '登陆博客园后关闭窗口即可完成设置'})
+        win.loadURL('https://www.cnblogs.com/').then()
+        win.on('closed', () => {
+            win = null
+            // 查询所有与设置的 URL 相关的所有 cookies.
+            session.defaultSession.cookies.get({url: 'https://www.cnblogs.com/'})
+                .then((cookies) => {
+                    let cookieString
+                    for (let cookie of cookies) {
+                        cookieString += cookie.name + '=' + cookie.value + '; '
+                    }
+                    dataStore.setCnBlogsCookie(cookieString.trim())
                 }).catch((error) => {
                 console.log(error)
             })
@@ -229,7 +252,8 @@ exports.createMenuItems = (mainWindow, app) => {
                     mainWindow.send("export-pdf-file")
                 }
             }]
-        }, {
+        },
+        {
             label: '编辑',
             submenu: [{
                 label: '撤销',
@@ -275,7 +299,8 @@ exports.createMenuItems = (mainWindow, app) => {
                     mainWindow.send('copy-to-html')
                 }
             }]
-        }, {
+        },
+        {
             label: '段落',
             submenu: [
                 {
@@ -406,7 +431,8 @@ exports.createMenuItems = (mainWindow, app) => {
                     }
                 }
             ]
-        }, {
+        },
+        {
             label: '格式',
             submenu: [{
                 label: '加粗',
@@ -454,65 +480,46 @@ exports.createMenuItems = (mainWindow, app) => {
                 click: (item, focusedWindow, event) => {
                     mainWindow.send('quick-key-insert-txt', item.accelerator)
                 }
-            }
-            ]
-        }, {
-            label: '主题',
-            submenu: htmlMenuItems
-        }, {
-            label: '代码',
-            submenu: codeMenuItems
-        }, {
-            label: '图片',
-            submenu: [
-                {
-                    label: '插入本地图片',
-                    click: function (menuItem, browserWindow, event) {
-                        dialog.showOpenDialog({
-                                                  properties: ['openFile', 'multiSelections'],
-                                                  filters: [
-                                                      {
-                                                          name: 'Images',
-                                                          extensions: ['jpg', 'png', 'gif', 'bmp',
-                                                                       'jpeg']
-                                                      },
-                                                  ]
-                                              })
-                            .then(files => {
-                                if (!files.canceled) { //对话框是否被取消
-                                    mainWindow.send('insert-picture-file', files.filePaths)
-                                }
-                            })
-                            .catch(err => {
-                                console.log(err)
-                            })
+            }, {
+                type: 'separator'
+            }, {
+                label: '插入本地图片',
+                click: function (menuItem, browserWindow, event) {
+                    dialog.showOpenDialog({
+                                              properties: ['openFile', 'multiSelections'],
+                                              filters: [
+                                                  {
+                                                      name: 'Images',
+                                                      extensions: ['jpg', 'png', 'gif', 'bmp',
+                                                                   'jpeg']
+                                                  },
+                                              ]
+                                          })
+                        .then(files => {
+                            if (!files.canceled) { //对话框是否被取消
+                                mainWindow.send('insert-picture-file', files.filePaths)
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err)
+                        })
+                }
+            }, {
+                type: 'separator'
+            }, {
+                label: '图片自动上传',
+                type: 'submenu',
+                submenu: [{
+                    label: '登录新浪图床',
+                    click: setWebBoPicture
+                }, {
+                    label: '开启图片上传',
+                    type: 'checkbox',
+                    checked: dataStore.isChecked(dataStore.weiBoUploadKey, true),
+                    click: function (menuItem) {
+                        dataStore.setWeiBoUpload(menuItem.checked)
+                        mainWindow.send('cut-weiBo-upload', menuItem.checked)
                     }
-                }, {
-                    type: 'separator'
-                }, {
-                    label: '图片自动上传',
-                    type: 'submenu',
-                    submenu: [{
-                        label: '设置新浪图床',
-                        click: setWebBoPicture
-                    }, {
-                        label: '开启图片上传',
-                        type: 'checkbox',
-                        checked: dataStore.isChecked(dataStore.weiBoUploadKey, true),
-                        click: function (menuItem) {
-                            dataStore.setWeiBoUpload(menuItem.checked)
-                            mainWindow.send('cut-weiBo-upload', menuItem.checked)
-                        }
-                    }, {
-                        type: 'separator'
-                    }, {
-                        label: '帮助',
-                        click: () => {
-                            dialog.showMessageBox(
-                                {message: '依次打开【图片】-> 【图片自动上传】->【设置新浪图床】，在打开的新浪网站登陆，登陆成功后返回，点击【开启图片上传】即可。'})
-                                .then()
-                        }
-                    }]
                 }, {
                     label: '解决图床防盗链',
                     click: function (menuItem, browserWindow, event) {
@@ -520,85 +527,112 @@ exports.createMenuItems = (mainWindow, app) => {
                         dialog.showMessageBox(
                             {type: 'none', message: '原内容已复制到剪贴板', buttons: ['OK']}).then()
                     }
-                }
-            ]
+                }]
+            }]
+        },
+        {
+            label: '主题',
+            submenu:
+            htmlMenuItems
+        },
+        {
+            label: '代码',
+            submenu:
+            codeMenuItems
+        },
+        {
+            label: '发布',
+            submenu: [{
+                label: '博客园',
+                submenu: [{
+                    label: '登录博客园',
+                    click: loginCnBlogs
+                },{
+                    label: '一键发布',
+                    click: ()=>{
+                        mainWindow.send('publish-article-to-cnblogs')
+                    }
+                }]
+            }]
         },
         {
             label: '查看',
-            submenu:
-                [{
-                    label: '重载',
-                    accelerator: 'CmdOrCtrl+R',
-                    click: function (item, focusedWindow) {
-                        if (focusedWindow) {
-                            // 重载之后, 刷新并关闭所有的次要窗体
-                            if (focusedWindow.id === 1) {
-                                BrowserWindow.getAllWindows().forEach(function (win) {
-                                    if (win.id > 1) {
-                                        win.close()
-                                    }
-                                })
-                            }
-                            focusedWindow.reload()
+            submenu: [{
+                label: '重载',
+                accelerator: 'CmdOrCtrl+R',
+                click: function (item, focusedWindow) {
+                    if (focusedWindow) {
+                        // 重载之后, 刷新并关闭所有的次要窗体
+                        if (focusedWindow.id === 1) {
+                            BrowserWindow.getAllWindows().forEach(function (win) {
+                                if (win.id > 1) {
+                                    win.close()
+                                }
+                            })
                         }
+                        focusedWindow.reload()
                     }
-                }, {
-                    label: '切换全屏',
-                    accelerator: (function () {
-                        if (process.platform === 'darwin') {
-                            return 'Ctrl+Command+F'
-                        } else {
-                            return 'F11'
-                        }
-                    })(),
-                    click: function (item, focusedWindow) {
-                        if (focusedWindow) {
-                            focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
-                        }
+                }
+            }, {
+                label: '切换全屏',
+                accelerator: (function () {
+                    if (process.platform === 'darwin') {
+                        return 'Ctrl+Command+F'
+                    } else {
+                        return 'F11'
                     }
-                }, {
-                    label: '切换开发者工具',
-                    visible: false,
-                    accelerator: (function () {
-                        if (process.platform === 'darwin') {
-                            return 'Alt+Command+I'
-                        } else {
-                            return 'Ctrl+Shift+I'
-                        }
-                    })(),
-                    click: function (item, focusedWindow) {
-                        if (focusedWindow) {
-                            focusedWindow.toggleDevTools()
-                        }
+                })(),
+                click: function (item, focusedWindow) {
+                    if (focusedWindow) {
+                        focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
                     }
-                }, {
-                    type: 'separator'
-                }, nightMode
-                ]
+                }
+            }, {
+                label: '切换开发者工具',
+                visible: false,
+                accelerator: (function () {
+                    if (process.platform === 'darwin') {
+                        return 'Alt+Command+I'
+                    } else {
+                        return 'Ctrl+Shift+I'
+                    }
+                })(),
+                click: function (item, focusedWindow) {
+                    if (focusedWindow) {
+                        focusedWindow.toggleDevTools()
+                    }
+                }
+            }, {
+                type: 'separator'
+            }, nightMode
+            ]
         },
         {
             label: '窗口',
-            role: 'window',
-            submenu: [{
-                label: '最小化',
-                accelerator: 'CmdOrCtrl+M',
-                role: 'minimize'
-            }, {
-                label: '关闭',
-                accelerator: 'CmdOrCtrl+W',
-                role: 'close'
-            }, {
-                type: 'separator'
-            }, {
-                label: '重新打开窗口',
-                accelerator: 'CmdOrCtrl+Shift+T',
-                enabled: false,
-                key: 'reopenMenuItem',
-                click: function () {
-                    app.emit('activate')
-                }
-            }]
-        }, {
+            role:
+                'window',
+            submenu:
+                [{
+                    label: '最小化',
+                    accelerator: 'CmdOrCtrl+M',
+                    role: 'minimize'
+                }, {
+                    label: '关闭',
+                    accelerator: 'CmdOrCtrl+W',
+                    role: 'close'
+                }, {
+                    type: 'separator'
+                }, {
+                    label: '重新打开窗口',
+                    accelerator: 'CmdOrCtrl+Shift+T',
+                    enabled: false,
+                    key: 'reopenMenuItem',
+                    click: function () {
+                        app.emit('activate')
+                    }
+                }]
+        },
+        {
             label: '帮助',
             role:
                 'help',
@@ -613,17 +647,20 @@ exports.createMenuItems = (mainWindow, app) => {
                 }, {
                     label: '软件主页',
                     click: function () {
-                        shell.openExternal('https://github.com/yueshutong/JustWrite/').then()
+                        shell.openExternal('https://github.com/yueshutong/JustWrite/')
+                            .then()
                     }
                 }, {
                     label: '我要反馈',
                     click: () => {
-                        shell.openExternal('https://github.com/yueshutong/JustWrite/issues').then()
+                        shell.openExternal('https://github.com/yueshutong/JustWrite/issues')
+                            .then()
                     }
                 }, {
                     label: '联系作者',
                     click: () => {
-                        dialog.showMessageBox({type: 'info', message: '邮箱：yster@foxmail.com'})
+                        dialog.showMessageBox(
+                            {type: 'info', message: '邮箱：yster@foxmail.com'})
                             .then()
                     }
                 }, {

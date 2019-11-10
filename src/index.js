@@ -1,4 +1,4 @@
-const {remote, clipboard, ipcRenderer} = require('electron')
+const {remote, shell, clipboard, ipcRenderer} = require('electron')
 const https = require('https');
 const urlEncode = require('urlencode')
 const fs = require("fs")
@@ -6,6 +6,10 @@ const path = require('path')
 const hljs = require('highlight.js')
 const DataStore = require('./script/store')
 const Tab = require('./script/Tab')
+const FormData = require('form-data')
+const querystring = require('querystring')
+const jsdom = require("jsdom")
+
 const marked = require('markdown-it')({
                                           html: true,
                                           xhtmlOut: true,
@@ -379,6 +383,8 @@ myTabs.get(0).onwheel = function (event) {
     }
 }
 
+//==========================【图片处理】===========
+
 //图片防盗链md-img
 ipcRenderer.on('picture-md-to-img', () => {
     clipboard.writeText(tab.getTextarea().value) //拷贝原内容
@@ -633,3 +639,175 @@ function cutNightMode(args) {
 ipcRenderer.on('cut-night-mode', (event, args) => {
     cutNightMode(args)
 })
+
+//==========================发布【博客园】===========
+
+//上传图片到博客园
+function uploadPictrueToCnBlogs(filePath) {
+    let formData = new FormData();
+    formData.append('imageFile', fs.createReadStream(filePath)) //'file'是服务器接受的key
+    formData.append("host", 'www.cnblogs.com');
+    formData.append("uploadType", 'Paste');
+
+    let headers = formData.getHeaders() //这个不能少
+    headers.Cookie = dataStore.getCnBlogsCookies()
+    //自己的headers属性在这里追加
+    return new Promise((resolve, reject) => {
+        let request = https.request({
+                                        host: 'upload.cnblogs.com',
+                                        method: 'POST',
+                                        path: '/imageuploader/CorsUpload',
+                                        headers: headers
+                                    }, function (res) {
+            let str = '';
+            res.on('data', function (buffer) {
+                       str += buffer;//用字符串拼接
+                   }
+            );
+            res.on('end', () => {
+                if (res.statusCode === 200) {
+                    const result = JSON.parse(str);
+                    //上传之后result就是返回的结果
+                    // console.log(result)
+                    if (result.success){
+                        resolve(result.message)
+                    }else {
+                        remote.dialog.showMessageBox({message:result.message}).then()
+                    }
+                }
+            });
+        });
+        formData.pipe(request)
+    })
+}
+
+const cnBlog_url = 'https://i.cnblogs.com/EditPosts.aspx?opt=1'
+
+//发布文章到博客园
+function publishArticleToCnBlog(title, content) {
+    https.get(cnBlog_url, {
+        headers: {
+            'Cookie': dataStore.getCnBlogsCookies()
+        }
+    }, res => {
+        let str = '';
+        res.on('data', function (buffer) {
+            str += buffer;//用字符串拼接
+        })
+        res.on('end', () => {
+            //上传之后result就是返回的结果
+            const dom = new jsdom.JSDOM(str);
+            const input = dom.window.document.body.querySelector('#__VIEWSTATE')
+            if (!input.value){
+                remote.dialog.showMessageBox({message:'请先登录博客园'}).then()
+                return
+            }
+            //真正发布文章
+            publishArticleToCnBlogFact(title, content, input.value)
+        });
+    })
+}
+
+function publishArticleToCnBlogFact(title, content, VIEWSTATE) {
+    const data = querystring.stringify({
+                                           '__VIEWSTATE': VIEWSTATE,
+                                           '__VIEWSTATEGENERATOR': 'FE27D343',
+                                           'Editor$Edit$txbTitle': title,
+                                           'Editor$Edit$EditorBody': content,
+                                           'Editor$Edit$Advanced$chkDisplayHomePage': 'on',
+                                           'Editor$Edit$Advanced$chkComments': 'on',
+                                           'Editor$Edit$Advanced$chkMainSyndication': 'ob',
+                                           'Editor$Edit$Advanced$rblPostType': '1',
+                                           'Editor$Edit$Advanced$txbEntryName': '',
+                                           'Editor$Edit$Advanced$txbExcerpt': '',
+                                           'Editor$Edit$Advanced$txbTag': '',
+                                           'Editor$Edit$Advanced$tbEnryPassword': '',
+                                           'Editor$Edit$lkbDraft': '存为草稿'
+                                       })
+
+    let options = {
+        method: 'POST',
+        headers: {
+            'Accept-Encoding': 'gzip, deflate, br',
+            "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
+            'Referer': 'https://i.cnblogs.com',
+            'Accept': '*/*',
+            'Origin': 'https://i.cnblogs.com',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Length': data.length,
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0',
+            'Cookie': '_ga=GA1.2.378664483.1573036607; .Cnblogs.AspNetCore.Cookies=CfDJ8DeHXSeUWr9KtnvAGu7_dX95wlHde__jqJcU4QExtpAJ0423pUAjL3oXOeInKS5Y3dsBdo_lJD0QHRS9s_FBTrhZ10QzgKXVUtaEs0HMqM1j6WFat4EL7btfAtI55t72N2VkqNF8zX_84oV4Hp1lNULZdOrIOyCt-naLpk_frT53m0l3AvQIvthq41E8iaXxR7YwBA60w4dLB_9yKeuLFomAYR1nro5BuecBqM3R7IQO95P_spaiR2yZU41qjhXC9C2cMxd4wci4HBqg6INTVNDX0pK3pzSqM_CBWBpPDNNsnuLkZ80aaqNxqRAHnYwDUiIiVVLijscUd6TNk5HwbRYAgvYySnKe5D0K6N2bAqLTII7ZTJp5LZyn7EqejLRk_cRddzEbaaQ4Do2y1HDKKdaJAwRz-XGSv90pUFrQzVVaOoyyEaDDiQrJpArL6SsvbI8dA-2iRyro8PKWXzpQQQw5tnGrDKTG8Z1Eg_NM9OnX13hw-UqZNc3N9MBn1VxCCWZZqXKlJhHyVxJNZs1yCw33Iwi-RjbdT1lNyaL2GwmrfbRj3AUisXa0ksSUpAlkfg; .CNBlogsCookie=C0D9E892081F47229EAB3DAF4C600DB0B83FA832B7B8F0DA3860C09713F92A907B3284EFF6B78D2EC4AB7390B7EEF35183355CCE26C42C3C12FF7BC00E44752ABF71E475612875440AB2B275DDBE57A02655B6CB; _gid=GA1.2.1771240809.1573179746'
+
+        }
+    }
+
+    let req = https.request(cnBlog_url, options, function (res) {
+        console.log('STATUS: ' + res.statusCode);
+        if (res.statusCode === 302) {
+            //发布成功
+            res.setEncoding('utf-8')
+            let str = ''
+            res.on('data', function (chunk) {
+                str += chunk
+            });
+            res.on('end', () => {
+                const dom = new jsdom.JSDOM(str);
+                const a = dom.window.document.body.getElementsByTagName('a')[0]
+                // console.log('BODY: ' + a.href)
+                shell.openExternal('https://i.cnblogs.com' + a.href).then()
+            });
+        } else {
+            //发布失败
+            remote.dialog.showMessageBox({message: '发布失败！\n原因可能是：未登录博客园账号或者发布的标题重复'}).then()
+        }
+    })
+
+    req.on('error', function (e) {
+        console.log('problem with request: ' + e.message);
+        alert('problem with request: ' + e.message)
+    });
+
+    req.write(data)
+    req.end()
+}
+
+//将当前文章内容发布到博客园
+ipcRenderer.on('publish-article-to-cnblogs', () => {
+    if (!tab.hasPath()) {
+        remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
+        return
+    }
+    if(!dataStore.getCnBlogsCookies()){
+        remote.dialog.showMessageBox({message: '请先登录博客园'}).then()
+        return
+    }
+    (async () => {
+        //第一步：将所有本地图片上传至博客园
+        let objReadline = tab.getTextarea().value.split('\n')
+        let newValue = ''
+        for (let i = 0; i < objReadline.length; i++) {
+            let line = objReadline[i]+''
+            const split = line.indexOf('!') !== -1 ? line.split('!') : []
+            for (let i = 0; i < split.length; i++) {
+                let block = split[i]
+                if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
+                    && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
+                    const start = block.lastIndexOf('(')
+                    const end = block.lastIndexOf(')')
+                    const src = block.substring(start + 1, end) //图片地址
+                    if (path.isAbsolute(src)) {
+                        await uploadPictrueToCnBlogs(src).then(value => {
+                            line = line.replace(src, value)
+                        })
+                    }
+                }
+            }
+            newValue += line + '\n'
+        }
+        //第二步：将最终的文本+标题发布到博客园
+        publishArticleToCnBlog(tab.getTitle(),newValue)
+    })();
+})
+
+//==========================发布【CSDN】===========
+

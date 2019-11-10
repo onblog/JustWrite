@@ -21,7 +21,7 @@ function createWindow() {
                                        titleBarStyle: "hidden"
                                    })
     mainWindow.loadFile('./src/index.html').then()
-    // mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
     mainWindow.on('close', (event) => {
         if (global.sharedObject.closeAllWindow) { //询问
             dialog.showMessageBox(options).then(function (result) {

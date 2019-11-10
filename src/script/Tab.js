@@ -10,12 +10,16 @@ class Tab {
         this.document = document
     }
 
-    getFileName(){
-        return path.basename(this.getPath())
-    }
-
     getId() {
         return this.id
+    }
+
+    getPath() {
+        return this.filePath || ''
+    }
+
+    getTitle(){
+        return path.basename(this.getPath())
     }
 
     getPage() {
@@ -68,10 +72,6 @@ class Tab {
 
     getHeader() {
         return this.document.getElementById(this.getHeaderId())
-    }
-
-    getPath() {
-        return this.filePath || ''
     }
 
     getDirname(){

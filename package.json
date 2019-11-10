@@ -17,6 +17,7 @@
   "dependencies": {
     "bootstrap": "^3.4.1",
     "electron-store": "^5.0.0",
+    "form-data": "^3.0.0",
     "highlight.js": "^9.15.10",
     "jQuery.print": "^1.5.1",
     "jquery": "^3.4.1",

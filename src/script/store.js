@@ -12,6 +12,9 @@ class DataStore extends Store {
     weiBoCookiesKey = 'wei-Bo-cookies-key'
     weiBoUploadKey = 'wei-Bo-upload-key'
 
+    //博客园Cookie
+    cnBlogsCookieKey = 'cn-blogs-cookie-key'
+
     constructor(settings) {
         const baseConfig = {name: 'md-html-style'}
         const finalConfig = {...baseConfig, ...settings};
@@ -48,11 +51,25 @@ class DataStore extends Store {
     }
 
     getWeiBoCookies() {
-        return this.get(this.weiBoCookiesKey, null)
+        if (this.has(this.weiBoCookiesKey)){
+            return this.get(this.weiBoCookiesKey)
+        }
+        return null
     }
 
     setWeiBoCookies(v) {
         return this.set(this.weiBoCookiesKey, v)
+    }
+
+    getCnBlogsCookies() {
+        if (this.has(this.cnBlogsCookieKey)){
+            return this.get(this.cnBlogsCookieKey)
+        }
+        return null
+    }
+
+    setCnBlogsCookie(v) {
+        return this.set(this.cnBlogsCookieKey, v)
     }
 
     // isOutUseTime(){
