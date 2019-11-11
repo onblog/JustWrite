@@ -27,9 +27,9 @@
 
 ## 下载 mac、window 客户端
 
-国外：https://github.com/yueshutong/JustWrite/releases
+国外：<https://github.com/yueshutong/JustWrite/releases>
 
-国内：https://gitee.com/zyzpp/JustWrite/releases
+国内：<https://gitee.com/zyzpp/JustWrite/releases>
 
 ## 预览
 
@@ -44,6 +44,10 @@
 ## 鸣谢
 
 李晨阳（图标创作者）
+
+## 反馈
+
+唯一反馈建议地址：<https://github.com/yueshutong/JustWrite/issues>
 
 ## About
 
