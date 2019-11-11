@@ -52,7 +52,7 @@
 
 ## 反馈
 
-新项目难免有Bug，我也只是在Mac平台使用，有bug欢迎反馈告知！
+新项目难免有Bug，我也只是在Mac平台使用，有bug欢迎反馈告知！24小时之内修复！
 
 唯一反馈建议地址：<https://github.com/yueshutong/JustWrite/issues>
 
