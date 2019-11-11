@@ -552,12 +552,12 @@ exports.createMenuItems = (mainWindow, app) => {
                 }, {
                     type: 'separator'
                 },{
-                    label: '一键图片下载',
+                    label: '网络图片下载',
                     click: ()=>{
                         mainWindow.send('download-net-picture')
                     }
                 },{
-                    label: '一键图片整理',
+                    label: '本地图片整理',
                     click: ()=>{
                         mainWindow.send('move-picture-to-folder')
                     }
