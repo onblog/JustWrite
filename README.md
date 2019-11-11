@@ -30,13 +30,13 @@
 
 ## 预览
 
-![](/Users/yueshutong/IdeaProjects/JustWrite/picture/006y8mN6ly1g8rx460zjij313u0u04bs.jpg)
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g8rx460zjij313u0u04bs.jpg)
 
-![](/Users/yueshutong/IdeaProjects/JustWrite/picture/006y8mN6ly1g8rx58ewzsj313u0u0dsm.jpg)
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g8rx58ewzsj313u0u0dsm.jpg)
 
-![](/Users/yueshutong/IdeaProjects/JustWrite/picture/006y8mN6ly1g8rx5k645uj313u0u0h0a.jpg)
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g8rx5k645uj313u0u0h0a.jpg)
 
-![](/Users/yueshutong/IdeaProjects/JustWrite/picture/006y8mN6ly1g8rxbp31ldj313u0u0dtq.jpg)
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g8rxbp31ldj313u0u0dtq.jpg)
 
 ## 鸣谢
 

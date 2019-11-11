@@ -16,7 +16,7 @@ const download = function (uri, filename, callback) {
     request.head(uri, function (err, res, body) {
         console.log('content-type:', res.headers['content-type']);
         console.log('content-length:', res.headers['content-length']);
-        if (!fs.existsSync(path.dirname(filename))){
+        if (!fs.existsSync(path.dirname(filename))) {
             fs.mkdirSync(path.dirname(filename))
         }
         request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
@@ -115,7 +115,15 @@ let num = 0
 
 //往输入框的光标处中插入图片
 function insertPictureToTextarea(tab, src) {
-    insertTextareaValue(tab, '\n![](' + src + ')')
+    insertTextareaValue(tab, '\n![](' + pathSep(src) + ')')
+}
+
+//win路径处理
+function pathSep(src) {
+    if (path.sep === '\\') {
+        src = src.replace(/\\/g,"/")
+    }
+    return src
 }
 
 //往输入框的光标处中插入文字
@@ -133,10 +141,11 @@ function insertTextareaValueTwo(t, left, right) {
     let start = t.getTextarea().selectionStart
     let end = t.getTextarea().selectionEnd
     const value = t.getTextarea().value
-    let newTxt = value.substring(0, start) + left + value.substring(start,end)+right+value.substring(end)
+    let newTxt = value.substring(0, start) + left + value.substring(start, end) + right
+                 + value.substring(end)
     changeTextareaValue(t, newTxt)
-    t.getTextarea().selectionStart = start+left.length
-    t.getTextarea().selectionEnd = t.getTextarea().selectionStart+(end-start)
+    t.getTextarea().selectionStart = start + left.length
+    t.getTextarea().selectionEnd = t.getTextarea().selectionStart + (end - start)
 }
 
 //改变输入框的文字
@@ -306,7 +315,7 @@ function saveFile(id) {
         });
         //更新已保存部分
         tab1.setText(tab1.getTextarea().value)
-        changeTextareaValue(tab1,tab1.getTextarea().value)
+        changeTextareaValue(tab1, tab1.getTextarea().value)
     } else {
         //提示创建新的文件(输入文件名，路径)
         ipcRenderer.send('new-md-file', id)
@@ -559,7 +568,7 @@ function uploadPictureToWeiBo(filePath, callback) {
                 // console.log(text)
                 const parse = JSON.parse(text)
                 const pid = parse.data.pics.pic_1.pid
-                const src = prefix + pid +'.jpg'
+                const src = prefix + pid + '.jpg'
                 // console.log(src)
                 if (pid === undefined || pid === null) {
                     alert('请先登录新浪微博')
@@ -598,9 +607,9 @@ function downloadNetPicture() {
                 const end = block.lastIndexOf(')')
                 const src = block.substring(start + 1, end) //图片地址
                 if (isWebPicture(src)) {
-                    let filename = tab.getPictureDir() + path.basename(src)
-                    download(src, filename, function () {
-                        changeTextareaValue(tab, tab.getTextarea().value.replace(src, filename))
+                    let newSrc = tab.getPictureDir() + path.basename(src)
+                    download(src, newSrc, function () {
+                        changeTextareaValue(tab, tab.getTextarea().value.replace(src, pathSep(newSrc))) //处理下win系统路径
                         Toast.toast('下载成功+1', 'success', 3000)
                     });
                 }
@@ -627,7 +636,7 @@ function uploadAllPictureToWeiBo() {
                 const start = block.lastIndexOf('(')
                 const end = block.lastIndexOf(')')
                 const src = block.substring(start + 1, end) //图片地址
-                if (!isWebPicture(src) && path.isAbsolute(src)) {
+                if (path.isAbsolute(src)) {
                     uploadPictureToWeiBo(src, href => {
                         changeTextareaValue(tab, tab.getTextarea().value.replace(src, href))
                         Toast.toast('上传成功+1', 'success', 3000)
@@ -655,11 +664,13 @@ function movePictureToFolder() {
                 const start = block.lastIndexOf('(')
                 const end = block.lastIndexOf(')')
                 const src = block.substring(start + 1, end) //图片地址
-                if (path.isAbsolute(src) && src!==(tab.getDirname() + path.basename(src))) { //拷贝文件
-                    fs.copyFile(src, tab.getPictureDir() + path.basename(src), (err) => {
+                let newSrc = tab.getPictureDir() + path.basename(src)
+                if (path.isAbsolute(src) && src !== newSrc) { //拷贝文件
+                    fs.copyFile(src, newSrc, (err) => {
                         if (err) {
                             return console.error(err)
                         }
+                        changeTextareaValue(tab,tab.getTextarea().value.replace(src, pathSep(newSrc)))
                         Toast.toast('整理成功+1', 'success', 3000)
                     });
                 }
@@ -737,10 +748,10 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             insertTextareaValue(tab, '\n---')
             break
         case 'CmdOrCtrl+B':
-            insertTextareaValueTwo(tab, '**','**')
+            insertTextareaValueTwo(tab, '**', '**')
             break
         case 'CmdOrCtrl+I':
-            insertTextareaValueTwo(tab, '*','*')
+            insertTextareaValueTwo(tab, '*', '*')
             break
         case 'CmdOrCtrl+U':
             insertTextareaValueTwo(tab, '<u>', '</u>')
@@ -776,7 +787,8 @@ ipcRenderer.on('cut-night-mode', (event, args) => {
 //是否是网络图片
 function isWebPicture(src) {
     return src.startsWith('http') && (src.endsWith('png') || src.endsWith('jpg')
-    || src.endsWith('png') || src.endsWith('jpeg') || src.endsWith('gif') || src.endsWith('bmp'));
+                                      || src.endsWith('png') || src.endsWith('jpeg')
+                                      || src.endsWith('gif') || src.endsWith('bmp'));
 }
 
 //==========================发布【博客园】===========
@@ -1077,3 +1089,4 @@ ipcRenderer.on('publish-article-to-csdn', () => {
 
 //==========================发布【知乎】===========
 
+//==========================发布【掘金】===========

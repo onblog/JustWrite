@@ -19,7 +19,11 @@ class Tab {
     }
 
     getTitle() {
-        return path.basename(this.getPath())
+        let basename = path.basename(this.getPath())
+        if (basename.lastIndexOf('.') > 0) {
+            basename = basename.substring(0, basename.lastIndexOf('.'))
+        }
+        return basename
     }
 
     getPage() {
