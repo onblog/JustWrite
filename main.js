@@ -17,7 +17,7 @@ function createWindow() {
     mainWindow = new BrowserWindow({
                                        width: 900,
                                        height: 650,
-                                       webPreferences: {devTools: true, nodeIntegration: true},
+                                       webPreferences: {devTools: false, nodeIntegration: true},
                                        titleBarStyle: "hidden"
                                    })
     mainWindow.loadFile('./src/index.html').then()
