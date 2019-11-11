@@ -10,12 +10,14 @@ const Tab = require('./script/tab')
 const FormData = require('form-data')
 const querystring = require('querystring')
 const jsdom = require("jsdom")
+const zlib = require('zlib')
 const Toast = require('./script/toast')
 
 const download = function (uri, filename, callback) {
     request.head(uri, function (err, res, body) {
-        console.log('content-type:', res.headers['content-type']);
-        console.log('content-length:', res.headers['content-length']);
+        if (err) {
+            Toast.toast(err, 'danger', 3000)
+        }
         if (!fs.existsSync(path.dirname(filename))) {
             fs.mkdirSync(path.dirname(filename))
         }
@@ -121,7 +123,7 @@ function insertPictureToTextarea(tab, src) {
 //win路径处理
 function pathSep(src) {
     if (path.sep === '\\') {
-        src = src.replace(/\\/g,"/")
+        src = src.replace(/\\/g, "/")
     }
     return src
 }
@@ -571,7 +573,7 @@ function uploadPictureToWeiBo(filePath, callback) {
                 const src = prefix + pid + '.jpg'
                 // console.log(src)
                 if (pid === undefined || pid === null) {
-                    alert('请先登录新浪微博')
+                    remote.dialog.showMessageBox({message: '请先登录新浪微博'}).then()
                 } else {
                     callback(src)
                 }
@@ -580,7 +582,7 @@ function uploadPictureToWeiBo(filePath, callback) {
 
         req.on('error', function (e) {
             console.log('problem with request: ' + e.message);
-            alert('problem with request: ' + e.message)
+            Toast.toast(e.message, 'warning', 3000)
         });
 
         req.write(image_data)
@@ -609,7 +611,8 @@ function downloadNetPicture() {
                 if (isWebPicture(src)) {
                     let newSrc = tab.getPictureDir() + path.basename(src)
                     download(src, newSrc, function () {
-                        changeTextareaValue(tab, tab.getTextarea().value.replace(src, pathSep(newSrc))) //处理下win系统路径
+                        changeTextareaValue(tab,
+                                            tab.getTextarea().value.replace(src, pathSep(newSrc))) //处理下win系统路径
                         Toast.toast('下载成功+1', 'success', 3000)
                     });
                 }
@@ -670,7 +673,8 @@ function movePictureToFolder() {
                         if (err) {
                             return console.error(err)
                         }
-                        changeTextareaValue(tab,tab.getTextarea().value.replace(src, pathSep(newSrc)))
+                        changeTextareaValue(tab,
+                                            tab.getTextarea().value.replace(src, pathSep(newSrc)))
                         Toast.toast('整理成功+1', 'success', 3000)
                     });
                 }
@@ -823,7 +827,7 @@ function uploadPictureToCnBlog(filePath) {
                     if (result.success) {
                         resolve(result.message)
                     } else {
-                        remote.dialog.showMessageBox({message: result.message}).then()
+                        reject(result.message)
                     }
                 }
             });
@@ -887,7 +891,7 @@ function publishArticleToCnBlogFact(title, content, VIEWSTATE) {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Content-Length': data.length,
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0',
-            'Cookie': '_ga=GA1.2.378664483.1573036607; .Cnblogs.AspNetCore.Cookies=CfDJ8DeHXSeUWr9KtnvAGu7_dX95wlHde__jqJcU4QExtpAJ0423pUAjL3oXOeInKS5Y3dsBdo_lJD0QHRS9s_FBTrhZ10QzgKXVUtaEs0HMqM1j6WFat4EL7btfAtI55t72N2VkqNF8zX_84oV4Hp1lNULZdOrIOyCt-naLpk_frT53m0l3AvQIvthq41E8iaXxR7YwBA60w4dLB_9yKeuLFomAYR1nro5BuecBqM3R7IQO95P_spaiR2yZU41qjhXC9C2cMxd4wci4HBqg6INTVNDX0pK3pzSqM_CBWBpPDNNsnuLkZ80aaqNxqRAHnYwDUiIiVVLijscUd6TNk5HwbRYAgvYySnKe5D0K6N2bAqLTII7ZTJp5LZyn7EqejLRk_cRddzEbaaQ4Do2y1HDKKdaJAwRz-XGSv90pUFrQzVVaOoyyEaDDiQrJpArL6SsvbI8dA-2iRyro8PKWXzpQQQw5tnGrDKTG8Z1Eg_NM9OnX13hw-UqZNc3N9MBn1VxCCWZZqXKlJhHyVxJNZs1yCw33Iwi-RjbdT1lNyaL2GwmrfbRj3AUisXa0ksSUpAlkfg; .CNBlogsCookie=C0D9E892081F47229EAB3DAF4C600DB0B83FA832B7B8F0DA3860C09713F92A907B3284EFF6B78D2EC4AB7390B7EEF35183355CCE26C42C3C12FF7BC00E44752ABF71E475612875440AB2B275DDBE57A02655B6CB; _gid=GA1.2.1771240809.1573179746'
+            'Cookie': dataStore.getCnBlogCookies()
 
         }
     }
@@ -915,7 +919,7 @@ function publishArticleToCnBlogFact(title, content, VIEWSTATE) {
 
     req.on('error', function (e) {
         console.log('problem with request: ' + e.message);
-        alert('problem with request: ' + e.message)
+        Toast.toast(e.message, 'warning', 3000)
     });
 
     req.write(data)
@@ -949,6 +953,8 @@ ipcRenderer.on('publish-article-to-cnblogs', () => {
                     if (!isWebPicture(src)) {
                         await uploadPictureToCnBlog(src).then(value => { //上传图片
                             line = line.replace(src, value)
+                        }).catch(value => {
+                            Toast.toast(value, 'danger', 3000)
                         })
                     }
                 }
@@ -990,7 +996,7 @@ function uploadPictureToCSDN(filePath) {
                     if (result.result === 1) {
                         resolve(result.url.substring(0, result.url.indexOf('?')))
                     } else {
-                        remote.dialog.showMessageBox({message: result.content}).then()
+                        reject(result.content)
                     }
                 }
             });
@@ -1076,6 +1082,8 @@ ipcRenderer.on('publish-article-to-csdn', () => {
                     if (!isWebPicture(src)) {
                         await uploadPictureToCSDN(src).then(value => { //上传图片
                             line = line.replace(src, value)
+                        }).catch(value => {
+                            Toast.toast(value, 'danger', 3000)
                         })
                     }
                 }
@@ -1087,6 +1095,179 @@ ipcRenderer.on('publish-article-to-csdn', () => {
     })();
 })
 
-//==========================发布【知乎】===========
-
 //==========================发布【掘金】===========
+
+//上传图片到掘金
+function uploadPictureToJueJin(filePath) {
+    let formData = new FormData();
+    formData.append('file', fs.createReadStream(filePath))
+
+    let headers = formData.getHeaders()
+    headers.Cookie = dataStore.getJueJinCookies()
+    //自己的headers属性在这里追加
+    return new Promise((resolve, reject) => {
+        let request = https.request({
+                                        host: 'cdn-ms.juejin.im',
+                                        method: 'POST',
+                                        path: '/v1/upload?bucket=gold-user-assets',
+                                        headers: headers
+                                    }, function (res) {
+            let str = '';
+            res.on('data', function (buffer) {
+                       str += buffer;
+                   }
+            );
+            res.on('end', () => {
+                if (res.statusCode === 200) {
+                    const result = JSON.parse(str);
+                    //上传之后result就是返回的结果
+                    console.log(result)
+                    if (result.m === 'ok') {
+                        resolve(result.d.url.https)
+                    } else {
+                        remote.dialog.showMessageBox({message: result.m}).then()
+                    }
+                }
+            });
+        });
+        formData.pipe(request)
+    })
+}
+
+//发布文章到掘金
+function publishArticleToJueJin(title, markdown, html) {
+    https.get('https://juejin.im/auth', {
+        headers: {
+            'Cookie': dataStore.getJueJinCookies()
+        }
+    }, res => {
+        if (res.statusCode !== 200) {
+            remote.dialog.showMessageBox({message: '请先登录掘金'}).then()
+            return
+        }
+        let str = '';
+        res.on('data', function (buffer) {
+            str += buffer;//用字符串拼接
+        })
+        res.on('end', () => {
+            const result = JSON.parse(str);
+            //上传之后result就是返回的结果
+            const data = querystring.stringify({
+                                                   'uid': result.userId,
+                                                   'device_id': result.clientId,
+                                                   'token': result.token,
+                                                   'src': 'web',
+                                                   'category': '5562b428e4b00c57d9b94b9d',
+                                                   'content': '',
+                                                   'html': html,
+                                                   'markdown': markdown,
+                                                   'screenshot': '',
+                                                   'isTitleImageFullscreen': '',
+                                                   'tags': '',
+                                                   'title': title,
+                                                   'type': 'markdown'
+                                               })
+            //真正完成发布文章的请求
+            publishArticleToJueJinFact(data)
+        });
+    })
+}
+
+function publishArticleToJueJinFact(data) {
+    let options = {
+        method: 'POST',
+        headers: {
+            'Accept-Encoding': 'gzip, deflate, br',
+            "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
+            'Referer': 'https://juejin.im/editor/drafts/new',
+            'Accept': '*/*',
+            'Origin': 'https://juejin.im',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Length': data.length,
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0',
+            'Cookie': dataStore.getJueJinCookies()
+
+        }
+    }
+
+    let req = https.request('https://post-storage-api-ms.juejin.im/v1/draftStorage',
+                            options, function (res) {
+            if (res.statusCode !== 200) {
+                remote.dialog.showMessageBox({message: '请先登录掘金 ' + res.statusCode}).then()
+                return
+            }
+            //解决返回数据被gzip压缩
+            let output;
+            if (res.headers['content-encoding'] === 'gzip') {
+                let gzip = zlib.createGunzip();
+                res.pipe(gzip);
+                output = gzip;
+            } else {
+                output = res;
+            }
+            res = output
+
+            let str = ''
+            res.on('data', function (chunk) {
+                str += chunk
+            });
+            res.on('end', () => {
+                const result = JSON.parse(str)
+                //上传之后result就是返回的结果
+                if (result.m === 'ok') {
+                    shell.openExternal('https://juejin.im/editor/drafts/' + result.d[0]).then()
+                } else {
+                    //发布失败
+                    remote.dialog.showMessageBox({message: result.m}).then()
+                }
+            });
+        })
+
+    req.on('error', function (e) {
+        console.log('problem with request: ' + e.message);
+        Toast.toast(e.message, 'warning', 3000)
+    });
+
+    req.write(data)
+    req.end()
+}
+
+//将当前文章内容发布到掘金
+ipcRenderer.on('publish-article-to-jueJin', () => {
+    if (!tab.hasPath()) {
+        remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
+        return
+    }
+    if (!dataStore.getJueJinCookies()) {
+        remote.dialog.showMessageBox({message: '请先登录掘金'}).then()
+        return
+    }
+    (async () => {
+        //第一步：将所有本地图片上传至掘金
+        let objReadline = tab.getTextarea().value.split('\n')
+        let newValue = ''
+        for (let i = 0; i < objReadline.length; i++) {
+            let line = objReadline[i] + ''
+            const split = line.indexOf('!') !== -1 ? line.split('!') : []
+            for (let i = 0; i < split.length; i++) {
+                let block = split[i]
+                if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
+                    && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
+                    const start = block.lastIndexOf('(')
+                    const end = block.lastIndexOf(')')
+                    const src = block.substring(start + 1, end) //图片地址
+                    if (!isWebPicture(src)) {
+                        await uploadPictureToJueJin(src).then(value => { //上传图片
+                            line = line.replace(src, value)
+                        }).catch(value => {
+                            Toast.toast(value, 'danger', 3000)
+                        })
+                    }
+                }
+            }
+            newValue += line + '\n'
+        }
+        //第二步：将最终的文本+标题发布到掘金
+        publishArticleToJueJin(tab.getTitle(), newValue, marked.render(newValue))
+    })();
+})

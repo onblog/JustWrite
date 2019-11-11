@@ -90,6 +90,12 @@ exports.createMenuItems = (mainWindow, app) => {
             dataStore.setCSDNCookie(cookie)
         })
     }
+    //登录掘金
+    const loginJueJin = function (item, focusedWindow, event) {
+        getSiteCookie('https://juejin.im/', (cookie) => {
+            dataStore.setJueJinCookie(cookie)
+        })
+    }
     //检查更新
     const updateApp = (bool) => {
         const releases = 'https://github.com/yueshutong/JustWrite/releases'
@@ -587,6 +593,17 @@ exports.createMenuItems = (mainWindow, app) => {
                         label: '一键发布',
                         click: () => {
                             mainWindow.send('publish-article-to-csdn')
+                        }
+                    }]
+                }, {
+                    label: '掘金',
+                    submenu: [{
+                        label: '登录掘金',
+                        click: loginJueJin
+                    }, {
+                        label: '一键发布',
+                        click: () => {
+                            mainWindow.send('publish-article-to-jueJin')
                         }
                     }]
                 }
