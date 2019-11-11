@@ -1,23 +1,32 @@
 # JustWrite 
 
-## *写作舒适，自带图床，一处复制、处处粘贴！*
-
-![](https://img.shields.io/github/license/yueshutong/JustWrite)
+![](https://img.shields.io/github/license/yueshutong/JustWrite) 
 ![](https://img.shields.io/static/v1?label=electron&message=6.0.12&color=)
 ![](https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg)
 
-## *[下载mac、window客户端](https://github.com/yueshutong/JustWrite/releases)*
+一款定位于Markdown文章排版与博客园CSDN等平台的一键发布客户端。
 
 ## 功能
 
+- [x] 微信公众号排版神器（几十种主题+代码块样式）
+- [x] **博客园**、**CSDN**一键发布（带上传本地图片）
+- [x] 网络图片一键下载到本地
+- [x] 本地图片一键上传至新浪图床
+- [x] 本地图片一键整理至Picture文件夹
+- [x] 一键复制Markdown代码
+- [x] 一键复制Markdown转后的HTML网页
+- [x] 支持**夜间模式**等多种主题，写的舒适！
 - [x] 支持图片拖拽到文档，并可自动上传到图床
 - [x] 支持图片复制粘贴到文档，并可自动上传到图床
 - [x] 支持几十种主题、几十种代码块样式
 - [x] 支持一键复制发布到微信公众号等富文本编辑器
 - [x] 支持一键解决图床防盗链访问404
 - [x] 支持打印、支持一键导出PDF文档
-- [x] 支持一键切换夜间护眼模式
 - [ ] 支持自定义编辑器（字体、背景）
+
+
+## *[下载 mac、window 客户端](https://github.com/yueshutong/JustWrite/releases)*
+
 
 ## 预览
 

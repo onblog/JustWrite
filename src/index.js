@@ -128,6 +128,17 @@ function insertTextareaValue(t, txt) {
     t.getTextarea().selectionEnd = t.getTextarea().selectionStart
 }
 
+//往输入框的选中的两侧插入文字
+function insertTextareaValueTwo(t, left, right) {
+    let start = t.getTextarea().selectionStart
+    let end = t.getTextarea().selectionEnd
+    const value = t.getTextarea().value
+    let newTxt = value.substring(0, start) + left + value.substring(start,end)+right+value.substring(end)
+    changeTextareaValue(t, newTxt)
+    t.getTextarea().selectionStart = start+left.length
+    t.getTextarea().selectionEnd = t.getTextarea().selectionStart+(end-start)
+}
+
 //改变输入框的文字
 function changeTextareaValue(t, txt) {
     t.getTextarea().value = txt
@@ -293,8 +304,9 @@ function saveFile(id) {
                 return console.error(err);
             }
         });
-        //更新已保存部分与编辑标识
+        //更新已保存部分
         tab1.setText(tab1.getTextarea().value)
+        changeTextareaValue(tab1,tab1.getTextarea().value)
     } else {
         //提示创建新的文件(输入文件名，路径)
         ipcRenderer.send('new-md-file', id)
@@ -709,38 +721,38 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             insertTextareaValue(tab, '![]()')
             break
         case 'Alt+Command+Q' || 'Ctrl+Shift+Q':
-            insertTextareaValue(tab, '\n> ')
+            insertTextareaValue(tab, '> ')
             break
         case 'Alt+Command+O' || 'Ctrl+Shift+O':
-            insertTextareaValue(tab, '\n1. ')
+            insertTextareaValue(tab, '1. ')
             break
         case 'Alt+Command+U' || 'Ctrl+Shift+U':
-            insertTextareaValue(tab, '\n- ')
+            insertTextareaValue(tab, '- ')
             break
         case 'Alt+Command+X' || 'Ctrl+Shift+X':
             insertTextareaValue(tab,
-                                '\n- <input type="checkbox" disabled checked> \n- <input type="checkbox" disabled>')
+                                '- <input type="checkbox" disabled checked> \n- <input type="checkbox" disabled>')
             break
         case 'Alt+Command+-' || 'Ctrl+Shift+-':
             insertTextareaValue(tab, '\n---')
             break
         case 'CmdOrCtrl+B':
-            insertTextareaValue(tab, '** **')
+            insertTextareaValueTwo(tab, '**','**')
             break
         case 'CmdOrCtrl+I':
-            insertTextareaValue(tab, '* *')
+            insertTextareaValueTwo(tab, '*','*')
             break
         case 'CmdOrCtrl+U':
-            insertTextareaValue(tab, '<u> </u>')
+            insertTextareaValueTwo(tab, '<u>', '</u>')
             break
         case 'Ctrl+`':
-            insertTextareaValue(tab, '` `')
+            insertTextareaValueTwo(tab, '`', '`')
             break
         case 'Shift+Ctrl+`':
-            insertTextareaValue(tab, '~~ ~~')
+            insertTextareaValueTwo(tab, '~~', '~~')
             break
         case 'Ctrl+-':
-            insertTextareaValue(tab, '<!-- -->')
+            insertTextareaValueTwo(tab, '<!--', '-->')
             break
         case 'CmdOrCtrl+K':
             insertTextareaValue(tab, '[]()')

@@ -97,7 +97,6 @@ class Tab {
 
     setText(txt) {
         this.text = txt
-        this.getHeader().innerHTML = path.basename(this.getPath())
         this.edit = false
     }
 

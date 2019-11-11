@@ -190,7 +190,7 @@ see [how to change output](https://github.com/markdown-it/markdown-it-emoji#chan
 
 ### [Footnotes](https://github.com/markdown-it/markdown-it-footnote)
 
-Footnote 1 link[^first].
+Footnote 1 link[^first].  
 
 Footnote 2 link[^second].
 
@@ -229,7 +229,7 @@ Term 2
   ~ Definition 2a
   ~ Definition 2b
 
-
+ 
 ### [Abbreviations](https://github.com/markdown-it/markdown-it-abbr)
 
 This is HTML abbreviation example.
