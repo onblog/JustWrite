@@ -4,14 +4,14 @@
 ![](https://img.shields.io/static/v1?label=electron&message=6.0.12&color=)
 ![](https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg)
 
-一款定位于Markdown文章排版与博客园CSDN等平台一键发布的客户端。
+一款定位于Markdown文章排版与博客园CSDN掘金等平台一键发布的客户端。
 
-追求是：开开心心学习，快快乐乐发布！
+本项目的追求是：开开心心学习，快快乐乐发布！
 
 ## 功能
 
 - [x] 微信公众号排版神器（几十种主题+代码块样式）
-- [x] **博客园**、**CSDN**一键发布（带上传本地图片）
+- [x] **博客园**、**CSDN**、**掘金**一键发布（带上传本地图片）
 - [x] 网络图片一键下载到本地
 - [x] 本地图片一键上传至新浪图床
 - [x] 本地图片一键整理至Picture文件夹
@@ -50,7 +50,7 @@
 
 ## 反馈
 
-新项目难免有Bug，我也只是在Mac平台使用，有bug欢迎反馈告知！24小时之内修复！
+新项目难免有Bug，我也只是在Mac平台使用，Win平台有bug欢迎反馈告知！24小时之内修复！
 
 唯一反馈建议地址：<https://github.com/yueshutong/JustWrite/issues>
 
