@@ -25,7 +25,7 @@
 - [ ] 支持自定义编辑器（字体、背景）
 
 
-## *下载 mac、window 客户端
+## 下载 mac、window 客户端
 
 国外：https://github.com/yueshutong/JustWrite/releases
 
