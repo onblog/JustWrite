@@ -13,7 +13,9 @@ class DataStore extends Store {
     weiBoUploadKey = 'wei-Bo-upload-key'
 
     //博客园Cookie
-    cnBlogsCookieKey = 'cn-blogs-cookie-key'
+    cnBlogCookieKey = 'cn-blogs-cookie-key'
+    //CSDN
+    CSDNCookieKey = 'csdn-cookie-key'
 
     constructor(settings) {
         const baseConfig = {name: 'md-html-style'}
@@ -61,15 +63,26 @@ class DataStore extends Store {
         return this.set(this.weiBoCookiesKey, v)
     }
 
-    getCnBlogsCookies() {
-        if (this.has(this.cnBlogsCookieKey)){
-            return this.get(this.cnBlogsCookieKey)
+    getCnBlogCookies() {
+        if (this.has(this.cnBlogCookieKey)){
+            return this.get(this.cnBlogCookieKey)
         }
         return null
     }
 
-    setCnBlogsCookie(v) {
-        return this.set(this.cnBlogsCookieKey, v)
+    setCnBlogCookie(v) {
+        return this.set(this.cnBlogCookieKey, v)
+    }
+
+    getCSDNCookies() {
+        if (this.has(this.CSDNCookieKey)){
+            return this.get(this.CSDNCookieKey)
+        }
+        return null
+    }
+
+    setCSDNCookie(v) {
+        return this.set(this.CSDNCookieKey, v)
     }
 
     // isOutUseTime(){

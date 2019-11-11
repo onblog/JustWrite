@@ -3,7 +3,7 @@ const path = require('path')
 class Tab {
     //text：已保存部分的文字内容
     constructor(id, text, filePath, document) {
-        this.id = id +''
+        this.id = id + ''
         this.text = text
         this.filePath = filePath
         this.edit = false
@@ -18,7 +18,7 @@ class Tab {
         return this.filePath || ''
     }
 
-    getTitle(){
+    getTitle() {
         return path.basename(this.getPath())
     }
 
@@ -74,8 +74,12 @@ class Tab {
         return this.document.getElementById(this.getHeaderId())
     }
 
-    getDirname(){
-        return this.hasPath() ? path.dirname(this.getPath())+'/' : null
+    getDirname() {
+        return this.hasPath() ? path.dirname(this.getPath()) + '/' : null
+    }
+
+    getPictureDir() {
+        return this.getDirname() + 'picture/'
     }
 
     setPath(p) {

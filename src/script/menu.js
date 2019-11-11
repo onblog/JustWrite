@@ -47,20 +47,21 @@ exports.createMenuItems = (mainWindow, app) => {
                                click: codeMenuClick
                            })
     }
-    //登录新浪图床
-    const setWebBoPicture = function (item, focusedWindow, event) {
-        let win = new BrowserWindow({width: 800, height: 600, title: '登陆新浪微博后关闭窗口即可完成设置'})
-        win.loadURL('https://www.weibo.com/login.php').then()
+
+    //登录某网站获取Cookie通用方法
+    function getSiteCookie(url, callback) {
+        let win = new BrowserWindow({width: 800, height: 600, title: '【登陆成功后关闭窗口即可完成设置】'})
+        win.loadURL(url).then()
         win.on('closed', () => {
             win = null
             // 查询所有与设置的 URL 相关的所有 cookies.
-            session.defaultSession.cookies.get({url: 'https://weibo.com'})
+            session.defaultSession.cookies.get({url: url})
                 .then((cookies) => {
                     let cookieString
                     for (let cookie of cookies) {
                         cookieString += cookie.name + '=' + cookie.value + '; '
                     }
-                    dataStore.setWeiBoCookies(cookieString.trim())
+                    callback(cookieString.trim())
                 }).catch((error) => {
                 console.log(error)
             })
@@ -70,27 +71,23 @@ exports.createMenuItems = (mainWindow, app) => {
             e.preventDefault()
         })
     }
-    //登录博客园
-    const loginCnBlogs = function (item, focusedWindow, event) {
-        let win = new BrowserWindow({width: 800, height: 600, title: '登陆博客园后关闭窗口即可完成设置'})
-        win.loadURL('https://www.cnblogs.com/').then()
-        win.on('closed', () => {
-            win = null
-            // 查询所有与设置的 URL 相关的所有 cookies.
-            session.defaultSession.cookies.get({url: 'https://www.cnblogs.com/'})
-                .then((cookies) => {
-                    let cookieString
-                    for (let cookie of cookies) {
-                        cookieString += cookie.name + '=' + cookie.value + '; '
-                    }
-                    dataStore.setCnBlogsCookie(cookieString.trim())
-                }).catch((error) => {
-                console.log(error)
-            })
+
+    //登录新浪图床
+    const setWebBoPicture = function (item, focusedWindow, event) {
+        getSiteCookie('https://www.weibo.com/login.php', (cookie) => {
+            dataStore.setWeiBoCookies(cookie)
         })
-        win.on('page-title-updated', (e) => {
-            //阻止窗口标题更改
-            e.preventDefault()
+    }
+    //登录博客园
+    const loginCnBlog = function (item, focusedWindow, event) {
+        getSiteCookie('https://www.cnblogs.com/', (cookie) => {
+            dataStore.setCnBlogCookie(cookie)
+        })
+    }
+    //登录CSDN
+    const loginCSDN = function (item, focusedWindow, event) {
+        getSiteCookie('https://blog.csdn.net/', (cookie) => {
+            dataStore.setCSDNCookie(cookie)
         })
     }
     //检查更新
@@ -480,55 +477,14 @@ exports.createMenuItems = (mainWindow, app) => {
                 click: (item, focusedWindow, event) => {
                     mainWindow.send('quick-key-insert-txt', item.accelerator)
                 }
-            }, {
-                type: 'separator'
-            }, {
-                label: '插入本地图片',
-                click: function (menuItem, browserWindow, event) {
-                    dialog.showOpenDialog({
-                                              properties: ['openFile', 'multiSelections'],
-                                              filters: [
-                                                  {
-                                                      name: 'Images',
-                                                      extensions: ['jpg', 'png', 'gif', 'bmp',
-                                                                   'jpeg']
-                                                  },
-                                              ]
-                                          })
-                        .then(files => {
-                            if (!files.canceled) { //对话框是否被取消
-                                mainWindow.send('insert-picture-file', files.filePaths)
-                            }
-                        })
-                        .catch(err => {
-                            console.log(err)
-                        })
+            },{
+                label: '图片',
+                accelerator: 'CmdOrCtrl+P',
+                click: (item, focusedWindow, event) => {
+                    mainWindow.send('quick-key-insert-txt', item.accelerator)
                 }
-            }, {
-                type: 'separator'
-            }, {
-                label: '图片自动上传',
-                type: 'submenu',
-                submenu: [{
-                    label: '登录新浪图床',
-                    click: setWebBoPicture
-                }, {
-                    label: '开启图片上传',
-                    type: 'checkbox',
-                    checked: dataStore.isChecked(dataStore.weiBoUploadKey, true),
-                    click: function (menuItem) {
-                        dataStore.setWeiBoUpload(menuItem.checked)
-                        mainWindow.send('cut-weiBo-upload', menuItem.checked)
-                    }
-                }, {
-                    label: '解决图床防盗链',
-                    click: function (menuItem, browserWindow, event) {
-                        mainWindow.send('picture-md-to-img')
-                        dialog.showMessageBox(
-                            {type: 'none', message: '原内容已复制到剪贴板', buttons: ['OK']}).then()
-                    }
-                }]
-            }]
+            }
+            ]
         },
         {
             label: '主题',
@@ -541,19 +497,100 @@ exports.createMenuItems = (mainWindow, app) => {
             codeMenuItems
         },
         {
-            label: '发布',
-            submenu: [{
-                label: '博客园',
-                submenu: [{
-                    label: '登录博客园',
-                    click: loginCnBlogs
-                },{
-                    label: '一键发布',
-                    click: ()=>{
-                        mainWindow.send('publish-article-to-cnblogs')
+            label: '图片',
+            submenu: [
+                {
+                    label: '插入本地图片',
+                    click: function (menuItem, browserWindow, event) {
+                        dialog.showOpenDialog({
+                                                  properties: ['openFile', 'multiSelections'],
+                                                  filters: [
+                                                      {
+                                                          name: 'Images',
+                                                          extensions: ['jpg', 'png', 'gif', 'bmp',
+                                                                       'jpeg']
+                                                      },
+                                                  ]
+                                              })
+                            .then(files => {
+                                if (!files.canceled) { //对话框是否被取消
+                                    mainWindow.send('insert-picture-file', files.filePaths)
+                                }
+                            })
+                            .catch(err => {
+                                console.log(err)
+                            })
                     }
-                }]
-            }]
+                },
+                {
+                    label: '新浪微博图床',
+                    type: 'submenu',
+                    submenu: [{
+                        label: '登录新浪微博',
+                        click: setWebBoPicture
+                    }, {
+                        label: '图片自动上传',
+                        type: 'checkbox',
+                        checked: dataStore.isChecked(dataStore.weiBoUploadKey, true),
+                        click: function (menuItem) {
+                            dataStore.setWeiBoUpload(menuItem.checked)
+                            mainWindow.send('cut-weiBo-upload', menuItem.checked)
+                        }
+                    }, {
+                        type: 'separator'
+                    }, {
+                        label: '一键图片上传',
+                        click: function (menuItem, browserWindow, event) {
+                            mainWindow.send('upload-all-picture-to-weiBo')
+                        }
+                    }, {
+                        label: '解决图床防盗链',
+                        click: function (menuItem, browserWindow, event) {
+                            mainWindow.send('picture-md-to-img')
+                        }
+                    }]
+                }, {
+                    type: 'separator'
+                },{
+                    label: '一键图片下载',
+                    click: ()=>{
+                        mainWindow.send('download-net-picture')
+                    }
+                },{
+                    label: '一键图片整理',
+                    click: ()=>{
+                        mainWindow.send('move-picture-to-folder')
+                    }
+                }
+            ]
+        },
+        {
+            label: '发布',
+            submenu: [
+                {
+                    label: '博客园',
+                    submenu: [{
+                        label: '登录博客园',
+                        click: loginCnBlog
+                    }, {
+                        label: '一键发布',
+                        click: () => {
+                            mainWindow.send('publish-article-to-cnblogs')
+                        }
+                    }]
+                }, {
+                    label: 'CSDN',
+                    submenu: [{
+                        label: '登录CSDN',
+                        click: loginCSDN
+                    }, {
+                        label: '一键发布',
+                        click: () => {
+                            mainWindow.send('publish-article-to-csdn')
+                        }
+                    }]
+                }
+            ]
         },
         {
             label: '查看',

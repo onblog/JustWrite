@@ -6,7 +6,7 @@ body {
 }
 
 img {
-    max-width: 90%;
+    max-width: 40%;
     display: inline;
 }
 
@@ -168,16 +168,15 @@ pre code::-webkit-scrollbar {
 }
 
 /*toast*/
-.toast-close {
+#toast {
     font-weight: bold;
-    font-size: 19px;
-    padding: 0;
-    margin: 0;
-}
-
-.toast {
-    position: fixed;
+    margin: 0 !important;
+    position: absolute;
     z-index: 99;
-    top: 1.5em;
-    right: 1.5em;
+    top: 1.5em !important;
+    right: 1.5em !important;
+}
+#toast > .alert {
+    padding: 10px;
+    margin-bottom: 10px;
 }

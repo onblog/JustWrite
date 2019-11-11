@@ -1,14 +1,27 @@
 const {remote, shell, clipboard, ipcRenderer} = require('electron')
 const https = require('https');
+const request = require('request')
 const urlEncode = require('urlencode')
 const fs = require("fs")
 const path = require('path')
 const hljs = require('highlight.js')
 const DataStore = require('./script/store')
-const Tab = require('./script/Tab')
+const Tab = require('./script/tab')
 const FormData = require('form-data')
 const querystring = require('querystring')
 const jsdom = require("jsdom")
+const Toast = require('./script/toast')
+
+const download = function (uri, filename, callback) {
+    request.head(uri, function (err, res, body) {
+        console.log('content-type:', res.headers['content-type']);
+        console.log('content-length:', res.headers['content-length']);
+        if (!fs.existsSync(path.dirname(filename))){
+            fs.mkdirSync(path.dirname(filename))
+        }
+        request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
+    });
+};
 
 const marked = require('markdown-it')({
                                           html: true,
@@ -385,9 +398,14 @@ myTabs.get(0).onwheel = function (event) {
 
 //==========================【图片处理】===========
 
+function copyValueToClipboard() {
+    clipboard.writeText(tab.getTextarea().value) //拷贝原内容
+    remote.dialog.showMessageBox({type: 'none', message: '原内容已拷贝到剪贴板', buttons: ['OK']}).then()
+}
+
 //图片防盗链md-img
 ipcRenderer.on('picture-md-to-img', () => {
-    clipboard.writeText(tab.getTextarea().value) //拷贝原内容
+    copyValueToClipboard()
     let objReadline = tab.getTextarea().value.split('\n')
     let newValue = ''
     objReadline.forEach(line => {
@@ -418,7 +436,9 @@ ipcRenderer.on('insert-picture-file', (event, filePaths) => {
         //是否开启图片自动上传功能
         if (dataStore.getWeiBoUpload()) {
             //上传图片
-            uploadPictureToWeiBo(filePaths[i])
+            uploadPictureToWeiBo(filePaths[i], (src) => {
+                insertPictureToTextarea(tab, src)
+            })
         } else {
             //不上传图片
             insertPictureToTextarea(tab, filePaths[i])
@@ -436,7 +456,9 @@ document.addEventListener('drop', (e) => {
         //是否开启图片自动上传功能
         if (dataStore.getWeiBoUpload()) {
             //上传图片
-            uploadPictureToWeiBo(f.path)
+            uploadPictureToWeiBo(f.path, (src) => {
+                insertPictureToTextarea(tab, src)
+            })
         } else {
             //不上传图片
             insertPictureToTextarea(tab, f.path)
@@ -462,7 +484,7 @@ document.addEventListener('paste', function (event) {
                 const buffer = image.toPNG();
                 let filePath
                 if (tab.hasPath()) {
-                    filePath = tab.getDirname() + Math.floor(Math.random() * 10000000) + '.png'
+                    filePath = tab.getPictureDir() + Math.floor(Math.random() * 10000000) + '.png'
                 } else {
                     filePath = tempPath + Math.floor(Math.random() * 10000000) + '.png'
                 }
@@ -473,7 +495,9 @@ document.addEventListener('paste', function (event) {
                     //是否开启图片自动上传功能
                     if (dataStore.getWeiBoUpload()) {
                         //上传图片
-                        uploadPictureToWeiBo(filePath)
+                        uploadPictureToWeiBo(filePath, (src) => {
+                            insertPictureToTextarea(tab, src)
+                        })
                     } else {
                         insertPictureToTextarea(tab, filePath)
                     }
@@ -487,8 +511,9 @@ document.addEventListener('paste', function (event) {
 /**
  * 上传图片到新浪微博
  * @param filePath
+ * @param callback
  */
-function uploadPictureToWeiBo(filePath) {
+function uploadPictureToWeiBo(filePath, callback) {
     let image_url = 'https://picupload.weibo.com/interface/pic_upload.php?mime=image%2Fjpeg&data=base64&url=0&markpos=1&logo=&nick=0&marks=1&app=miniblog'
     fs.readFile(filePath, {encoding: 'base64'}, function (err, data) {
         if (err) {
@@ -525,9 +550,9 @@ function uploadPictureToWeiBo(filePath) {
                 const src = prefix + pid
                 // console.log(src)
                 if (pid === undefined || pid === null) {
-                    alert('请先设置新浪微博图床')
+                    alert('请先登录新浪微博')
                 } else {
-                    insertPictureToTextarea(tab, src)
+                    callback(src)
                 }
             });
         });
@@ -541,6 +566,99 @@ function uploadPictureToWeiBo(filePath) {
         req.end()
     })
 }
+
+//一键网图下载
+function downloadNetPicture() {
+    if (!tab.hasPath()) {
+        remote.dialog.showMessageBox({message: '文件尚未保存至本地'}).then()
+        return
+    }
+    copyValueToClipboard() //拷贝原内容
+    let objReadline = tab.getTextarea().value.split('\n')
+    for (let i = 0; i < objReadline.length; i++) {
+        let line = objReadline[i] + ''
+        const split = line.indexOf('!') !== -1 ? line.split('!') : []
+        for (let i = 0; i < split.length; i++) {
+            let block = split[i]
+            if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
+                && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
+                const start = block.lastIndexOf('(')
+                const end = block.lastIndexOf(')')
+                const src = block.substring(start + 1, end) //图片地址
+                if (isWebPicture(src)) {
+                    let filename = tab.getPictureDir() + path.basename(src)
+                    download(src, filename, function () {
+                        changeTextareaValue(tab, tab.getTextarea().value.replace(src, filename))
+                        Toast.toast('下载成功+1', 'success', 3000)
+                    });
+                }
+            }
+        }
+    }
+}
+
+ipcRenderer.on('download-net-picture', () => {
+    downloadNetPicture()
+})
+
+//一键图片上传
+function uploadAllPictureToWeiBo() {
+    copyValueToClipboard() //拷贝原内容
+    let objReadline = tab.getTextarea().value.split('\n')
+    for (let i = 0; i < objReadline.length; i++) {
+        let line = objReadline[i] + ''
+        const split = line.indexOf('!') !== -1 ? line.split('!') : []
+        for (let i = 0; i < split.length; i++) {
+            let block = split[i]
+            if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
+                && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
+                const start = block.lastIndexOf('(')
+                const end = block.lastIndexOf(')')
+                const src = block.substring(start + 1, end) //图片地址
+                if (!isWebPicture(src) && path.isAbsolute(src)) {
+                    uploadPictureToWeiBo(src, href => {
+                        changeTextareaValue(tab, tab.getTextarea().value.replace(src, href))
+                        Toast.toast('上传成功+1', 'success', 3000)
+                    })
+                }
+            }
+        }
+    }
+}
+
+ipcRenderer.on('upload-all-picture-to-weiBo', event => {
+    uploadAllPictureToWeiBo()
+})
+
+//一键图片整理到picture文件夹
+function movePictureToFolder() {
+    let objReadline = tab.getTextarea().value.split('\n')
+    for (let i = 0; i < objReadline.length; i++) {
+        let line = objReadline[i] + ''
+        const split = line.indexOf('!') !== -1 ? line.split('!') : []
+        for (let i = 0; i < split.length; i++) {
+            let block = split[i]
+            if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
+                && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
+                const start = block.lastIndexOf('(')
+                const end = block.lastIndexOf(')')
+                const src = block.substring(start + 1, end) //图片地址
+                if (path.isAbsolute(src) && src!==(tab.getDirname() + path.basename(src))) { //拷贝文件
+                    fs.copyFile(src, tab.getPictureDir() + path.basename(src), (err) => {
+                        if (err) {
+                            return console.error(err)
+                        }
+                        Toast.toast('整理成功+1', 'success', 3000)
+                    });
+                }
+            }
+        }
+    }
+}
+
+ipcRenderer.on('move-picture-to-folder', event => {
+    movePictureToFolder()
+})
 
 //导出打印pdf
 ipcRenderer.on('export-pdf-file', function () {
@@ -586,6 +704,9 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             break
         case 'Alt+Command+C' || 'Ctrl+Shift+C':
             insertTextareaValue(tab, '\n```\n\n```')
+            break
+        case 'CmdOrCtrl+P':
+            insertTextareaValue(tab, '![]()')
             break
         case 'Alt+Command+Q' || 'Ctrl+Shift+Q':
             insertTextareaValue(tab, '\n> ')
@@ -640,17 +761,22 @@ ipcRenderer.on('cut-night-mode', (event, args) => {
     cutNightMode(args)
 })
 
+//是否是网络图片
+function isWebPicture(src) {
+    return src.startsWith('http');
+}
+
 //==========================发布【博客园】===========
 
 //上传图片到博客园
-function uploadPictrueToCnBlogs(filePath) {
-    let formData = new FormData();
+function uploadPictureToCnBlog(filePath) {
+    let formData = new FormData()
     formData.append('imageFile', fs.createReadStream(filePath)) //'file'是服务器接受的key
-    formData.append("host", 'www.cnblogs.com');
-    formData.append("uploadType", 'Paste');
+    formData.append("host", 'www.cnblogs.com')
+    formData.append("uploadType", 'Paste')
 
     let headers = formData.getHeaders() //这个不能少
-    headers.Cookie = dataStore.getCnBlogsCookies()
+    headers.Cookie = dataStore.getCnBlogCookies()
     //自己的headers属性在这里追加
     return new Promise((resolve, reject) => {
         let request = https.request({
@@ -669,10 +795,10 @@ function uploadPictrueToCnBlogs(filePath) {
                     const result = JSON.parse(str);
                     //上传之后result就是返回的结果
                     // console.log(result)
-                    if (result.success){
+                    if (result.success) {
                         resolve(result.message)
-                    }else {
-                        remote.dialog.showMessageBox({message:result.message}).then()
+                    } else {
+                        remote.dialog.showMessageBox({message: result.message}).then()
                     }
                 }
             });
@@ -687,7 +813,7 @@ const cnBlog_url = 'https://i.cnblogs.com/EditPosts.aspx?opt=1'
 function publishArticleToCnBlog(title, content) {
     https.get(cnBlog_url, {
         headers: {
-            'Cookie': dataStore.getCnBlogsCookies()
+            'Cookie': dataStore.getCnBlogCookies()
         }
     }, res => {
         let str = '';
@@ -698,8 +824,8 @@ function publishArticleToCnBlog(title, content) {
             //上传之后result就是返回的结果
             const dom = new jsdom.JSDOM(str);
             const input = dom.window.document.body.querySelector('#__VIEWSTATE')
-            if (!input.value){
-                remote.dialog.showMessageBox({message:'请先登录博客园'}).then()
+            if (!input.value) {
+                remote.dialog.showMessageBox({message: '请先登录博客园'}).then()
                 return
             }
             //真正发布文章
@@ -777,7 +903,7 @@ ipcRenderer.on('publish-article-to-cnblogs', () => {
         remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
         return
     }
-    if(!dataStore.getCnBlogsCookies()){
+    if (!dataStore.getCnBlogCookies()) {
         remote.dialog.showMessageBox({message: '请先登录博客园'}).then()
         return
     }
@@ -786,7 +912,7 @@ ipcRenderer.on('publish-article-to-cnblogs', () => {
         let objReadline = tab.getTextarea().value.split('\n')
         let newValue = ''
         for (let i = 0; i < objReadline.length; i++) {
-            let line = objReadline[i]+''
+            let line = objReadline[i] + ''
             const split = line.indexOf('!') !== -1 ? line.split('!') : []
             for (let i = 0; i < split.length; i++) {
                 let block = split[i]
@@ -795,8 +921,8 @@ ipcRenderer.on('publish-article-to-cnblogs', () => {
                     const start = block.lastIndexOf('(')
                     const end = block.lastIndexOf(')')
                     const src = block.substring(start + 1, end) //图片地址
-                    if (path.isAbsolute(src)) {
-                        await uploadPictrueToCnBlogs(src).then(value => {
+                    if (!isWebPicture(src)) {
+                        await uploadPictureToCnBlog(src).then(value => { //上传图片
                             line = line.replace(src, value)
                         })
                     }
@@ -805,9 +931,136 @@ ipcRenderer.on('publish-article-to-cnblogs', () => {
             newValue += line + '\n'
         }
         //第二步：将最终的文本+标题发布到博客园
-        publishArticleToCnBlog(tab.getTitle(),newValue)
+        publishArticleToCnBlog(tab.getTitle(), newValue)
     })();
 })
 
 //==========================发布【CSDN】===========
+
+//上传图片到CSDN
+function uploadPictureToCSDN(filePath) {
+    let formData = new FormData();
+    formData.append('file', fs.createReadStream(filePath))
+
+    let headers = formData.getHeaders()
+    headers.Cookie = dataStore.getCSDNCookies()
+    //自己的headers属性在这里追加
+    return new Promise((resolve, reject) => {
+        let request = https.request({
+                                        host: 'mp.csdn.net',
+                                        method: 'POST',
+                                        path: '/UploadImage?shuiyin=2',
+                                        headers: headers
+                                    }, function (res) {
+            let str = '';
+            res.on('data', function (buffer) {
+                       str += buffer;
+                   }
+            );
+            res.on('end', () => {
+                if (res.statusCode === 200) {
+                    const result = JSON.parse(str);
+                    //上传之后result就是返回的结果
+                    console.log(result)
+                    if (result.result === 1) {
+                        resolve(result.url.substring(0, result.url.indexOf('?')))
+                    } else {
+                        remote.dialog.showMessageBox({message: result.content}).then()
+                    }
+                }
+            });
+        });
+        formData.pipe(request)
+    })
+}
+
+//上传文章到CSDN
+function publishArticleToCSDN(title, markdowncontent, content) {
+    let formData = new FormData();
+    formData.append('title', title)
+    formData.append('markdowncontent', markdowncontent)
+    formData.append('content', content)
+    formData.append('id', '')
+    formData.append('readType', 'public')
+    formData.append('tags', '')
+    formData.append('status', 2)
+    formData.append('categories', '')
+    formData.append('type', '')
+    formData.append('original_link', '')
+    formData.append('authorized_status', 'undefined')
+    formData.append('articleedittype', 1)
+    formData.append('Description', '')
+    formData.append('resource_url', '')
+    formData.append('csrf_token', '')
+
+    let headers = formData.getHeaders()
+    headers.Cookie = dataStore.getCSDNCookies()
+    //自己的headers属性在这里追加
+    let request = https.request({
+                                    host: 'mp.csdn.net',
+                                    method: 'POST',
+                                    path: '/mdeditor/saveArticle',
+                                    headers: headers
+                                }, function (res) {
+        let str = '';
+        res.on('data', function (buffer) {
+                   str += buffer;
+               }
+        );
+        res.on('end', () => {
+            if (res.statusCode === 200) {
+                console.log(str)
+                const result = JSON.parse(str);
+                //上传之后result就是返回的结果
+                console.log(result)
+                if (result.status) {
+                    shell.openExternal(result.data.url).then()
+                } else {
+                    remote.dialog.showMessageBox({message: result.content}).then()
+                }
+            }
+        });
+    });
+    formData.pipe(request)
+}
+
+//将当前文章内容发布到CSDN
+ipcRenderer.on('publish-article-to-csdn', () => {
+    if (!tab.hasPath()) {
+        remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
+        return
+    }
+    if (!dataStore.getCSDNCookies()) {
+        remote.dialog.showMessageBox({message: '请先登录CSDN'}).then()
+        return
+    }
+    (async () => {
+        //第一步：将所有本地图片上传至CSDN
+        let objReadline = tab.getTextarea().value.split('\n')
+        let newValue = ''
+        for (let i = 0; i < objReadline.length; i++) {
+            let line = objReadline[i] + ''
+            const split = line.indexOf('!') !== -1 ? line.split('!') : []
+            for (let i = 0; i < split.length; i++) {
+                let block = split[i]
+                if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
+                    && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
+                    const start = block.lastIndexOf('(')
+                    const end = block.lastIndexOf(')')
+                    const src = block.substring(start + 1, end) //图片地址
+                    if (!isWebPicture(src)) {
+                        await uploadPictureToCSDN(src).then(value => { //上传图片
+                            line = line.replace(src, value)
+                        })
+                    }
+                }
+            }
+            newValue += line + '\n'
+        }
+        //第二步：将最终的文本+标题发布到CSDN
+        publishArticleToCSDN(tab.getTitle(), newValue, marked.render(newValue))
+    })();
+})
+
+//==========================发布【知乎】===========
 
