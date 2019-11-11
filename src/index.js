@@ -547,7 +547,7 @@ function uploadPictureToWeiBo(filePath, callback) {
                 // console.log(text)
                 const parse = JSON.parse(text)
                 const pid = parse.data.pics.pic_1.pid
-                const src = prefix + pid
+                const src = prefix + pid +'.jpg'
                 // console.log(src)
                 if (pid === undefined || pid === null) {
                     alert('请先登录新浪微博')
@@ -763,7 +763,8 @@ ipcRenderer.on('cut-night-mode', (event, args) => {
 
 //是否是网络图片
 function isWebPicture(src) {
-    return src.startsWith('http');
+    return src.startsWith('http') && (src.endsWith('png') || src.endsWith('jpg')
+    || src.endsWith('png') || src.endsWith('jpeg') || src.endsWith('gif') || src.endsWith('bmp'));
 }
 
 //==========================发布【博客园】===========
