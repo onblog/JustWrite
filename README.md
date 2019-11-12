@@ -4,35 +4,48 @@
 ![](https://img.shields.io/static/v1?label=electron&message=6.0.12&color=)
 ![](https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg)
 
-一款定位于Markdown文章排版与博客园CSDN掘金等平台一键发布的客户端。
+一款定位于Markdown文章排版与【博客园】【CSDN】【掘金】等博客平台一键发布的Markdown编辑器。
 
-本项目的追求是：开开心心学习，快快乐乐发布！
+你可以不用JustWrite写作，但一定需要JustWrite帮你排版，帮你美化，帮你处理本地图片，帮你一键发布！
 
 ## 功能
 
 - [x] 微信公众号排版神器（几十种主题+代码块样式）
+
 - [x] **博客园**、**CSDN**、**掘金**一键发布（带上传本地图片）
+
 - [x] 网络图片一键下载到本地
+
 - [x] 本地图片一键上传至新浪图床
+
 - [x] 本地图片一键整理至Picture文件夹
+
 - [x] 一键复制Markdown代码
+
 - [x] 一键复制Markdown转后的HTML网页
-- [x] 支持**夜间模式**等多种主题，写的舒适！
+
+- [x] 支持**夜间模式**等多种主题，保护眼睛
+
 - [x] 支持图片拖拽到文档，并可自动上传到图床
+
 - [x] 支持图片复制粘贴到文档，并可自动上传到图床
+
 - [x] 支持几十种主题、几十种代码块样式
+
 - [x] 支持一键复制发布到微信公众号等富文本编辑器
+
 - [x] 支持一键解决图床防盗链访问404
+
 - [x] 支持打印、支持一键导出PDF文档
+
 - [ ] 支持自定义编辑器（字体、背景）
-- [ ] 掘金、知乎的用户不要着急，会尽快加上的一键发布功能
 
 
 ## 下载 mac、window 客户端
 
-国外：<https://github.com/yueshutong/JustWrite/releases>
+Github：<https://github.com/yueshutong/JustWrite/releases>
 
-国内：<https://gitee.com/zyzpp/JustWrite/releases>
+Gitee：<https://gitee.com/zyzpp/JustWrite/releases> 
 
 ## 预览
 
@@ -50,9 +63,9 @@
 
 ## 反馈
 
-新项目难免有Bug，我也只是在Mac平台使用，Win平台有bug欢迎反馈告知！24小时之内修复！
+新项目难免有Bug，我也只是在Mac平台使用，Win平台有Bug欢迎反馈告知！24小时之内修复！
 
-唯一反馈建议地址：<https://github.com/yueshutong/JustWrite/issues>
+唯一Bug反馈建议地址：<https://github.com/yueshutong/JustWrite/issues>
 
 ## About
 
