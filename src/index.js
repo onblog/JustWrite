@@ -940,10 +940,11 @@ ipcRenderer.on('publish-article-to-cnblogs', () => {
         //第一步：将所有本地图片上传至博客园
         let objReadline = tab.getTextarea().value.split('\n')
         let newValue = ''
-        for (let i = 0; i < objReadline.length; i++) {
+        let next = true
+        for (let i = 0; i < objReadline.length && next; i++) {
             let line = objReadline[i] + ''
             const split = line.indexOf('!') !== -1 ? line.split('!') : []
-            for (let i = 0; i < split.length; i++) {
+            for (let i = 0; i < split.length && next; i++) {
                 let block = split[i]
                 if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
                     && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
@@ -954,7 +955,8 @@ ipcRenderer.on('publish-article-to-cnblogs', () => {
                         await uploadPictureToCnBlog(src).then(value => { //上传图片
                             line = line.replace(src, value)
                         }).catch(value => {
-                            Toast.toast(value, 'danger', 3000)
+                            remote.dialog.showMessageBox({message: value}).then()
+                            next = false
                         })
                     }
                 }
@@ -1069,10 +1071,11 @@ ipcRenderer.on('publish-article-to-csdn', () => {
         //第一步：将所有本地图片上传至CSDN
         let objReadline = tab.getTextarea().value.split('\n')
         let newValue = ''
-        for (let i = 0; i < objReadline.length; i++) {
+        let next = true
+        for (let i = 0; i < objReadline.length && next; i++) {
             let line = objReadline[i] + ''
             const split = line.indexOf('!') !== -1 ? line.split('!') : []
-            for (let i = 0; i < split.length; i++) {
+            for (let i = 0; i < split.length && next; i++) {
                 let block = split[i]
                 if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
                     && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
@@ -1083,7 +1086,8 @@ ipcRenderer.on('publish-article-to-csdn', () => {
                         await uploadPictureToCSDN(src).then(value => { //上传图片
                             line = line.replace(src, value)
                         }).catch(value => {
-                            Toast.toast(value, 'danger', 3000)
+                            remote.dialog.showMessageBox({message: value}).then()
+                            next = false
                         })
                     }
                 }
@@ -1125,7 +1129,7 @@ function uploadPictureToJueJin(filePath) {
                     if (result.m === 'ok') {
                         resolve(result.d.url.https)
                     } else {
-                        remote.dialog.showMessageBox({message: result.m}).then()
+                        reject(result.m)
                     }
                 }
             });
@@ -1246,10 +1250,11 @@ ipcRenderer.on('publish-article-to-jueJin', () => {
         //第一步：将所有本地图片上传至掘金
         let objReadline = tab.getTextarea().value.split('\n')
         let newValue = ''
-        for (let i = 0; i < objReadline.length; i++) {
+        let next = true
+        for (let i = 0; i < objReadline.length && next; i++) {
             let line = objReadline[i] + ''
             const split = line.indexOf('!') !== -1 ? line.split('!') : []
-            for (let i = 0; i < split.length; i++) {
+            for (let i = 0; i < split.length && next; i++) {
                 let block = split[i]
                 if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
                     && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
@@ -1260,7 +1265,9 @@ ipcRenderer.on('publish-article-to-jueJin', () => {
                         await uploadPictureToJueJin(src).then(value => { //上传图片
                             line = line.replace(src, value)
                         }).catch(value => {
-                            Toast.toast(value, 'danger', 3000)
+                            remote.dialog.showMessageBox({message: value}).then()
+                            next = false
+                            // Toast.toast(value, 'danger', 3000)
                         })
                     }
                 }
