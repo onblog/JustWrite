@@ -113,7 +113,7 @@ exports.createMenuItems = (mainWindow, app) => {
                 const dom = new jsdom.JSDOM(result);
                 const element = dom.window.document.body.querySelector(
                     'div.release-header > ul> li > a[title]')
-                if (!element) {
+                if (!(element && element.getAttribute('title'))){
                     if (bool) {
                         dialog.showMessageBox({message: '已经是最新版本！'}).then()
                     }
