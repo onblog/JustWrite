@@ -18,6 +18,10 @@ class DataStore extends Store {
     CSDNCookieKey = 'csdn-cookie-key'
     //掘金
     JueJinCookieKey = 'jueJin-cookie-key'
+    //开源中国
+    OsChinaCookieKey = 'OsChina-cookie-key'
+    OsChinaUserCodeKey = 'osChina-user-code-key'
+    OsChinaUserIdKey = 'osChina-user-id-key'
 
     constructor(settings) {
         const baseConfig = {name: 'md-html-style'}
@@ -96,6 +100,39 @@ class DataStore extends Store {
 
     setJueJinCookie(v) {
         return this.set(this.JueJinCookieKey, v)
+    }
+
+    getOsChinaCookies() {
+        if (this.has(this.OsChinaCookieKey)){
+            return this.get(this.OsChinaCookieKey)
+        }
+        return null
+    }
+
+    setOsChinaCookie(v) {
+        return this.set(this.OsChinaCookieKey, v)
+    }
+
+    getOsChinaUserCode() {
+        if (this.has(this.OsChinaUserCodeKey)){
+            return this.get(this.OsChinaUserCodeKey)
+        }
+        return null
+    }
+
+    setOsChinaUserCode(v) {
+        return this.set(this.OsChinaUserCodeKey, v)
+    }
+
+    getOsChinaUserId() {
+        if (this.has(this.OsChinaUserIdKey)){
+            return this.get(this.OsChinaUserIdKey)
+        }
+        return null
+    }
+
+    setOsChinaUserId(v) {
+        return this.set(this.OsChinaUserIdKey, v)
     }
 
     // isOutUseTime(){

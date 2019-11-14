@@ -57,7 +57,7 @@ exports.createMenuItems = (mainWindow, app) => {
             // 查询所有与设置的 URL 相关的所有 cookies.
             session.defaultSession.cookies.get({url: url})
                 .then((cookies) => {
-                    let cookieString
+                    let cookieString = ''
                     for (let cookie of cookies) {
                         cookieString += cookie.name + '=' + cookie.value + '; '
                     }
@@ -74,7 +74,7 @@ exports.createMenuItems = (mainWindow, app) => {
 
     //登录新浪图床
     const setWebBoPicture = function (item, focusedWindow, event) {
-        getSiteCookie('https://www.weibo.com/login.php', (cookie) => {
+        getSiteCookie('https://www.weibo.com/', (cookie) => {
             dataStore.setWeiBoCookies(cookie)
         })
     }
@@ -96,6 +96,40 @@ exports.createMenuItems = (mainWindow, app) => {
             dataStore.setJueJinCookie(cookie)
         })
     }
+    //登录开源中国
+    const loginOsChina = function (item, focusedWindow, event) {
+        getSiteCookie('https://my.oschina.net/', (cookie) => {
+            dataStore.setOsChinaCookie(cookie)
+            getOsChinaUserId()
+        })
+    }
+
+    //获取开源中国的g_user_code，获取g_user_id
+    function getOsChinaUserId() {
+        https.get('https://www.oschina.net/', {
+            headers: {
+                'Cookie': dataStore.getOsChinaCookies()
+            }
+        }, res => {
+            let str = '';
+            res.on('data', function (buffer) {
+                str += buffer;//用字符串拼接
+            })
+            res.on('end', () => {
+                const dom = new jsdom.JSDOM(str);
+                const g_user_code = dom.window.document.body.querySelector(
+                    'body > val[data-name=g_user_code]').dataset.value
+                const g_user_id = dom.window.document.body.querySelector(
+                    'body > val[data-name=g_user_id]').dataset.value
+                if (g_user_code && g_user_id) {
+                    dataStore.setOsChinaUserCode(g_user_code)
+                    dataStore.setOsChinaUserId(g_user_id)
+                    dialog.showMessageBox({message:'已登录开源中国'}).then()
+                }
+            });
+        })
+    }
+
     //检查更新
     const updateApp = (bool) => {
         const releases = 'https://github.com/yueshutong/JustWrite/releases'
@@ -113,7 +147,7 @@ exports.createMenuItems = (mainWindow, app) => {
                 const dom = new jsdom.JSDOM(result);
                 const element = dom.window.document.body.querySelector(
                     'div.release-header > ul> li > a[title]')
-                if (!(element && element.getAttribute('title'))){
+                if (!(element && element.getAttribute('title'))) {
                     if (bool) {
                         dialog.showMessageBox({message: '已经是最新版本！'}).then()
                     }
@@ -483,7 +517,7 @@ exports.createMenuItems = (mainWindow, app) => {
                 click: (item, focusedWindow, event) => {
                     mainWindow.send('quick-key-insert-txt', item.accelerator)
                 }
-            },{
+            }, {
                 label: '图片',
                 accelerator: 'CmdOrCtrl+P',
                 click: (item, focusedWindow, event) => {
@@ -557,14 +591,14 @@ exports.createMenuItems = (mainWindow, app) => {
                     }]
                 }, {
                     type: 'separator'
-                },{
+                }, {
                     label: '网络图片下载',
-                    click: ()=>{
+                    click: () => {
                         mainWindow.send('download-net-picture')
                     }
-                },{
+                }, {
                     label: '本地图片整理',
-                    click: ()=>{
+                    click: () => {
                         mainWindow.send('move-picture-to-folder')
                     }
                 }
@@ -604,6 +638,17 @@ exports.createMenuItems = (mainWindow, app) => {
                         label: '一键发布',
                         click: () => {
                             mainWindow.send('publish-article-to-jueJin')
+                        }
+                    }]
+                }, {
+                    label: '开源中国',
+                    submenu: [{
+                        label: '登录开源中国',
+                        click: loginOsChina
+                    }, {
+                        label: '一键发布',
+                        click: () => {
+                            mainWindow.send('publish-article-to-OsChina')
                         }
                     }]
                 }

@@ -840,7 +840,7 @@ const cnBlog_url = 'https://i.cnblogs.com/EditPosts.aspx?opt=1'
 
 //发布文章到博客园
 function publishArticleToCnBlog(title, content) {
-    https.get(cnBlog_url, {
+    let req = https.get(cnBlog_url, {
         headers: {
             'Cookie': dataStore.getCnBlogCookies()
         }
@@ -861,6 +861,11 @@ function publishArticleToCnBlog(title, content) {
             publishArticleToCnBlogFact(title, content, input.value)
         });
     })
+
+    req.on('error', function (e) {
+        console.log('problem with request: ' + e.message);
+        remote.dialog.showMessageBox({message: e.message}).then()
+    });
 }
 
 function publishArticleToCnBlogFact(title, content, VIEWSTATE) {
@@ -897,7 +902,6 @@ function publishArticleToCnBlogFact(title, content, VIEWSTATE) {
     }
 
     let req = https.request(cnBlog_url, options, function (res) {
-        console.log('STATUS: ' + res.statusCode);
         if (res.statusCode === 302) {
             //发布成功
             res.setEncoding('utf-8')
@@ -919,7 +923,7 @@ function publishArticleToCnBlogFact(title, content, VIEWSTATE) {
 
     req.on('error', function (e) {
         console.log('problem with request: ' + e.message);
-        Toast.toast(e.message, 'warning', 3000)
+        remote.dialog.showMessageBox({message: e.message}).then()
     });
 
     req.write(data)
@@ -954,6 +958,7 @@ ipcRenderer.on('publish-article-to-cnblogs', () => {
                     if (!isWebPicture(src)) {
                         await uploadPictureToCnBlog(src).then(value => { //上传图片
                             line = line.replace(src, value)
+                            Toast.toast('上传图片+1','success',3000)
                         }).catch(value => {
                             remote.dialog.showMessageBox({message: value}).then()
                             next = false
@@ -1055,6 +1060,11 @@ function publishArticleToCSDN(title, markdowncontent, content) {
         });
     });
     formData.pipe(request)
+
+    request.on('error', function (e) {
+        console.log('problem with request: ' + e.message);
+        remote.dialog.showMessageBox({message: e.message}).then()
+    });
 }
 
 //将当前文章内容发布到CSDN
@@ -1085,6 +1095,7 @@ ipcRenderer.on('publish-article-to-csdn', () => {
                     if (!isWebPicture(src)) {
                         await uploadPictureToCSDN(src).then(value => { //上传图片
                             line = line.replace(src, value)
+                            Toast.toast('上传图片+1','success',3000)
                         }).catch(value => {
                             remote.dialog.showMessageBox({message: value}).then()
                             next = false
@@ -1140,7 +1151,7 @@ function uploadPictureToJueJin(filePath) {
 
 //发布文章到掘金
 function publishArticleToJueJin(title, markdown, html) {
-    https.get('https://juejin.im/auth', {
+    let req = https.get('https://juejin.im/auth', {
         headers: {
             'Cookie': dataStore.getJueJinCookies()
         }
@@ -1175,6 +1186,11 @@ function publishArticleToJueJin(title, markdown, html) {
             publishArticleToJueJinFact(data)
         });
     })
+
+    req.on('error', function (e) {
+        console.log('problem with request: ' + e.message);
+        remote.dialog.showMessageBox({message: e.message}).then()
+    });
 }
 
 function publishArticleToJueJinFact(data) {
@@ -1229,7 +1245,7 @@ function publishArticleToJueJinFact(data) {
 
     req.on('error', function (e) {
         console.log('problem with request: ' + e.message);
-        Toast.toast(e.message, 'warning', 3000)
+        remote.dialog.showMessageBox({message: e.message}).then()
     });
 
     req.write(data)
@@ -1264,6 +1280,7 @@ ipcRenderer.on('publish-article-to-jueJin', () => {
                     if (!isWebPicture(src)) {
                         await uploadPictureToJueJin(src).then(value => { //上传图片
                             line = line.replace(src, value)
+                            Toast.toast('上传图片+1','success',3000)
                         }).catch(value => {
                             remote.dialog.showMessageBox({message: value}).then()
                             next = false
@@ -1276,5 +1293,190 @@ ipcRenderer.on('publish-article-to-jueJin', () => {
         }
         //第二步：将最终的文本+标题发布到掘金
         publishArticleToJueJin(tab.getTitle(), newValue, marked.render(newValue))
+    })();
+})
+
+//==============================【开源中国】========================
+
+function getOsChinaUserCode() {
+    return dataStore.getOsChinaUserCode()
+}
+
+function getOsChinaUserId() {
+    return dataStore.getOsChinaUserId()
+}
+
+// function getOsChinaGUID() {
+//     let value = 'Hm_lpvt_'
+//     let start = dataStore.getOsChinaCookies().indexOf(value)
+//     start = dataStore.getOsChinaCookies().indexOf('=', start) + 1
+//     let end = dataStore.getOsChinaCookies().indexOf(';', start)
+//     return dataStore.getOsChinaCookies().substring(start, end)
+// }
+
+function getCsrfToken() {
+    let e, t, n, i = ''
+    if (!i || 40 !== i.length) {
+        if (i = [], e = "",
+        window.crypto && window.crypto.getRandomValues) {
+            i = new Uint8Array(40),
+                window.crypto.getRandomValues(i);
+        } else {
+            for (t = 0; t < 40; t++) {
+                i.push(Math.floor(256 * Math.random()));
+            }
+        }
+        for (t = 0; t < i.length; t++) {
+            n = "abcdefghijklmnopqrstuvwxyz0123456789".charAt(i[t] % 36),
+                e += .5 < Math.random() ? n.toUpperCase() : n;
+        }
+        i = e
+    }
+    return i
+}
+
+//上传图片至开源中国
+function uploadPictureToOsChina(filePath) {
+    let formData = new FormData();
+    formData.append('upload', fs.createReadStream(filePath))
+    formData.append('ckCsrfToken', getCsrfToken())
+
+    let headers = formData.getHeaders()
+    headers.Cookie = dataStore.getOsChinaCookies()
+    //自己的headers属性在这里追加
+    return new Promise((resolve, reject) => {
+        let request = https.request({
+                                        host: 'my.oschina.net',
+                                        method: 'POST',
+                                        path: '/u/' + getOsChinaUserId()
+                                              + '/space/ckeditor_dialog_img_upload',
+                                        headers: headers
+                                    }, function (res) {
+            let str = '';
+            res.on('data', function (buffer) {
+                       str += buffer;
+                   }
+            );
+            res.on('end', () => {
+                if (res.statusCode === 200) {
+                    const result = JSON.parse(str);
+                    //上传之后result就是返回的结果
+                    if (result.uploaded === 1) {
+                        resolve(result.url)
+                    } else {
+                        reject(result.error.message)
+                    }
+                } else {
+                    reject('上传图片失败，状态码' + res.statusCode)
+                }
+            });
+        });
+        formData.pipe(request)
+    })
+}
+
+//发布文章到开源中国
+function publishArticleToOsChina(title, content) {
+    const data = querystring.stringify({
+                                           'draft': 0,
+                                           'id': '',
+                                           'user_code': getOsChinaUserCode(),
+                                           'title': title,
+                                           'content': content,
+                                           'content_type': 3,
+                                           'catalog': 5906778,
+                                           'classification': '',
+                                           'type': 4,
+                                           'origin_url': '',
+                                           'privacy': 0,
+                                           'deny_comment': 0,
+                                           'as_top': 0,
+                                           'downloadImg': 0,
+                                           'isRecommend': 0,
+                                       })
+    let options = {
+        method: 'POST',
+        headers: {
+            'Accept-Encoding': 'gzip, deflate, br',
+            "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Length': data.length,
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0',
+            'Cookie': dataStore.getOsChinaCookies()
+        }
+    }
+    const url = 'https://my.oschina.net/u/' + getOsChinaUserId() + '/blog/save_draft'
+
+    let req = https.request(url,
+                            options, function (res) {
+            //发布成功
+            res.setEncoding('utf-8')
+            let str = ''
+            res.on('data', function (chunk) {
+                str += chunk
+            });
+            res.on('end', () => {
+                const result = JSON.parse(str);
+                if (result.code === 1) {
+                    shell.openExternal('https://my.oschina.net/u/' + getOsChinaUserId()
+                                       + '/blog/write/draft/' + result.result.draft).then()
+                } else {
+                    remote.dialog.showMessageBox({message: result.message}).then()
+                }
+            });
+
+        }
+    )
+
+    req.on('error', function (e) {
+        console.log('problem with request: ' + e.message);
+        remote.dialog.showMessageBox({message: e.message}).then()
+    });
+
+    req.write(data)
+    req.end()
+}
+
+//将当前文章内容发布到开源中国
+ipcRenderer.on('publish-article-to-OsChina', () => {
+    if (!tab.hasPath()) {
+        remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
+        return
+    }
+    if (!dataStore.getOsChinaCookies()) {
+        remote.dialog.showMessageBox({message: '请先登录开源中国'}).then()
+        return
+    }
+    (async () => {
+        //第一步：将所有本地图片上传至开源中国
+        let objReadline = tab.getTextarea().value.split('\n')
+        let newValue = ''
+        let next = true
+        for (let i = 0; i < objReadline.length && next; i++) {
+            let line = objReadline[i] + ''
+            const split = line.indexOf('!') !== -1 ? line.split('!') : []
+            for (let i = 0; i < split.length && next; i++) {
+                let block = split[i]
+                if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
+                    && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
+                    const start = block.lastIndexOf('(')
+                    const end = block.lastIndexOf(')')
+                    const src = block.substring(start + 1, end) //图片地址
+                    if (!isWebPicture(src)) {
+                        await uploadPictureToOsChina(src).then(value => { //上传图片
+                            line = line.replace(src, value)
+                            Toast.toast('上传图片+1','success',3000)
+                        }).catch(value => {
+                            remote.dialog.showMessageBox({message: value}).then()
+                            next = false
+                        })
+                    }
+                }
+            }
+            newValue += line + '\n'
+        }
+        //第二步：将最终的文本+标题发布到掘金
+        publishArticleToOsChina(tab.getTitle(), newValue)
     })();
 })
