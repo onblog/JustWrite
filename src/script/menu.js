@@ -11,9 +11,6 @@ const dataStore = new DataStore()
 let codeItems = items.codeItems
 let htmlItems = items.HTMlItems
 
-exports.DefaultCodeStyle = codeItems[0]
-exports.DefaultHtmlStyle = htmlItems[0]
-
 exports.createMenuItems = (mainWindow, app) => {
     //主题风格
     const htmlMenuClick = function (menuItem,) {

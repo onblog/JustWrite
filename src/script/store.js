@@ -30,8 +30,12 @@ class DataStore extends Store {
     }
 
     initStore(defaultCodeStyle, defaultHtmlStyle) {
-        this.defaultCodeStyle = defaultCodeStyle
-        this.defaultHtmlStyle = defaultHtmlStyle
+        if (!this.has(this.codeStyleKey)){
+            this.set(this.codeStyleKey,defaultCodeStyle)
+        }
+        if (!this.has(this.htmlStyleKey)){
+            this.set(this.htmlStyleKey,defaultHtmlStyle)
+        }
     }
 
     isChecked(k, v) {
@@ -39,11 +43,11 @@ class DataStore extends Store {
     }
 
     getCodeStyle() {
-        return this.get(this.codeStyleKey, this.defaultCodeStyle)
+        return this.get(this.codeStyleKey)
     }
 
     getHTMLStyle() {
-        return this.get(this.htmlStyleKey, this.defaultHtmlStyle)
+        return this.get(this.htmlStyleKey)
     }
 
     getNightMode() {
