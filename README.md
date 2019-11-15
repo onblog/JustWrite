@@ -4,7 +4,7 @@
 ![](https://img.shields.io/static/v1?label=electron&message=6.0.12&color=)
 ![](https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg)
 
-一款定位于Markdown文章排版与一键发布本地文章到【博客园】【CSDN】【掘金】等平台的Markdown编辑器。
+一款定位于Markdown文章排版与一键发布本地文章到【博客园】【CSDN】【掘金】【开源中国】等平台的Markdown编辑器。
 
 你可以尝试用JustWrite写作，因为JustWrite可以帮你排版，帮你美化，帮你处理本地图片，帮你一键发布！
 
@@ -12,7 +12,7 @@
 
 - [x] 微信公众号排版神器（几十种主题+代码块样式）
 
-- [x] **博客园**、**CSDN**、**掘金**一键发布（带上传本地图片）
+- [x] **博客园**、**CSDN**、**掘金**、**开源中国**一键发布（带上传本地图片）
 
 - [x] 网络图片一键下载到本地
 
@@ -59,7 +59,7 @@ Gitee：<https://gitee.com/zyzpp/JustWrite/releases>
 
 ## 鸣谢
 
-李晨阳（图标创作者）
+李晨阳（图标创作者，QQ：1003737038）
 
 ## 反馈
 
