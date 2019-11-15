@@ -912,8 +912,12 @@ function publishArticleToCnBlogFact(title, content, VIEWSTATE) {
             res.on('end', () => {
                 const dom = new jsdom.JSDOM(str);
                 const a = dom.window.document.body.getElementsByTagName('a')[0]
-                // console.log('BODY: ' + a.href)
-                shell.openExternal('https://i.cnblogs.com' + a.href).then()
+                remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？',buttons:['取消','打开']})
+                    .then((res)=>{
+                        if (res.response===1){
+                            shell.openExternal('https://i.cnblogs.com' + a.href).then()
+                        }
+                    })
             });
         } else {
             //发布失败
@@ -1052,7 +1056,12 @@ function publishArticleToCSDN(title, markdowncontent, content) {
                 //上传之后result就是返回的结果
                 console.log(result)
                 if (result.status) {
-                    shell.openExternal(result.data.url).then()
+                    remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？',buttons:['取消','打开']})
+                        .then((res)=>{
+                            if (res.response===1){
+                                shell.openExternal(result.data.url).then()
+                            }
+                        })
                 } else {
                     remote.dialog.showMessageBox({message: result.content}).then()
                 }
@@ -1235,7 +1244,12 @@ function publishArticleToJueJinFact(data) {
                 const result = JSON.parse(str)
                 //上传之后result就是返回的结果
                 if (result.m === 'ok') {
-                    shell.openExternal('https://juejin.im/editor/drafts/' + result.d[0]).then()
+                    remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？',buttons:['取消','打开']})
+                        .then((res)=>{
+                            if (res.response===1){
+                                shell.openExternal('https://juejin.im/editor/drafts/' + result.d[0]).then()
+                            }
+                        })
                 } else {
                     //发布失败
                     remote.dialog.showMessageBox({message: result.m}).then()
@@ -1305,14 +1319,6 @@ function getOsChinaUserCode() {
 function getOsChinaUserId() {
     return dataStore.getOsChinaUserId()
 }
-
-// function getOsChinaGUID() {
-//     let value = 'Hm_lpvt_'
-//     let start = dataStore.getOsChinaCookies().indexOf(value)
-//     start = dataStore.getOsChinaCookies().indexOf('=', start) + 1
-//     let end = dataStore.getOsChinaCookies().indexOf(';', start)
-//     return dataStore.getOsChinaCookies().substring(start, end)
-// }
 
 function getCsrfToken() {
     let e, t, n, i = ''
@@ -1419,8 +1425,13 @@ function publishArticleToOsChina(title, content) {
             res.on('end', () => {
                 const result = JSON.parse(str);
                 if (result.code === 1) {
-                    shell.openExternal('https://my.oschina.net/u/' + getOsChinaUserId()
-                                       + '/blog/write/draft/' + result.result.draft).then()
+                    remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？',buttons:['取消','打开']})
+                        .then((res)=>{
+                            if (res.response===1){
+                                shell.openExternal('https://my.oschina.net/u/' + getOsChinaUserId()
+                                                   + '/blog/write/draft/' + result.result.draft).then()
+                            }
+                        })
                 } else {
                     remote.dialog.showMessageBox({message: result.message}).then()
                 }
