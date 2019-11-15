@@ -163,6 +163,8 @@ exports.createMenuItems = (mainWindow, app) => {
                             shell.openExternal(releases).then()
                         }
                     })
+                }else if (bool){
+                    dialog.showMessageBox({message: '已经是最新版本！'}).then()
                 }
             }
 
