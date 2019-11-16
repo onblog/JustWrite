@@ -8,9 +8,9 @@
 
 你可以尝试用JustWrite写作，因为JustWrite可以帮你排版，帮你美化，帮你处理本地图片，帮你一键发布！
 
-## 演示一键发布到博客园
+## 视频：一键发布到博客园
 
-<iframe src="//player.bilibili.com/player.html?aid=75844890&cid=129749158&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+<https://www.bilibili.com/video/av75844890/>
 
 ## 功能
 
