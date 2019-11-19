@@ -535,8 +535,9 @@ document.addEventListener('paste', function (event) {
  * 上传图片到新浪微博
  * @param filePath
  * @param callback
+ * @param errback
  */
-function uploadPictureToWeiBo(filePath, callback) {
+function uploadPictureToWeiBo(filePath, callback, errback) {
     let image_url = 'https://picupload.weibo.com/interface/pic_upload.php?mime=image%2Fjpeg&data=base64&url=0&markpos=1&logo=&nick=0&marks=1&app=miniblog'
     fs.readFile(filePath, {encoding: 'base64'}, function (err, data) {
         if (err) {
@@ -573,7 +574,11 @@ function uploadPictureToWeiBo(filePath, callback) {
                 const src = prefix + pid + '.jpg'
                 // console.log(src)
                 if (pid === undefined || pid === null) {
-                    remote.dialog.showMessageBox({message: '请先登录新浪微博'}).then()
+                    if (errback) {
+                        errback()
+                    } else {
+                        remote.dialog.showMessageBox({message: '请先登录新浪微博'}).then()
+                    }
                 } else {
                     callback(src)
                 }
@@ -629,6 +634,7 @@ ipcRenderer.on('download-net-picture', () => {
 function uploadAllPictureToWeiBo() {
     copyValueToClipboard() //拷贝原内容
     let objReadline = tab.getTextarea().value.split('\n')
+    let tip = {up: true}
     for (let i = 0; i < objReadline.length; i++) {
         let line = objReadline[i] + ''
         const split = line.indexOf('!') !== -1 ? line.split('!') : []
@@ -640,10 +646,17 @@ function uploadAllPictureToWeiBo() {
                 const end = block.lastIndexOf(')')
                 const src = block.substring(start + 1, end) //图片地址
                 if (path.isAbsolute(src)) {
-                    uploadPictureToWeiBo(src, href => {
-                        changeTextareaValue(tab, tab.getTextarea().value.replace(src, href))
-                        Toast.toast('上传成功+1', 'success', 3000)
-                    })
+                    uploadPictureToWeiBo(src
+                        , href => {
+                            changeTextareaValue(tab, tab.getTextarea().value.replace(src, href))
+                            Toast.toast('上传成功+1', 'success', 3000)
+                        }, () => {
+                            if (tip.up) {
+                                remote.dialog.showMessageBox({message: '请先登录新浪微博'}).then()
+                                tip.up = false
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -912,9 +925,9 @@ function publishArticleToCnBlogFact(title, content, VIEWSTATE) {
             res.on('end', () => {
                 const dom = new jsdom.JSDOM(str);
                 const a = dom.window.document.body.getElementsByTagName('a')[0]
-                remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？',buttons:['取消','打开']})
-                    .then((res)=>{
-                        if (res.response===1){
+                remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？', buttons: ['取消', '打开']})
+                    .then((res) => {
+                        if (res.response === 1) {
                             shell.openExternal('https://i.cnblogs.com' + a.href).then()
                         }
                     })
@@ -962,7 +975,7 @@ ipcRenderer.on('publish-article-to-cnblogs', () => {
                     if (!isWebPicture(src)) {
                         await uploadPictureToCnBlog(src).then(value => { //上传图片
                             line = line.replace(src, value)
-                            Toast.toast('上传图片+1','success',3000)
+                            Toast.toast('上传图片+1', 'success', 3000)
                         }).catch(value => {
                             remote.dialog.showMessageBox({message: value}).then()
                             next = false
@@ -1056,9 +1069,9 @@ function publishArticleToCSDN(title, markdowncontent, content) {
                 //上传之后result就是返回的结果
                 console.log(result)
                 if (result.status) {
-                    remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？',buttons:['取消','打开']})
-                        .then((res)=>{
-                            if (res.response===1){
+                    remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？', buttons: ['取消', '打开']})
+                        .then((res) => {
+                            if (res.response === 1) {
                                 shell.openExternal(result.data.url).then()
                             }
                         })
@@ -1104,7 +1117,7 @@ ipcRenderer.on('publish-article-to-csdn', () => {
                     if (!isWebPicture(src)) {
                         await uploadPictureToCSDN(src).then(value => { //上传图片
                             line = line.replace(src, value)
-                            Toast.toast('上传图片+1','success',3000)
+                            Toast.toast('上传图片+1', 'success', 3000)
                         }).catch(value => {
                             remote.dialog.showMessageBox({message: value}).then()
                             next = false
@@ -1244,10 +1257,11 @@ function publishArticleToJueJinFact(data) {
                 const result = JSON.parse(str)
                 //上传之后result就是返回的结果
                 if (result.m === 'ok') {
-                    remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？',buttons:['取消','打开']})
-                        .then((res)=>{
-                            if (res.response===1){
-                                shell.openExternal('https://juejin.im/editor/drafts/' + result.d[0]).then()
+                    remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？', buttons: ['取消', '打开']})
+                        .then((res) => {
+                            if (res.response === 1) {
+                                shell.openExternal('https://juejin.im/editor/drafts/' + result.d[0])
+                                    .then()
                             }
                         })
                 } else {
@@ -1294,7 +1308,7 @@ ipcRenderer.on('publish-article-to-jueJin', () => {
                     if (!isWebPicture(src)) {
                         await uploadPictureToJueJin(src).then(value => { //上传图片
                             line = line.replace(src, value)
-                            Toast.toast('上传图片+1','success',3000)
+                            Toast.toast('上传图片+1', 'success', 3000)
                         }).catch(value => {
                             remote.dialog.showMessageBox({message: value}).then()
                             next = false
@@ -1425,11 +1439,12 @@ function publishArticleToOsChina(title, content) {
             res.on('end', () => {
                 const result = JSON.parse(str);
                 if (result.code === 1) {
-                    remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？',buttons:['取消','打开']})
-                        .then((res)=>{
-                            if (res.response===1){
+                    remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？', buttons: ['取消', '打开']})
+                        .then((res) => {
+                            if (res.response === 1) {
                                 shell.openExternal('https://my.oschina.net/u/' + getOsChinaUserId()
-                                                   + '/blog/write/draft/' + result.result.draft).then()
+                                                   + '/blog/write/draft/' + result.result.draft)
+                                    .then()
                             }
                         })
                 } else {
@@ -1477,7 +1492,7 @@ ipcRenderer.on('publish-article-to-OsChina', () => {
                     if (!isWebPicture(src)) {
                         await uploadPictureToOsChina(src).then(value => { //上传图片
                             line = line.replace(src, value)
-                            Toast.toast('上传图片+1','success',3000)
+                            Toast.toast('上传图片+1', 'success', 3000)
                         }).catch(value => {
                             remote.dialog.showMessageBox({message: value}).then()
                             next = false
