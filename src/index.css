@@ -169,14 +169,21 @@ pre code::-webkit-scrollbar {
 
 /*toast*/
 #toast {
-    font-weight: bold;
     margin: 0 !important;
     position: absolute;
     z-index: 99;
-    top: 1.5em !important;
-    right: 1.5em !important;
+    text-align: -webkit-right;
+    top: 12%;
+    right: 5%;
 }
 #toast > .alert {
-    padding: 10px;
+    padding: 12px 25px;
+    background-color: rgba(0,0,0,.6) !important;
+    border-radius: 2px;
+    color: #fff;
+    width: fit-content;
+    font-size: 14px;
+    font-weight: 300;
+    border: none;
     margin-bottom: 10px;
 }

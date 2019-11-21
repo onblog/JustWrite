@@ -818,7 +818,7 @@ function uploadPictureToCnBlog(filePath) {
     formData.append("uploadType", 'Paste')
 
     let headers = formData.getHeaders() //这个不能少
-    headers.Cookie = dataStore.getCnBlogCookies()
+    headers.Cookie = dataStore.getCnBlogCookies() //获取Cookie
     //自己的headers属性在这里追加
     return new Promise((resolve, reject) => {
         let request = https.request({
@@ -957,6 +957,7 @@ ipcRenderer.on('publish-article-to-cnblogs', () => {
         remote.dialog.showMessageBox({message: '请先登录博客园'}).then()
         return
     }
+    Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至博客园
         let objReadline = tab.getTextarea().value.split('\n')
@@ -998,7 +999,7 @@ function uploadPictureToCSDN(filePath) {
     formData.append('file', fs.createReadStream(filePath))
 
     let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getCSDNCookies()
+    headers.Cookie = dataStore.getCSDNCookies() //获取Cookie
     //自己的headers属性在这里追加
     return new Promise((resolve, reject) => {
         let request = https.request({
@@ -1049,7 +1050,7 @@ function publishArticleToCSDN(title, markdowncontent, content) {
     formData.append('csrf_token', '')
 
     let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getCSDNCookies()
+    headers.Cookie = dataStore.getCSDNCookies() //获取Cookie
     //自己的headers属性在这里追加
     let request = https.request({
                                     host: 'mp.csdn.net',
@@ -1099,6 +1100,7 @@ ipcRenderer.on('publish-article-to-csdn', () => {
         remote.dialog.showMessageBox({message: '请先登录CSDN'}).then()
         return
     }
+    Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至CSDN
         let objReadline = tab.getTextarea().value.split('\n')
@@ -1140,7 +1142,7 @@ function uploadPictureToJueJin(filePath) {
     formData.append('file', fs.createReadStream(filePath))
 
     let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getJueJinCookies()
+    headers.Cookie = dataStore.getJueJinCookies() //获取Cookie
     //自己的headers属性在这里追加
     return new Promise((resolve, reject) => {
         let request = https.request({
@@ -1290,6 +1292,7 @@ ipcRenderer.on('publish-article-to-jueJin', () => {
         remote.dialog.showMessageBox({message: '请先登录掘金'}).then()
         return
     }
+    Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至掘金
         let objReadline = tab.getTextarea().value.split('\n')
@@ -1362,7 +1365,7 @@ function uploadPictureToOsChina(filePath) {
     formData.append('ckCsrfToken', getCsrfToken())
 
     let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getOsChinaCookies()
+    headers.Cookie = dataStore.getOsChinaCookies() //获取Cookie
     //自己的headers属性在这里追加
     return new Promise((resolve, reject) => {
         let request = https.request({
@@ -1474,6 +1477,7 @@ ipcRenderer.on('publish-article-to-OsChina', () => {
         remote.dialog.showMessageBox({message: '请先登录开源中国'}).then()
         return
     }
+    Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至开源中国
         let objReadline = tab.getTextarea().value.split('\n')
@@ -1504,5 +1508,183 @@ ipcRenderer.on('publish-article-to-OsChina', () => {
         }
         //第二步：将最终的文本+标题发布到掘金
         publishArticleToOsChina(tab.getTitle(), newValue)
+    })();
+})
+
+//==============================【思否】========================
+
+//上传图片至思否
+function uploadPictureToSegmentFault(filePath) {
+    let formData = new FormData();
+    formData.append('image', fs.createReadStream(filePath))
+
+    let headers = formData.getHeaders()
+    headers.Cookie = dataStore.getSegmentFaultCookie() //获取Cookie
+    //自己的headers属性在这里追加
+    return new Promise((resolve, reject) => {
+        let request = https.request({
+                                        host: 'segmentfault.com',
+                                        method: 'POST',
+                                        path: '/img/upload/image?_='
+                                              + dataStore.getSegmentFaultToken(),
+                                        headers: headers
+                                    }, function (res) {
+            let str = '';
+            res.on('data', function (buffer) {
+                       str += buffer;
+                   }
+            );
+            res.on('end', () => {
+                if (res.statusCode === 200) {
+                    const result = JSON.parse(str);
+                    //上传之后result就是返回的结果
+                    if (result[0] === 0) {
+                        resolve(result[1])
+                    } else {
+                        reject('上传图片失败')
+                    }
+                } else {
+                    reject('上传图片失败,状态码' + res.statusCode)
+                }
+            });
+        });
+        formData.pipe(request)
+    })
+}
+
+//准备上传文章到思否
+function preparePublishArticleToSegmentFault(title, text) {
+    let req = https.get(
+        'https://segmentfault.com:9443/socket.io/?EIO=3&transport=polling&t=1574312570138-0', {
+            headers: {
+                'Cookie': dataStore.getSegmentFaultCookie()
+            }
+        }, res => {
+            let str = '';
+            res.on('data', function (buffer) {
+                str += buffer;//用字符串拼接
+            })
+            res.on('end', () => {
+                //真正发布文章
+                publishArticleToSegmentFault(title, text)
+            });
+        })
+
+    req.on('error', function (e) {
+        console.log('problem with request: ' + e.message);
+        remote.dialog.showMessageBox({message: e.message}).then()
+    });
+}
+
+//上传文章到思否
+function publishArticleToSegmentFault(title, text) {
+    let formData = new FormData();
+    formData.append('type', 1)
+    formData.append('url', '')
+    formData.append('blogId', 0)
+    formData.append('isTiming', 0)
+    formData.append('created', '')
+    formData.append('weibo', 0)
+    formData.append('license', 0)
+    formData.append('tags', '')
+    formData.append('title', title)
+    formData.append('text', text)
+    formData.append('articleId', '')
+    formData.append('draftId', '')
+    formData.append('id', '')
+
+    let headers = formData.getHeaders()
+    headers.Cookie = dataStore.getSegmentFaultCookie() //获取Cookie
+    //自己的headers属性在这里追加
+    headers.referer = 'https://segmentfault.com/write?freshman=1'
+    headers.origin = 'https://segmentfault.com'
+    headers['x-requested-with'] = 'XMLHttpRequest'
+    headers['accept-language'] = 'zh-CN,zh;q=0.9,en;q=0.8'
+    headers['accept-encoding'] = 'deflate, br'
+    headers['accept'] = '*/*'
+    headers['sec-fetch-site'] = 'sec-fetch-site'
+    headers['sec-fetch-mode'] = 'cors'
+    headers['User-Agent'] =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36'
+    let request = https.request(
+        'https://segmentfault.com/api/article/draft/save?_=' + dataStore.getSegmentFaultToken(), {
+            method: 'POST',
+            headers: headers
+        }, function (res) {
+            let str = '';
+            res.on('data', function (buffer) {
+                       str += buffer;
+                   }
+            );
+            res.on('end', () => {
+                if (res.statusCode === 200) {
+                    const result = JSON.parse(str);
+                    //上传之后result就是返回的结果
+                    console.log(result)
+                    if (result.status === 0) {
+                        remote.dialog.showMessageBox(
+                            {message: '发布成功！是否在浏览器打开？', buttons: ['取消', '打开']})
+                            .then((res) => {
+                                if (res.response === 1) {
+                                    shell.openExternal('https://segmentfault.com/user/draft').then()
+                                }
+                            })
+                    } else {
+                        remote.dialog.showMessageBox({message: result.message}).then()
+                    }
+                } else {
+                    remote.dialog.showMessageBox({message: '请先登录思否'}).then()
+                }
+            });
+        });
+    formData.pipe(request)
+
+    request.on('error', function (e) {
+        console.log('problem with request: ' + e.message);
+        remote.dialog.showMessageBox({message: e.message}).then()
+    });
+}
+
+//将当前文章内容发布到思否
+ipcRenderer.on('publish-article-to-SegmentFault', event => {
+    if (!tab.hasPath()) {
+        remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
+        return
+    }
+    if (!dataStore.getSegmentFaultCookie()) {
+        remote.dialog.showMessageBox({message: '请先登录思否'}).then()
+        return
+    }
+    Toast.toast('正在上传中', 'info', 3000);
+    (async () => {
+        //第一步：将所有本地图片上传至思否
+        let objReadline = tab.getTextarea().value.split('\n')
+        let newValue = ''
+        let next = true
+        for (let i = 0; i < objReadline.length && next; i++) {
+            let line = objReadline[i] + ''
+            const split = line.indexOf('!') !== -1 ? line.split('!') : []
+            for (let i = 0; i < split.length && next; i++) {
+                let block = split[i]
+                if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
+                    && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
+                    const start = block.lastIndexOf('(')
+                    const end = block.lastIndexOf(')')
+                    const src = block.substring(start + 1, end) //图片地址
+                    if (!isWebPicture(src)) {
+                        await uploadPictureToSegmentFault(src).then(value => { //上传图片
+                            line = line.replace(src, value)
+                            Toast.toast('上传图片+1', 'success', 3000)
+                        }).catch(value => {
+                            remote.dialog.showMessageBox({message: value}).then()
+                            next = false
+                        })
+                    }
+                }
+            }
+            newValue += line + '\n'
+        }
+        //第二步：将最终的文本+标题发布到思否
+        preparePublishArticleToSegmentFault(tab.getTitle(), newValue)
     })();
 })

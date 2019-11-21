@@ -22,6 +22,9 @@ class DataStore extends Store {
     OsChinaCookieKey = 'OsChina-cookie-key'
     OsChinaUserCodeKey = 'osChina-user-code-key'
     OsChinaUserIdKey = 'osChina-user-id-key'
+    //思否
+    SegmentFaultCookieKey = 'segmentFault-cookie-key'
+    SegmentFaultTokenKey = 'segmentFault-token-key'
 
     constructor(settings) {
         const baseConfig = {name: 'md-html-style'}
@@ -126,6 +129,28 @@ class DataStore extends Store {
 
     setOsChinaUserCode(v) {
         return this.set(this.OsChinaUserCodeKey, v)
+    }
+
+    getSegmentFaultCookie() {
+        if (this.has(this.SegmentFaultCookieKey)){
+            return this.get(this.SegmentFaultCookieKey)
+        }
+        return null
+    }
+
+    setSegmentFaultCookie(v) {
+        return this.set(this.SegmentFaultCookieKey, v)
+    }
+
+    getSegmentFaultToken() {
+        if (this.has(this.SegmentFaultTokenKey)){
+            return this.get(this.SegmentFaultTokenKey)
+        }
+        return null
+    }
+
+    setSegmentFaultToken(v) {
+        return this.set(this.SegmentFaultTokenKey, v)
     }
 
     getOsChinaUserId() {

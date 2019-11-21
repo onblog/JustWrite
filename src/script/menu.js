@@ -49,7 +49,7 @@ exports.createMenuItems = (mainWindow, app) => {
     function getSiteCookie(url, callback) {
         let win = new BrowserWindow({width: 800, height: 600, title: '【登陆成功后关闭窗口即可完成设置】'})
         win.loadURL(url).then()
-        win.on('closed', () => {
+        win.on('close', () => {
             win = null
             // 查询所有与设置的 URL 相关的所有 cookies.
             session.defaultSession.cookies.get({url: url})
@@ -97,12 +97,12 @@ exports.createMenuItems = (mainWindow, app) => {
     const loginOsChina = function (item, focusedWindow, event) {
         getSiteCookie('https://my.oschina.net/', (cookie) => {
             dataStore.setOsChinaCookie(cookie)
-            getOsChinaUserId()
+            getOsChinaUserInfo()
         })
     }
 
     //获取开源中国的g_user_code，获取g_user_id
-    function getOsChinaUserId() {
+    function getOsChinaUserInfo() {
         https.get('https://www.oschina.net/', {
             headers: {
                 'Cookie': dataStore.getOsChinaCookies()
@@ -121,9 +121,57 @@ exports.createMenuItems = (mainWindow, app) => {
                 if (g_user_code && g_user_id) {
                     dataStore.setOsChinaUserCode(g_user_code)
                     dataStore.setOsChinaUserId(g_user_id)
-                    dialog.showMessageBox({message:'已登录开源中国'}).then()
+                    dialog.showMessageBox({message: '已登录开源中国'}).then()
                 }
             });
+        })
+    }
+
+    //登录思否
+    const loginSegmentFault = function (item, focusedWindow, event) {
+        getSiteCookie('https://segmentfault.com', (cookie) => {
+            dataStore.setSegmentFaultCookie(cookie)
+        })
+    }
+    //一键发布思否的必要认证
+    const preparePublishArticleToSegmentFault = function () {
+        let win = new BrowserWindow({width: 1, height: 1})
+        win.loadURL('https://segmentfault.com/howtowrite').then()
+        //页面加载完
+        win.webContents.on('did-finish-load', (event, result) => {
+            if (win.webContents.getURL()==='https://segmentfault.com/howtowrite') {
+                // 点击按钮，开始导航到新地址
+                win.webContents.executeJavaScript(
+                    `document.querySelector("body > div > div > div > div > div > div > div > a").click()`)
+                    .then()
+            }else if (win.webContents.getURL()==='https://segmentfault.com/write?freshman=1'){
+                // 读取token
+                win.webContents.executeJavaScript(`window.SF.token`).then((result) => {
+                    dataStore.setSegmentFaultToken(result)
+                    // 关闭窗口
+                    win.destroy()
+                })
+            }else {
+                // 关闭窗口
+                win.destroy()
+            }
+        })
+        //页面关闭后
+        win.on('closed',()=>{
+            win = null
+            // 查询所有与设置的 URL 相关的所有 cookies.
+            session.defaultSession.cookies.get({url: 'https://segmentfault.com/'})
+                .then((cookies) => {
+                    let cookieString = ''
+                    for (let cookie of cookies) {
+                        cookieString += cookie.name + '=' + cookie.value + '; '
+                    }
+                    dataStore.setSegmentFaultCookie(cookieString.trim())
+                }).catch((error) => {
+                console.error(error)
+            })
+            // 发出通知
+            mainWindow.send('publish-article-to-SegmentFault')
         })
     }
 
@@ -163,7 +211,7 @@ exports.createMenuItems = (mainWindow, app) => {
                             shell.openExternal(releases).then()
                         }
                     })
-                }else if (bool){
+                } else if (bool) {
                     dialog.showMessageBox({message: '已经是最新版本！'}).then()
                 }
             }
@@ -191,6 +239,8 @@ exports.createMenuItems = (mainWindow, app) => {
             }
         })
     }
+
+
     return [
         {
             label: app.getName(),
@@ -648,6 +698,17 @@ exports.createMenuItems = (mainWindow, app) => {
                         label: '一键发布',
                         click: () => {
                             mainWindow.send('publish-article-to-OsChina')
+                        }
+                    }]
+                }, {
+                    label: '思否',
+                    submenu: [{
+                        label: '登录思否',
+                        click: loginSegmentFault
+                    }, {
+                        label: '一键发布',
+                        click: () => {
+                            preparePublishArticleToSegmentFault()
                         }
                     }]
                 }

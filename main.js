@@ -18,7 +18,7 @@ function createWindow() {
     mainWindow = new BrowserWindow({
                                        width: 900,
                                        height: 650,
-                                       webPreferences: {devTools: false, nodeIntegration: true},
+                                       webPreferences: {devTools: true, nodeIntegration: true},
                                        titleBarStyle: "hidden"
                                    })
     mainWindow.loadFile('./src/index.html').then()
@@ -96,6 +96,7 @@ app.on('ready', () => {
             }
         })
     }))
+
 })
 
 // 当全部窗口关闭时退出。
