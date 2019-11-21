@@ -139,25 +139,25 @@ exports.createMenuItems = (mainWindow, app) => {
         win.loadURL('https://segmentfault.com/howtowrite').then()
         //页面加载完
         win.webContents.on('did-finish-load', (event, result) => {
-            if (win.webContents.getURL()==='https://segmentfault.com/howtowrite') {
+            if (win.webContents.getURL() === 'https://segmentfault.com/howtowrite') {
                 // 点击按钮，开始导航到新地址
                 win.webContents.executeJavaScript(
                     `document.querySelector("body > div > div > div > div > div > div > div > a").click()`)
                     .then()
-            }else if (win.webContents.getURL()==='https://segmentfault.com/write?freshman=1'){
+            } else if (win.webContents.getURL() === 'https://segmentfault.com/write?freshman=1') {
                 // 读取token
                 win.webContents.executeJavaScript(`window.SF.token`).then((result) => {
                     dataStore.setSegmentFaultToken(result)
                     // 关闭窗口
                     win.destroy()
                 })
-            }else {
+            } else {
                 // 关闭窗口
                 win.destroy()
             }
         })
         //页面关闭后
-        win.on('closed',()=>{
+        win.on('closed', () => {
             win = null
             // 查询所有与设置的 URL 相关的所有 cookies.
             session.defaultSession.cookies.get({url: 'https://segmentfault.com/'})
@@ -239,7 +239,21 @@ exports.createMenuItems = (mainWindow, app) => {
             }
         })
     }
-
+    //实时预览
+    const cutPreview = {
+        label: '实时预览',
+        type: 'checkbox',
+        checked: dataStore.getCutPreview(),
+        click: (menuItem => {
+            if (menuItem.checked) {
+                dataStore.set(dataStore.cutPreviewKey, true)
+                mainWindow.send('cut-preview-mode', true)
+            } else {
+                dataStore.set(dataStore.cutPreviewKey, false)
+                mainWindow.send('cut-preview-mode', false)
+            }
+        })
+    }
 
     return [
         {
@@ -762,6 +776,8 @@ exports.createMenuItems = (mainWindow, app) => {
                     }
                 }
             }, {
+                type: 'separator'
+            }, cutPreview, {
                 type: 'separator'
             }, nightMode
             ]

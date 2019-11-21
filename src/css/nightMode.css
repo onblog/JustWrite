@@ -1,4 +1,4 @@
-body, textarea, .md2html, table, h1,h2,h3,h4,h5,h6,table tr,blockquote,table th,p, thead,table tr:nth-child(2n) {
+textarea, .md2html, table, h1,h2,h3,h4,h5,h6,table tr,blockquote,table th,p, thead,table tr:nth-child(2n) {
     background-color: #212121 !important;
     color: #FAFAFA !important;
 }

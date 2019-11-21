@@ -8,6 +8,9 @@ class DataStore extends Store {
     //夜间模式
     nightModeKey = 'night-mode-key'
 
+    //实时预览
+    cutPreviewKey = 'cut-preview-key'
+
     //新浪微博图床设置
     weiBoCookiesKey = 'wei-Bo-cookies-key'
     weiBoUploadKey = 'wei-Bo-upload-key'
@@ -55,6 +58,13 @@ class DataStore extends Store {
 
     getNightMode() {
         return this.get(this.nightModeKey, false)
+    }
+
+    getCutPreview() {
+        if (this.has(this.cutPreviewKey)){
+            return this.get(this.cutPreviewKey)
+        }
+        return true
     }
 
     getWeiBoUpload() {

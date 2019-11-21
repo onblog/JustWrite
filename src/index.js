@@ -59,6 +59,7 @@ const dataStore = new DataStore()
 cutCodeStyle(dataStore.getCodeStyle())
 cutHTMLStyle(dataStore.getHTMLStyle())
 cutNightMode(dataStore.getNightMode())
+cutPreviewMode(dataStore.getCutPreview())
 
 let tabs = new Map() //标签页集合
 let tab //当前标签页
@@ -799,6 +800,18 @@ function cutNightMode(args) {
 //切换夜间模式
 ipcRenderer.on('cut-night-mode', (event, args) => {
     cutNightMode(args)
+})
+
+function cutPreviewMode(args) {
+    if (args) {
+        document.getElementById('preview-mode').setAttribute('href', '')
+    } else {
+        document.getElementById('preview-mode').setAttribute('href', './css/PreviewMode.css')
+    }
+}
+
+ipcRenderer.on('cut-preview-mode', (event, args) => {
+    cutPreviewMode(args)
 })
 
 //是否是网络图片
