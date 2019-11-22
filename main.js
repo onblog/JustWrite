@@ -1,7 +1,5 @@
 const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron')
 const cMenu = require('./src/script/menu')
-const items = require('./src/script/items')
-const DataStore = require('./src/script/store')
 
 let mainWindow
 
@@ -18,7 +16,7 @@ function createWindow() {
     mainWindow = new BrowserWindow({
                                        width: 900,
                                        height: 650,
-                                       webPreferences: {devTools: true, nodeIntegration: true},
+                                       webPreferences: {devTools: false, nodeIntegration: true},
                                        titleBarStyle: "hidden"
                                    })
     mainWindow.loadFile('./src/index.html').then()
@@ -50,10 +48,6 @@ app.on('ready', () => {
         temp: app.getPath("temp"),
         closeAllWindow: false, //是否提示
     }
-
-    //初始化本地设置文件
-    let dataStore = new DataStore()
-    dataStore.initStore(items.codeItems[0], items.HTMlItems[0])
 
     //创建窗口
     createWindow()

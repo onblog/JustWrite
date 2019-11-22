@@ -52,6 +52,7 @@ img {
 #myTab {
     position: absolute;
     top: 0;
+    margin-left: 0;
     height: initial;
     overflow-x: auto;
     white-space: nowrap;
@@ -128,7 +129,6 @@ img {
 
 pre {
     padding: 0 !important;
-    min-height: 30px !important;
 }
 
 /*代码滚动条*/
@@ -137,6 +137,7 @@ pre code span {
 }
 
 pre code {
+    min-height: 30px !important;
     overflow-x: auto;
     font-weight: normal;
     word-spacing: 0;
@@ -186,4 +187,10 @@ pre code::-webkit-scrollbar {
     font-weight: 300;
     border: none;
     margin-bottom: 10px;
+}
+.CodeMirror {
+    height: 100%;
+    width: 100%;
+    font-size: 16px;
+    font-family: "Microsoft YaHei",微软雅黑,"MicrosoftJhengHei",华文细黑,STHeiti,MingLiu;
 }

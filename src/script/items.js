@@ -1,4 +1,4 @@
-exports.codeItems =
+exports.codeStyleItems =
     ["a11y-dark", "a11y-light", "agate", "an-old-hope", "androidstudio", "arduino-light", "arta",
      "ascetic", "atelier-cave-dark", "atelier-cave-light", "atelier-dune-dark",
      "atelier-dune-light",
@@ -23,5 +23,17 @@ exports.codeItems =
      "sunburst", "tomorrow-night-blue", "tomorrow-night-bright", "tomorrow-night-eighties",
      "tomorrow-night", "tomorrow", "vs", "vs2015", "xcode", "xt256", "zenburn"]
 
-exports.HTMlItems = ['github','gothic','newsprint','night','pixyll','whitey'
-     ,'default','red','green','blue','black']
+exports.HTMlStyleItems = ['github', 'gothic', 'newsprint', 'night', 'pixyll', 'whitey'
+    , 'default', 'red', 'green', 'blue', 'black']
+
+exports.editorStyleItems =
+    ['3024-day', '3024-night', 'abcdef', 'ambiance-mobile', 'ambiance', 'base16-dark',
+     'base16-light', 'bespin', 'blackboard', 'cobalt', 'colorforth', 'darcula', 'dracula',
+     'duotone-dark', 'duotone-light', 'eclipse', 'elegant', 'erlang-dark', 'gruvbox-dark',
+     'hopscotch', 'icecoder', 'idea', 'isotope', 'lesser-dark', 'liquibyte', 'lucario',
+     'material-darker', 'material-ocean', 'material-palenight', 'material', 'mbo', 'mdn-like',
+     'midnight', 'monokai', 'moxer', 'neat', 'neo', 'night', 'nord', 'oceanic-next', 'panda-syntax',
+     'paraiso-dark', 'paraiso-light', 'pastel-on-dark', 'railscasts', 'rubyblue', 'seti',
+     'shadowfox', 'solarized', 'ssms', 'the-matrix', 'tomorrow-night-bright',
+     'tomorrow-night-eighties', 'ttcn', 'twilight', 'vibrant-ink', 'xq-dark', 'xq-light', 'yeti',
+     'yonce', 'zenburn']

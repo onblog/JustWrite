@@ -55,14 +55,15 @@ const tempPath = remote.getGlobal('sharedObject').temp
 
 const dataStore = new DataStore()
 
+let tabs = new Map() //标签页集合
+let tab //当前标签页
+
 //恢复上次设置的主题与代码风格
 cutCodeStyle(dataStore.getCodeStyle())
 cutHTMLStyle(dataStore.getHTMLStyle())
+cutEditorStyle(dataStore.getEditorStyle())
 cutNightMode(dataStore.getNightMode())
 cutPreviewMode(dataStore.getCutPreview())
-
-let tabs = new Map() //标签页集合
-let tab //当前标签页
 
 //控制close图标的显示
 function closeDisplay() {
@@ -118,7 +119,7 @@ let num = 0
 
 //往输入框的光标处中插入图片
 function insertPictureToTextarea(tab, src) {
-    insertTextareaValue(tab, '\n![](' + pathSep(src) + ')')
+    insertTextareaValue(tab, '![](' + pathSep(src) + ')')
 }
 
 //win路径处理
@@ -131,29 +132,27 @@ function pathSep(src) {
 
 //往输入框的光标处中插入文字
 function insertTextareaValue(t, txt) {
-    let start = t.getTextarea().selectionStart
-    const value = t.getTextarea().value
-    let newTxt = value.substring(0, start) + txt + value.substring(start)
-    changeTextareaValue(t, newTxt)
-    t.getTextarea().selectionStart = start + txt.length
-    t.getTextarea().selectionEnd = t.getTextarea().selectionStart
+    let myCodeMirror = t.getCodeMirror()
+    myCodeMirror.doc.replaceSelection(txt)
+    changeTextareaValueAfter(t, myCodeMirror.doc.getValue())
 }
 
 //往输入框的选中的两侧插入文字
 function insertTextareaValueTwo(t, left, right) {
-    let start = t.getTextarea().selectionStart
-    let end = t.getTextarea().selectionEnd
-    const value = t.getTextarea().value
-    let newTxt = value.substring(0, start) + left + value.substring(start, end) + right
-                 + value.substring(end)
-    changeTextareaValue(t, newTxt)
-    t.getTextarea().selectionStart = start + left.length
-    t.getTextarea().selectionEnd = t.getTextarea().selectionStart + (end - start)
+    let myCodeMirror = t.getCodeMirror()
+    myCodeMirror.doc.replaceSelection(left + myCodeMirror.doc.getSelection() + right, 'around')
+    changeTextareaValueAfter(t, myCodeMirror.doc.getValue())
+
 }
 
 //改变输入框的文字
 function changeTextareaValue(t, txt) {
-    t.getTextarea().value = txt
+    t.getCodeMirror().doc.setValue(txt)
+    changeTextareaValueAfter(t, txt)
+    t.getCodeMirror().refresh()
+}
+
+function changeTextareaValueAfter(t, txt) {
     t.getMarked().innerHTML = marked.render(txt) // {baseUrl: t.getPath()}
     //是否已保存编辑部分
     t.isEditChangeIco(txt)
@@ -196,38 +195,42 @@ function createNewTab(...dataAndPath) {
     if (tab1.getPath() && tab1.getPath().length > 0) {
         tab1.getHeader().innerHTML = path.basename(tab1.getPath())
     }
-    //渲染页面
-    let textarea = tab1.getTextarea()
+    //绑定编辑器
+    let myCodeMirror = CodeMirror.fromTextArea(tab1.getTextarea(), {
+        lineNumbers: true,
+        value: '',
+        theme: dataStore.getEditorStyle(),
+        mode: 'markdown',
+        lineWrapping: true,
+        autofocus: true,
+        cursorHeight: 0.8,
+        matchBrackets: true,
+    })
+    tab1.setCodeMirror(myCodeMirror)
+    //填充默认文字
     if (text && text.length > 0) {
         changeTextareaValue(tab1, text)
     }
+    // setTimeout(() => {
+    //     myCodeMirror.refresh() //刷新字体的会刷新，此处注释掉
+    // }, 100)
+
     //监听页面的输入事件
     let v = text;
-    textarea.addEventListener('input', evt => {
+    myCodeMirror.on('change', (codeMirror, object) => {
         //实时渲染MD
-        if (v !== evt.target.value) {
-            // if (evt.inputType === 'insertLineBreak'){
-            //     insertTextareaValue(tab1,'\n')
-            // }
-            changeTextareaValue(tab1, evt.target.value)
-            v = evt.target.value;
+        if (v !== codeMirror.doc.getValue()) {
+            changeTextareaValueAfter(tab1, codeMirror.doc.getValue())
+            v = codeMirror.doc.getValue();
         }
-    })
-
-    //TAB键代替4个空格
-    textarea.addEventListener('keydown', evt => {
-        const TAB = 9
-        if (evt.keyCode === TAB) {
-            evt.preventDefault();
-            insertTextareaValue(tab1, '  ')
-        }
-    })
+    });
 
     //监听编辑器的滚动事件
     //内容栏滑动
-    textarea.addEventListener("scroll", () => {
-        const height = tab1.getTextarea().scrollHeight - tab1.getTextarea().clientHeight
-        const proportion = tab1.getTextarea().scrollTop / height
+    myCodeMirror.on("scroll", () => {
+        const scrollInfo = myCodeMirror.getScrollInfo()
+        const height = scrollInfo.height - scrollInfo.clientHeight
+        const proportion = scrollInfo.top / height
         const markedHeight = tab1.getMarked().scrollHeight - tab1.getMarked().clientHeight
         tab1.getMarked().scrollTop = markedHeight * proportion;
     })
@@ -242,6 +245,9 @@ function createNewTab(...dataAndPath) {
 
     //通过点击事件先切换标签
     tab1.getHeader().click()
+
+    //改变默认字体大小
+    editorFontSizeAdjust()
 }
 
 //初始化标签页
@@ -294,7 +300,7 @@ ipcRenderer.on('open-md-file', (event, files) => {
                 return console.error(err);
             }
             //如果当前编辑器已有文字
-            if (tab.getTextarea().value && tab.getTextarea().value.length > 0) {
+            if (tab.getTextareaValue() && tab.getTextareaValue().length > 0) {
                 createNewTab(data.toString(), files[i])
             } else { //未编辑
                 const tabId = tab.getId()
@@ -311,14 +317,14 @@ function saveFile(id) {
     //是否是绝对路径
     if (tab1.hasPath()) {
         //保存文件
-        fs.writeFile(tab1.getPath(), tab1.getTextarea().value, function (err) {
+        fs.writeFile(tab1.getPath(), tab1.getTextareaValue(), function (err) {
             if (err) {
                 return console.error(err);
             }
         });
         //更新已保存部分
-        tab1.setText(tab1.getTextarea().value)
-        changeTextareaValue(tab1, tab1.getTextarea().value)
+        tab1.setText(tab1.getTextareaValue())
+        changeTextareaValue(tab1, tab1.getTextareaValue())
     } else {
         //提示创建新的文件(输入文件名，路径)
         ipcRenderer.send('new-md-file', id)
@@ -334,14 +340,14 @@ ipcRenderer.on('save-md-file', () => {
 ipcRenderer.on('new-md-file-complete', (event, filePath, id) => {
     let tab1 = getTab(id)
     //在磁盘新建文件
-    fs.writeFile(filePath, tab1.getTextarea().value, function (err) {
+    fs.writeFile(filePath, tab1.getTextareaValue(), function (err) {
         if (err) {
             return console.error(err)
         }
     });
     //新建一个标签打开文件，关掉原标签
     let tab2 = tab1
-    createNewTab(tab1.getTextarea().value, filePath)
+    createNewTab(tab1.getTextareaValue(), filePath)
     deleteTab(tab2.getId())
 })
 
@@ -357,7 +363,7 @@ ipcRenderer.on('rename-md-file', (event, filePath) => {
             }
             //新建一个标签打开文件，关掉原标签
             let tab1 = tab
-            createNewTab(tab.getTextarea().value, filePath)
+            createNewTab(tab.getTextareaValue(), filePath)
             deleteTab(tab1.getId())
         })
     } else { //未保存，暂时存放路径
@@ -367,7 +373,7 @@ ipcRenderer.on('rename-md-file', (event, filePath) => {
 
 //拷贝为MD
 ipcRenderer.on('copy-to-md', event => {
-    clipboard.writeText(tab.getTextarea().value)
+    clipboard.writeText(tab.getTextareaValue())
 })
 //拷贝为HTML-Style
 ipcRenderer.on('copy-to-html-style', event => {
@@ -405,6 +411,19 @@ ipcRenderer.on('cut-html-style', (event, name) => {
     cutHTMLStyle(name)
 })
 
+function cutEditorStyle(name) {
+    document.getElementById('editor-style').href =
+        '../node_modules/codemirror/theme/' + name + '.css'
+    if (tab && tab.getCodeMirror()) {
+        tab.getCodeMirror().setOption('theme', name)
+    }
+}
+
+//改变编辑器主题样式
+ipcRenderer.on('cut-editor-style', (event, args) => {
+    cutEditorStyle(args)
+})
+
 //标题栏滑动
 myTabs.get(0).onwheel = function (event) {
     //禁止事件默认行为（此处禁止鼠标滚轮行为关联到"屏幕滚动条上下移动"行为）
@@ -422,15 +441,15 @@ myTabs.get(0).onwheel = function (event) {
 
 //==========================【图片处理】===========
 
-function copyValueToClipboard() {
-    clipboard.writeText(tab.getTextarea().value) //拷贝原内容
-    remote.dialog.showMessageBox({type: 'none', message: '原内容已拷贝到剪贴板', buttons: ['OK']}).then()
-}
+// function copyValueToClipboard() {
+//     clipboard.writeText(tab.getTextareaValue()) //拷贝原内容
+//     remote.dialog.showMessageBox({type: 'none', message: '原内容已拷贝到剪贴板', buttons: ['OK']}).then()
+// }
 
 //图片防盗链md-img
 ipcRenderer.on('picture-md-to-img', () => {
-    copyValueToClipboard()
-    let objReadline = tab.getTextarea().value.split('\n')
+    // copyValueToClipboard()
+    let objReadline = tab.getTextareaValue().split('\n')
     let newValue = ''
     objReadline.forEach(line => {
         const split = line.indexOf('!') !== -1 ? line.split('!') : []
@@ -602,8 +621,8 @@ function downloadNetPicture() {
         remote.dialog.showMessageBox({message: '文件尚未保存至本地'}).then()
         return
     }
-    copyValueToClipboard() //拷贝原内容
-    let objReadline = tab.getTextarea().value.split('\n')
+    // copyValueToClipboard() //拷贝原内容
+    let objReadline = tab.getTextareaValue().split('\n')
     for (let i = 0; i < objReadline.length; i++) {
         let line = objReadline[i] + ''
         const split = line.indexOf('!') !== -1 ? line.split('!') : []
@@ -618,7 +637,7 @@ function downloadNetPicture() {
                     let newSrc = tab.getPictureDir() + path.basename(src)
                     download(src, newSrc, function () {
                         changeTextareaValue(tab,
-                                            tab.getTextarea().value.replace(src, pathSep(newSrc))) //处理下win系统路径
+                                            tab.getTextareaValue().replace(src, pathSep(newSrc))) //处理下win系统路径
                         Toast.toast('下载成功+1', 'success', 3000)
                     });
                 }
@@ -633,8 +652,8 @@ ipcRenderer.on('download-net-picture', () => {
 
 //一键图片上传
 function uploadAllPictureToWeiBo() {
-    copyValueToClipboard() //拷贝原内容
-    let objReadline = tab.getTextarea().value.split('\n')
+    // copyValueToClipboard() //拷贝原内容
+    let objReadline = tab.getTextareaValue().split('\n')
     let tip = {up: true}
     for (let i = 0; i < objReadline.length; i++) {
         let line = objReadline[i] + ''
@@ -649,7 +668,7 @@ function uploadAllPictureToWeiBo() {
                 if (path.isAbsolute(src)) {
                     uploadPictureToWeiBo(src
                         , href => {
-                            changeTextareaValue(tab, tab.getTextarea().value.replace(src, href))
+                            changeTextareaValue(tab, tab.getTextareaValue().replace(src, href))
                             Toast.toast('上传成功+1', 'success', 3000)
                         }, () => {
                             if (tip.up) {
@@ -670,7 +689,7 @@ ipcRenderer.on('upload-all-picture-to-weiBo', event => {
 
 //一键图片整理到picture文件夹
 function movePictureToFolder() {
-    let objReadline = tab.getTextarea().value.split('\n')
+    let objReadline = tab.getTextareaValue().split('\n')
     for (let i = 0; i < objReadline.length; i++) {
         let line = objReadline[i] + ''
         const split = line.indexOf('!') !== -1 ? line.split('!') : []
@@ -688,7 +707,7 @@ function movePictureToFolder() {
                             return console.error(err)
                         }
                         changeTextareaValue(tab,
-                                            tab.getTextarea().value.replace(src, pathSep(newSrc)))
+                                            tab.getTextareaValue().replace(src, pathSep(newSrc)))
                         Toast.toast('整理成功+1', 'success', 3000)
                     });
                 }
@@ -717,25 +736,32 @@ ipcRenderer.on('export-pdf-file', function () {
                              });
 })
 
-//快捷键
+//=================【快捷键】================
+
 ipcRenderer.on('quick-key-insert-txt', (event, args) => {
     switch (args) {
         case 'CmdOrCtrl+1':
+            tab.getCodeMirror().execCommand('goLineStart')
             insertTextareaValue(tab, '# ')
             break
         case 'CmdOrCtrl+2':
+            tab.getCodeMirror().execCommand('goLineStart')
             insertTextareaValue(tab, '## ')
             break
         case 'CmdOrCtrl+3':
+            tab.getCodeMirror().execCommand('goLineStart')
             insertTextareaValue(tab, '### ')
             break
         case 'CmdOrCtrl+4':
+            tab.getCodeMirror().execCommand('goLineStart')
             insertTextareaValue(tab, '#### ')
             break
         case 'CmdOrCtrl+5':
+            tab.getCodeMirror().execCommand('goLineStart')
             insertTextareaValue(tab, '##### ')
             break
         case 'CmdOrCtrl+6':
+            tab.getCodeMirror().execCommand('goLineStart')
             insertTextareaValue(tab, '######')
             break
         case 'Alt+Command+T' || 'Ctrl+Shift+T':
@@ -750,12 +776,15 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             insertTextareaValue(tab, '![]()')
             break
         case 'Alt+Command+Q' || 'Ctrl+Shift+Q':
+            tab.getCodeMirror().execCommand('goLineStart')
             insertTextareaValue(tab, '> ')
             break
         case 'Alt+Command+O' || 'Ctrl+Shift+O':
+            tab.getCodeMirror().execCommand('goLineStart')
             insertTextareaValue(tab, '1. ')
             break
         case 'Alt+Command+U' || 'Ctrl+Shift+U':
+            tab.getCodeMirror().execCommand('goLineStart')
             insertTextareaValue(tab, '- ')
             break
         case 'Alt+Command+X' || 'Ctrl+Shift+X':
@@ -763,7 +792,7 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
                                 '- <input type="checkbox" disabled checked> \n- <input type="checkbox" disabled>')
             break
         case 'Alt+Command+-' || 'Ctrl+Shift+-':
-            insertTextareaValue(tab, '\n---')
+            insertTextareaValue(tab, '---')
             break
         case 'CmdOrCtrl+B':
             insertTextareaValueTwo(tab, '**', '**')
@@ -809,9 +838,31 @@ function cutPreviewMode(args) {
         document.getElementById('preview-mode').setAttribute('href', './css/PreviewMode.css')
     }
 }
-
+// 切换实时预览
 ipcRenderer.on('cut-preview-mode', (event, args) => {
     cutPreviewMode(args)
+})
+
+//字体放大缩小
+function editorFontSizeAdjust(target) {
+    let oldSize = document.getElementById(tab.getLeftId()).getElementsByClassName('CodeMirror')[0].style['font-size'] || dataStore.getEditorFontSize()
+    let newSize = parseInt(oldSize)
+    switch (target) {
+        case '+':
+            newSize<30?newSize++:''
+            break
+        case '-':
+            newSize>10?newSize--:''
+            break
+    }
+    newSize+='px'
+    document.getElementById(tab.getLeftId()).getElementsByClassName('CodeMirror')[0].style['font-size'] = newSize
+    tab.getCodeMirror().refresh()
+    dataStore.setEditorFontSize(newSize)
+}
+
+ipcRenderer.on('editor-font-size-adjust',(event, args) => {
+    editorFontSizeAdjust(args)
 })
 
 //是否是网络图片
@@ -973,7 +1024,7 @@ ipcRenderer.on('publish-article-to-cnblogs', () => {
     Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至博客园
-        let objReadline = tab.getTextarea().value.split('\n')
+        let objReadline = tab.getTextareaValue().split('\n')
         let newValue = ''
         let next = true
         for (let i = 0; i < objReadline.length && next; i++) {
@@ -1116,7 +1167,7 @@ ipcRenderer.on('publish-article-to-csdn', () => {
     Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至CSDN
-        let objReadline = tab.getTextarea().value.split('\n')
+        let objReadline = tab.getTextareaValue().split('\n')
         let newValue = ''
         let next = true
         for (let i = 0; i < objReadline.length && next; i++) {
@@ -1308,7 +1359,7 @@ ipcRenderer.on('publish-article-to-jueJin', () => {
     Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至掘金
-        let objReadline = tab.getTextarea().value.split('\n')
+        let objReadline = tab.getTextareaValue().split('\n')
         let newValue = ''
         let next = true
         for (let i = 0; i < objReadline.length && next; i++) {
@@ -1493,7 +1544,7 @@ ipcRenderer.on('publish-article-to-OsChina', () => {
     Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至开源中国
-        let objReadline = tab.getTextarea().value.split('\n')
+        let objReadline = tab.getTextareaValue().split('\n')
         let newValue = ''
         let next = true
         for (let i = 0; i < objReadline.length && next; i++) {
@@ -1671,7 +1722,7 @@ ipcRenderer.on('publish-article-to-SegmentFault', event => {
     Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至思否
-        let objReadline = tab.getTextarea().value.split('\n')
+        let objReadline = tab.getTextareaValue().split('\n')
         let newValue = ''
         let next = true
         for (let i = 0; i < objReadline.length && next; i++) {

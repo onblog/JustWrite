@@ -4,12 +4,16 @@ class DataStore extends Store {
     //页面主题代码风格切换
     codeStyleKey = 'code-style-key'
     htmlStyleKey = 'html-style-key'
+    editorStyleKey = 'editor-style-key'
 
     //夜间模式
     nightModeKey = 'night-mode-key'
 
     //实时预览
     cutPreviewKey = 'cut-preview-key'
+
+    //编辑器字体大小
+    editorFontSizeKey = 'editor-font-size-key'
 
     //新浪微博图床设置
     weiBoCookiesKey = 'wei-Bo-cookies-key'
@@ -35,29 +39,45 @@ class DataStore extends Store {
         super(finalConfig)
     }
 
-    initStore(defaultCodeStyle, defaultHtmlStyle) {
+    isChecked(k, v) {
+        return this.has(k) && this.get(k) === v;
+    }
+
+    setCodeStyle(defaultCodeStyle){
         if (!this.has(this.codeStyleKey)){
             this.set(this.codeStyleKey,defaultCodeStyle)
         }
-        if (!this.has(this.htmlStyleKey)){
-            this.set(this.htmlStyleKey,defaultHtmlStyle)
-        }
-    }
-
-    isChecked(k, v) {
-        return this.has(k) && this.get(k) === v;
     }
 
     getCodeStyle() {
         return this.get(this.codeStyleKey)
     }
 
+    setHTMLStyle(defaultHtmlStyle){
+        if (!this.has(this.htmlStyleKey)){
+            this.set(this.htmlStyleKey,defaultHtmlStyle)
+        }
+    }
+
     getHTMLStyle() {
         return this.get(this.htmlStyleKey)
     }
 
+    setEditorStyle(defaultEditorStyle){
+        if (!this.has(this.editorStyleKey)){
+            this.set(this.editorStyleKey,defaultEditorStyle)
+        }
+    }
+
+    getEditorStyle() {
+        return this.get(this.editorStyleKey)
+    }
+
     getNightMode() {
-        return this.get(this.nightModeKey, false)
+        if (this.has(this.nightModeKey)) {
+            return this.get(this.nightModeKey)
+        }
+        return false
     }
 
     getCutPreview() {
@@ -65,6 +85,17 @@ class DataStore extends Store {
             return this.get(this.cutPreviewKey)
         }
         return true
+    }
+
+    getEditorFontSize() {
+        if (this.has(this.editorFontSizeKey)){
+            return this.get(this.editorFontSizeKey)
+        }
+        return '16px'
+    }
+
+    setEditorFontSize(v) {
+        this.set(this.editorFontSizeKey,v)
     }
 
     getWeiBoUpload() {

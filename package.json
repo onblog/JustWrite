@@ -1,7 +1,7 @@
 {
   "name": "justwrite",
   "productName": "JustWrite",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -17,6 +17,7 @@
   "repository": "https://github.com/yueshutong/JustWrite/",
   "dependencies": {
     "bootstrap": "^3.4.1",
+    "codemirror": "^5.49.2",
     "electron-store": "^5.0.0",
     "form-data": "^3.0.0",
     "highlight.js": "^9.15.10",

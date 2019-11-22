@@ -120,6 +120,18 @@ class Tab {
             this.edit = false
         }
     }
+
+    setCodeMirror(codeMirror){
+        this.codeMirror = codeMirror
+    }
+
+    getCodeMirror(){
+        return this.codeMirror
+    }
+
+    getTextareaValue(){
+        return this.getCodeMirror().doc.getValue()
+    }
 }
 
 module.exports = Tab

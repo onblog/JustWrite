@@ -8,40 +8,59 @@ const jsdom = require("jsdom")
 
 const dataStore = new DataStore()
 
-let codeItems = items.codeItems
-let htmlItems = items.HTMlItems
+let codeStyleItems = items.codeStyleItems
+let htMlStyleItems = items.HTMlStyleItems
+let editorStyleItems = items.editorStyleItems
 
 exports.createMenuItems = (mainWindow, app) => {
-    //主题风格
-    const htmlMenuClick = function (menuItem,) {
-        if (menuItem.checked) {
-            dataStore.set(dataStore.htmlStyleKey, menuItem.label)
-            mainWindow.send('cut-html-style', menuItem.label)
-        }
-    }
-    let htmlMenuItems = []
-    for (let i = 0; i < htmlItems.length; i++) {
-        htmlMenuItems.push({
-                               label: htmlItems[i],
+    //初始化本地配置
+    dataStore.setCodeStyle(items.codeStyleItems[0])
+    dataStore.setHTMLStyle(items.HTMlStyleItems[0])
+    dataStore.setEditorStyle(items.editorStyleItems[0])
+    //编辑器主题风格
+    let editorMenuItems = []
+    for (let i = 0; i < editorStyleItems.length; i++) {
+        editorMenuItems.push({
+                               label: editorStyleItems[i],
                                type: 'radio', //多选一
-                               checked: dataStore.isChecked(dataStore.htmlStyleKey, htmlItems[i]),
-                               click: htmlMenuClick
+                               checked: dataStore.isChecked(dataStore.editorStyleKey, editorStyleItems[i]),
+                               click: function (menuItem) {
+                                   if (menuItem.checked) {
+                                       dataStore.set(dataStore.editorStyleKey, menuItem.label)
+                                       mainWindow.send('cut-editor-style', menuItem.label)
+                                   }
+                               }
+                           })
+    }
+    //排版主题风格
+    let htmlMenuItems = []
+    for (let i = 0; i < htMlStyleItems.length; i++) {
+        htmlMenuItems.push({
+                               label: htMlStyleItems[i],
+                               type: 'radio', //多选一
+                               checked: dataStore.isChecked(dataStore.htmlStyleKey, htMlStyleItems[i]),
+                               click: function (menuItem) {
+                                   if (menuItem.checked) {
+                                       dataStore.set(dataStore.htmlStyleKey, menuItem.label)
+                                       mainWindow.send('cut-html-style', menuItem.label)
+                                   }
+                               }
                            })
     }
     //代码风格
-    const codeMenuClick = function (menuItem) {
-        if (menuItem.checked) {
-            dataStore.set(dataStore.codeStyleKey, menuItem.label)
-            mainWindow.send('cut-code-style', menuItem.label)
-        }
-    }
     let codeMenuItems = []
-    for (let i = 0; i < codeItems.length; i++) {
+    for (let i = 0; i < codeStyleItems.length; i++) {
         codeMenuItems.push({
-                               label: codeItems[i],
+                               label: codeStyleItems[i],
                                type: 'radio', //多选一
-                               checked: dataStore.isChecked(dataStore.codeStyleKey, codeItems[i]),
-                               click: codeMenuClick
+                               checked: dataStore.isChecked(dataStore.codeStyleKey,
+                                                            codeStyleItems[i]),
+                               click: function (menuItem) {
+                                   if (menuItem.checked) {
+                                       dataStore.set(dataStore.codeStyleKey, menuItem.label)
+                                       mainWindow.send('cut-code-style', menuItem.label)
+                                   }
+                               }
                            })
     }
 
@@ -228,7 +247,7 @@ exports.createMenuItems = (mainWindow, app) => {
     const nightMode = {
         label: '夜间模式',
         type: 'checkbox',
-        checked: dataStore.isChecked(dataStore.nightModeKey, true),
+        checked: dataStore.getNightMode(),
         click: (menuItem => {
             if (menuItem.checked) {
                 dataStore.set(dataStore.nightModeKey, true)
@@ -243,6 +262,7 @@ exports.createMenuItems = (mainWindow, app) => {
     const cutPreview = {
         label: '实时预览',
         type: 'checkbox',
+        accelerator: 'CmdOrCtrl+/',
         checked: dataStore.getCutPreview(),
         click: (menuItem => {
             if (menuItem.checked) {
@@ -254,7 +274,26 @@ exports.createMenuItems = (mainWindow, app) => {
             }
         })
     }
-
+    //编辑器字体调整
+    const editorFontSizeAdjust = {
+        label: '字体',
+        submenu: [
+            {
+                label: '放大',
+                accelerator: 'CmdOrCtrl+Plus',
+                click: ()=>{
+                    mainWindow.send('editor-font-size-adjust','+')
+                }
+            },
+            {
+                label: '缩小',
+                accelerator: 'CmdOrCtrl+-',
+                click: ()=>{
+                    mainWindow.send('editor-font-size-adjust','-')
+                }
+            }
+        ]
+    }
     return [
         {
             label: app.getName(),
@@ -505,6 +544,7 @@ exports.createMenuItems = (mainWindow, app) => {
                     }
                 }, {
                     label: '任务列表',
+                    visible: false,
                     accelerator: (function () {
                         if (process.platform === 'darwin') {
                             return 'Alt+Command+X'
@@ -588,6 +628,11 @@ exports.createMenuItems = (mainWindow, app) => {
                 }
             }
             ]
+        },
+        {
+            label: '编辑器',
+            submenu:
+            editorMenuItems
         },
         {
             label: '主题',
@@ -775,7 +820,9 @@ exports.createMenuItems = (mainWindow, app) => {
                         focusedWindow.toggleDevTools()
                     }
                 }
-            }, {
+            },{
+                type: 'separator'
+            },editorFontSizeAdjust, {
                 type: 'separator'
             }, cutPreview, {
                 type: 'separator'
