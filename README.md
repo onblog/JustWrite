@@ -44,7 +44,9 @@
 
 - [x] 支持打印、支持一键导出PDF文档
 
-- [ ] 支持自定义编辑器（字体、背景）
+- [x] 支持切换markdown编辑器主题
+
+- [x] 支持编辑器字体放大/缩小
 
 
 ## 下载 mac、window 客户端
@@ -55,13 +57,9 @@ Gitee：<https://gitee.com/zyzpp/JustWrite/releases>
 
 ## 预览
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g8rx460zjij313u0u04bs.jpg)
+![](http://ww3.sinaimg.cn/large/007ZVq6cly1g96qf4psw4j313u0u04a9.jpg)
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g8rx58ewzsj313u0u0dsm.jpg)
-
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g8rx5k645uj313u0u0h0a.jpg)
-
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g8rxbp31ldj313u0u0dtq.jpg)
+![](http://ww3.sinaimg.cn/large/007ZVq6cly1g96qf4f5srj313u0u0k2k.jpg)
 
 ## 鸣谢
 
