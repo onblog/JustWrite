@@ -4,7 +4,7 @@
 ![](https://img.shields.io/static/v1?label=electron&message=6.0.12&color=)
 ![](https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg)
 
-一款定位于Markdown文章排版与一键发布本地文章到【博客园】【CSDN】【掘金】【开源中国】等平台的多标签Markdown编辑器。
+一款定位于Markdown文章排版与一键发布本地文章到【博客园】【CSDN】【SegmentFault】【掘金】【开源中国】等平台的多标签Markdown编辑器。
 
 你可以尝试用JustWrite写作，因为JustWrite可以帮你排版，帮你美化，帮你处理本地图片，帮你一键发布！
 
