@@ -886,17 +886,18 @@ ipcRenderer.on('editor-font-size-adjust', (event, args) => {
 
 //显示/关闭行号
 function disPlayLineNumber(args) {
-    for (let t of tabs.values()) {
-        t.getCodeMirror().setOption('lineNumbers', args)
-    }
     if (args) {
         document.getElementById('editorPadding').innerHTML =
-            `.CodeMirror-sizer{padding: 1em 1em 1em 0 !important}`
+            `.CodeMirror{padding: 1em 1em 1em 0 !important}`
     } else {
         document.getElementById('editorPadding').innerHTML =
-            `.CodeMirror-sizer{padding: 1em !important}`
+            `.CodeMirror{padding: 1em !important}`
     }
     dataStore.setDisplayLineNumber(args)
+    for (let t of tabs.values()) {
+        t.getCodeMirror().setOption('lineNumbers', args)
+        t.getCodeMirror().refresh()
+    }
 }
 
 ipcRenderer.on('display-line-number', (event, args) => {
@@ -909,12 +910,11 @@ ipcRenderer.on('text-word-count', event => {
     let words = stringUtil.findStringWords(tab.getCodeMirror().doc.getValue())
     remote.dialog.showMessageBox({
                                      message: `
-    中文：${result.chinese}
-    英文：${result.english}
-    数字：${result.number}
-    其它：${result.other}
-    正文字数：${words}
-    `
+                                     中文：${result.chinese}
+                                     英文：${result.english}
+                                     数字：${result.number}
+                                     其它：${result.other}
+                                     正文字数：${words}`
                                  }).then()
 })
 
@@ -994,7 +994,7 @@ function publishArticleToCnBlog(title, content) {
             const dom = new jsdom.JSDOM(str);
             //如果是博客园Beat账号
             let element = dom.window.document.querySelector('a')
-            if (element && element.href === 'https://i-beta.cnblogs.com/EditPosts.aspx?opt=1'){
+            if (element && element.href === 'https://i-beta.cnblogs.com/EditPosts.aspx?opt=1') {
                 cnBlog_url = 'https://i1.cnblogs.com/EditPosts.aspx?opt=1'
                 publishArticleToCnBlog(title, content)
                 return
