@@ -893,7 +893,6 @@ function disPlayLineNumber(args) {
         document.getElementById('editorPadding').innerHTML =
             `.CodeMirror{padding: 1em !important}`
     }
-    dataStore.setDisplayLineNumber(args)
     for (let t of tabs.values()) {
         t.getCodeMirror().setOption('lineNumbers', args)
         t.getCodeMirror().refresh()
@@ -921,7 +920,6 @@ ipcRenderer.on('text-word-count', event => {
 //更改字体
 function changeEditorFontFamily(args) {
     document.getElementById('editorFontFamily').innerHTML = `.CodeMirror{font-family:${args}`
-    dataStore.setEditorFontFamily(args)
 }
 
 ipcRenderer.on('editor-font-family-adjust', (event, args) => {

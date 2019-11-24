@@ -48,9 +48,9 @@ class DataStore extends Store {
         return this.has(k) && this.get(k) === v;
     }
 
-    setCodeStyle(defaultCodeStyle){
-        if (!this.has(this.codeStyleKey)){
-            this.set(this.codeStyleKey,defaultCodeStyle)
+    initCodeStyle(defaultCodeStyle) {
+        if (!this.has(this.codeStyleKey)) {
+            this.set(this.codeStyleKey, defaultCodeStyle)
         }
     }
 
@@ -58,9 +58,9 @@ class DataStore extends Store {
         return this.get(this.codeStyleKey)
     }
 
-    setHTMLStyle(defaultHtmlStyle){
-        if (!this.has(this.htmlStyleKey)){
-            this.set(this.htmlStyleKey,defaultHtmlStyle)
+    initHTMLStyle(defaultHtmlStyle) {
+        if (!this.has(this.htmlStyleKey)) {
+            this.set(this.htmlStyleKey, defaultHtmlStyle)
         }
     }
 
@@ -68,9 +68,9 @@ class DataStore extends Store {
         return this.get(this.htmlStyleKey)
     }
 
-    setEditorStyle(defaultEditorStyle){
-        if (!this.has(this.editorStyleKey)){
-            this.set(this.editorStyleKey,defaultEditorStyle)
+    initEditorStyle(defaultEditorStyle) {
+        if (!this.has(this.editorStyleKey)) {
+            this.set(this.editorStyleKey, defaultEditorStyle)
         }
     }
 
@@ -86,43 +86,46 @@ class DataStore extends Store {
     }
 
     getCutPreview() {
-        if (this.has(this.cutPreviewKey)){
+        if (this.has(this.cutPreviewKey)) {
             return this.get(this.cutPreviewKey)
         }
         return true
     }
 
     getDisplayLineNumber() {
-        if (this.has(this.displayLineNumber)){
+        if (this.has(this.displayLineNumber)) {
             return this.get(this.displayLineNumber)
         }
         return true
     }
 
-    setDisplayLineNumber(a){
-        this.set(this.displayLineNumber,a)
+    setDisplayLineNumber(a) {
+        this.set(this.displayLineNumber, a)
     }
 
     getEditorFontSize() {
-        if (this.has(this.editorFontSizeKey)){
+        if (this.has(this.editorFontSizeKey)) {
             return this.get(this.editorFontSizeKey)
         }
         return '16px'
     }
 
     setEditorFontSize(v) {
-        this.set(this.editorFontSizeKey,v)
+        this.set(this.editorFontSizeKey, v)
     }
 
     getEditorFontFamily() {
-        if (this.has(this.editorFontFamilyKey)){
-            return this.get(this.editorFontFamilyKey)
+        return this.get(this.editorFontFamilyKey)
+    }
+
+    initEditorFontFamily(v) {
+        if (!this.has(this.editorFontFamilyKey)) {
+            this.set(this.editorFontFamilyKey, v)
         }
-        return 'inherit'
     }
 
     setEditorFontFamily(v) {
-        this.set(this.editorFontFamilyKey,v)
+        this.set(this.editorFontFamilyKey, v)
     }
 
     getWeiBoUpload() {
@@ -134,7 +137,7 @@ class DataStore extends Store {
     }
 
     getWeiBoCookies() {
-        if (this.has(this.weiBoCookiesKey)){
+        if (this.has(this.weiBoCookiesKey)) {
             return this.get(this.weiBoCookiesKey)
         }
         return null
@@ -145,7 +148,7 @@ class DataStore extends Store {
     }
 
     getCnBlogCookies() {
-        if (this.has(this.cnBlogCookieKey)){
+        if (this.has(this.cnBlogCookieKey)) {
             return this.get(this.cnBlogCookieKey)
         }
         return null
@@ -156,7 +159,7 @@ class DataStore extends Store {
     }
 
     getCSDNCookies() {
-        if (this.has(this.CSDNCookieKey)){
+        if (this.has(this.CSDNCookieKey)) {
             return this.get(this.CSDNCookieKey)
         }
         return null
@@ -167,7 +170,7 @@ class DataStore extends Store {
     }
 
     getJueJinCookies() {
-        if (this.has(this.JueJinCookieKey)){
+        if (this.has(this.JueJinCookieKey)) {
             return this.get(this.JueJinCookieKey)
         }
         return null
@@ -178,7 +181,7 @@ class DataStore extends Store {
     }
 
     getOsChinaCookies() {
-        if (this.has(this.OsChinaCookieKey)){
+        if (this.has(this.OsChinaCookieKey)) {
             return this.get(this.OsChinaCookieKey)
         }
         return null
@@ -189,7 +192,7 @@ class DataStore extends Store {
     }
 
     getOsChinaUserCode() {
-        if (this.has(this.OsChinaUserCodeKey)){
+        if (this.has(this.OsChinaUserCodeKey)) {
             return this.get(this.OsChinaUserCodeKey)
         }
         return null
@@ -200,7 +203,7 @@ class DataStore extends Store {
     }
 
     getSegmentFaultCookie() {
-        if (this.has(this.SegmentFaultCookieKey)){
+        if (this.has(this.SegmentFaultCookieKey)) {
             return this.get(this.SegmentFaultCookieKey)
         }
         return null
@@ -211,7 +214,7 @@ class DataStore extends Store {
     }
 
     getSegmentFaultToken() {
-        if (this.has(this.SegmentFaultTokenKey)){
+        if (this.has(this.SegmentFaultTokenKey)) {
             return this.get(this.SegmentFaultTokenKey)
         }
         return null
@@ -222,7 +225,7 @@ class DataStore extends Store {
     }
 
     getOsChinaUserId() {
-        if (this.has(this.OsChinaUserIdKey)){
+        if (this.has(this.OsChinaUserIdKey)) {
             return this.get(this.OsChinaUserIdKey)
         }
         return null

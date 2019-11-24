@@ -8,16 +8,14 @@ const jsdom = require("jsdom")
 
 const dataStore = new DataStore()
 
-let codeStyleItems = items.codeStyleItems
-let htMlStyleItems = items.HTMlStyleItems
-let editorStyleItems = items.editorStyleItems
-
 exports.createMenuItems = (mainWindow, app) => {
     //初始化本地配置
-    dataStore.setCodeStyle(items.codeStyleItems[0])
-    dataStore.setHTMLStyle(items.HTMlStyleItems[0])
-    dataStore.setEditorStyle(items.editorStyleItems[0])
+    dataStore.initCodeStyle(items.codeStyleItems[0])
+    dataStore.initHTMLStyle(items.HTMlStyleItems[0])
+    dataStore.initEditorStyle(items.editorStyleItems[0])
+    dataStore.initEditorFontFamily(items.fontFamilyItems[0])
     //编辑器主题风格
+    const editorStyleItems = items.editorStyleItems
     let editorMenuItems = []
     for (let i = 0; i < editorStyleItems.length; i++) {
         editorMenuItems.push({
@@ -34,6 +32,7 @@ exports.createMenuItems = (mainWindow, app) => {
                              })
     }
     //排版主题风格
+    const htMlStyleItems = items.HTMlStyleItems
     let htmlMenuItems = []
     for (let i = 0; i < htMlStyleItems.length; i++) {
         htmlMenuItems.push({
@@ -50,6 +49,7 @@ exports.createMenuItems = (mainWindow, app) => {
                            })
     }
     //代码风格
+    const codeStyleItems = items.codeStyleItems
     let codeMenuItems = []
     for (let i = 0; i < codeStyleItems.length; i++) {
         codeMenuItems.push({
@@ -75,6 +75,7 @@ exports.createMenuItems = (mainWindow, app) => {
                                  checked: dataStore.isChecked(dataStore.editorFontFamilyKey,
                                                               fontFamilyItems[i]),
                                  click: (item) => {
+                                     dataStore.setEditorFontFamily(item.label)
                                      mainWindow.send('editor-font-family-adjust', item.label)
                                  }
                              })
@@ -823,10 +824,10 @@ exports.createMenuItems = (mainWindow, app) => {
                 checked: dataStore.getDisplayLineNumber(),
                 click: (menuItem => {
                     if (menuItem.checked) {
-                        dataStore.set(dataStore.displayLineNumber, true)
+                        dataStore.setDisplayLineNumber(true)
                         mainWindow.send('display-line-number', true)
                     } else {
-                        dataStore.set(dataStore.displayLineNumber, false)
+                        dataStore.setDisplayLineNumber(false)
                         mainWindow.send('display-line-number', false)
                     }
                 })
