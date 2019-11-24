@@ -1,3 +1,48 @@
+@font-face {
+    font-family: 'ZCOOL小微';
+    src: url('./font/ZCOOL_XiaoWei/ZCOOLXiaoWei-Regular.ttf');
+}
+@font-face {
+    font-family: '风雨华文圆体';
+    src: url('./font/FengYu-HuaWenYuanTi/FengYu-HuaWenYuanTi-2.ttf');
+}
+
+@font-face {
+    font-family: '青柠幼圆体';
+    src: url('./font/QingNingYouYuanTi/QingNingYouYuan-2.ttf');
+}
+
+@font-face {
+    font-family: '问藏书房';
+    src: url('./font/WenCangShuFang/WenCangShuFang-2.ttf');
+}
+
+@font-face {
+    font-family: '微软雅黑';
+    src: url('./font/WeiRuanYaHeiTi/WeiRuanYaHei-1.ttf');
+}
+
+@font-face {
+    font-family: '逐浪新宋';
+    src: url('./font/ZhuLangXinSong-XiTi/ZhuLangXinSong-XiTi-2.otf');
+}
+@font-face {
+    font-family: '杨任东竹石体';
+    src: url('./font/YangRenDongZhuShiTi-Light/YangRenDongZhuShiTi-Light-2.ttf');
+}
+@font-face {
+    font-family: '神韵今晚吃鸡';
+    src: url('./font/ShenYunJinWanChiJi/ShenYunJinWanChiJi-2.ttf');
+}
+@font-face {
+    font-family: '站酷快乐体';
+    src: url('./font/ZhanKuKuaiLeTi/ZhanKuKuaiLeTi2016XiuDingBan-1.ttf');
+}
+@font-face {
+    font-family: '方正楷体';
+    src: url('./font/FangZhengKaiTiJianTi/FangZhengKaiTiJianTi-1.ttf');
+}
+
 body {
     width: 100%;
     height: 100%;
@@ -123,7 +168,7 @@ img {
     word-break: break-all;
     display: block;
     color: #444;
-    padding: 0 20px;
+    padding: 1em;
     font-size: 16px;
 }
 
@@ -132,24 +177,24 @@ pre {
 }
 
 /*代码滚动条*/
-pre code span {
-    white-space: nowrap;
-}
-
 pre code {
     min-height: 30px !important;
     overflow-x: auto;
+    white-space: pre;
     font-weight: normal;
     word-spacing: 0;
     letter-spacing: 0;
 }
-
 pre code::-webkit-scrollbar {
     height: 8px;
     width: 8px;
 }
+pre code::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: #E0E0E0;
+}
 
-/*滚动条*/
+/*默认滚动条*/
 ::-webkit-scrollbar {
     height: 6px;
     width: 6px;
@@ -175,7 +220,7 @@ pre code::-webkit-scrollbar {
     z-index: 99;
     text-align: -webkit-right;
     top: 12%;
-    right: 5%;
+    left: 5%;
 }
 #toast > .alert {
     padding: 12px 25px;

@@ -1,32 +1,10 @@
 .md2html {
-	font-size: 19px;
-}
-
-.md2html, .editor {
 	margin: auto;
 	background: #fefefe;
-}
-.md2html, .editor {
 	font-family: "Vollkorn", Palatino, Times, serif;
 	color: #333;
 	line-height: 1.4em;
 	text-align: justify;
-}
-#write {
-	max-width: 960px;
-	margin: 0 auto;
-	margin-bottom: 2em;
-	line-height: 1.53;
-	padding-top: 40px;
-}
-
-/* Typography
--------------------------------------------------------- */
-
-#write>h1:first-child,
-h1 {
-	margin-top: 1em;
-	font-weight: normal;
 }
 
 h1 {
@@ -74,8 +52,7 @@ h1+h2, h2+h3 {
 	margin-top: 0.83em;
 }
 
-p,
-.mathjax-block {
+p{
 	margin-top: 0;
 	-webkit-hypens: auto;
 	-moz-hypens: auto;
@@ -89,22 +66,14 @@ ol {
 	padding-left: 1.2em;
 }
 blockquote {
-	margin-left: 1em;
+	margin-left: 5px;
 	padding-left: 1em;
+	font-size: inherit;
 	border-left: 1px solid #ddd;
 }
-code,
-pre {
+code, pre {
 	font-family: "Consolas", "Menlo", "Monaco", monospace, serif;
-	font-size: .9em !important;
-}
-.md-fences{
-	margin-left: 1em;
-	padding-left: 1em;
-	border: 1px solid #ddd;
-	padding-bottom: 8px;
-	padding-top: 6px;
-	margin-bottom: 1.5em;
+	font-size: 13px;
 }
 
 a {
@@ -131,10 +100,7 @@ hr {
 	border-left: 0;
 	border-right: 0;
 }
-.ty-table-edit {
-	background: #ededed;
-	padding-top: 4px;
-}
+
 table {
 	margin-bottom: 1.333333em
 }
@@ -161,128 +127,4 @@ table thead:first-child tr:first-child td {
 }
 table tbody+tbody {
 	border-top: 2px solid #ddd
-}
-
-.task-list{
-	padding:0;
-}
-
-.md-task-list-item {
-	padding-left: 1.6em;
-}
-
-.md-task-list-item > input:before {
-	content: '\221A';
-	display: inline-block;
-	width: 1.33333333em;
-	height: 1.6em;
-	vertical-align: middle;
-	text-align: center;
-	color: #ddd;
-	background-color: #fefefe;
-}
-
-.md-task-list-item > input:checked:before,
-.md-task-list-item > input[checked]:before{
-	color: inherit;
-}
-.md-tag {
-	color: inherit;
-	font: inherit;
-}
-#write pre.md-meta-block {
-	min-height: 35px;
-	padding: 0.5em 1em;
-}
-#write pre.md-meta-block {
-	white-space: pre;
-	background: #f8f8f8;
-	border: 0px;
-	color: #999;
-
-	width: 100vw;
-	max-width: calc(100% + 60px);
-	margin-left: -30px;
-	border-left: 30px #f8f8f8 solid;
-	border-right: 30px #f8f8f8 solid;
-
-	margin-bottom: 2em;
-	margin-top: -1.3333333333333em;
-	padding-top: 26px;
-	padding-bottom: 10px;
-	line-height: 1.8em;
-	font-size: 0.9em;
-	font-size: 0.76em;
-	padding-left: 0;
-}
-.md-img-error.md-image>.md-meta{
-	vertical-align: bottom;
-}
-#write>h5.md-focus:before {
-	top: 2px;
-}
-
-.md-toc {
-	margin-top: 40px;
-}
-
-.md-toc-content {
-	padding-bottom: 20px;
-}
-
-.outline-expander:before {
-	color: inherit;
-	font-size: 14px;
-	top: auto;
-	content: "\f0da";
-	font-family: FontAwesome;
-}
-
-.outline-expander:hover:before,
-.outline-item-open>.outline-item>.outline-expander:before {
-	content: "\f0d7";
-}
-
-/** source code mode */
-#typora-source {
-	font-family: Courier, monospace;
-	color: #6A6A6A;
-}
-
-.html-for-mac #typora-sidebar {
-	-webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
-	box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
-}
-
-.cm-s-typora-default .cm-header,
-.cm-s-typora-default .cm-property,
-.CodeMirror.cm-s-typora-default div.CodeMirror-cursor {
-	color: #428bca;
-}
-
-.cm-s-typora-default .cm-atom, .cm-s-typora-default .cm-number {
-	color: #777777;
-}
-
-.typora-node .file-list-item-parent-loc,
-.typora-node .file-list-item-time,
-.typora-node .file-list-item-summary {
-	font-family: arial, sans-serif;
-}
-
-.md-task-list-item>input {
-	margin-left: -1.3em;
-	margin-top: calc(1em - 12px);
-}
-
-.md-mathjax-midline {
-	background: #fafafa;
-}
-
-.md-fences .code-tooltip {
-	bottom: -2em !important;
-}
-
-.dropdown-menu .divider {
-	border-color: #e5e5e5;
 }

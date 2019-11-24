@@ -3,8 +3,6 @@ __Advertisement :)__
 
 哈哈哈，很开心呢！
 
-你在干嘛呢？
-
 - __[pica](https://nodeca.github.io/pica/demo/)__ - high quality and fast image
   resize in browser.%
 - __[babelfish](https://github.com/nodeca/babelfish/)__ - developer friendly
@@ -253,4 +251,6 @@ It converts "HTML", but keep intact partial entries like "xxxHTMLyyy" and so on.
 
 ![](/Users/yueshutong/Downloads/pic.png)
 
-![](/Users/yueshutong/Downloads/pic.png)
+![](/Users/yueshutong/IdeaProjects/JustWrite/picture/6664621.png)
+
+![](/Users/yueshutong/IdeaProjects/JustWrite/picture/6717634.png)

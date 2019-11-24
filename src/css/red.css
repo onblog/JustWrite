@@ -1,6 +1,5 @@
 /*红色网格*/
-.md2html,.editor
-{
+.md2html {
     font-size: 15px;/*更改默认的字体大小*/
     color: #3e3e3e;
     line-height: 1.8; /*更改默认的行距*/

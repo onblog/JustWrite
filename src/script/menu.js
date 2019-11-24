@@ -21,16 +21,17 @@ exports.createMenuItems = (mainWindow, app) => {
     let editorMenuItems = []
     for (let i = 0; i < editorStyleItems.length; i++) {
         editorMenuItems.push({
-                               label: editorStyleItems[i],
-                               type: 'radio', //多选一
-                               checked: dataStore.isChecked(dataStore.editorStyleKey, editorStyleItems[i]),
-                               click: function (menuItem) {
-                                   if (menuItem.checked) {
-                                       dataStore.set(dataStore.editorStyleKey, menuItem.label)
-                                       mainWindow.send('cut-editor-style', menuItem.label)
-                                   }
-                               }
-                           })
+                                 label: editorStyleItems[i],
+                                 type: 'radio', //多选一
+                                 checked: dataStore.isChecked(dataStore.editorStyleKey,
+                                                              editorStyleItems[i]),
+                                 click: function (menuItem) {
+                                     if (menuItem.checked) {
+                                         dataStore.set(dataStore.editorStyleKey, menuItem.label)
+                                         mainWindow.send('cut-editor-style', menuItem.label)
+                                     }
+                                 }
+                             })
     }
     //排版主题风格
     let htmlMenuItems = []
@@ -38,7 +39,8 @@ exports.createMenuItems = (mainWindow, app) => {
         htmlMenuItems.push({
                                label: htMlStyleItems[i],
                                type: 'radio', //多选一
-                               checked: dataStore.isChecked(dataStore.htmlStyleKey, htMlStyleItems[i]),
+                               checked: dataStore.isChecked(dataStore.htmlStyleKey,
+                                                            htMlStyleItems[i]),
                                click: function (menuItem) {
                                    if (menuItem.checked) {
                                        dataStore.set(dataStore.htmlStyleKey, menuItem.label)
@@ -62,6 +64,20 @@ exports.createMenuItems = (mainWindow, app) => {
                                    }
                                }
                            })
+    }
+    //字体切换
+    const fontFamilyItems = items.fontFamilyItems
+    let fontFamilyMenus = []
+    for (let i = 0; i < fontFamilyItems.length; i++) {
+        fontFamilyMenus.push({
+                                 label: fontFamilyItems[i],
+                                 type: 'radio', //多选一
+                                 checked: dataStore.isChecked(dataStore.editorFontFamilyKey,
+                                                              fontFamilyItems[i]),
+                                 click: (item) => {
+                                     mainWindow.send('editor-font-family-adjust', item.label)
+                                 }
+                             })
     }
 
     //登录某网站获取Cookie通用方法
@@ -243,57 +259,6 @@ exports.createMenuItems = (mainWindow, app) => {
     }
     //启动时自动检查更新
     updateApp(false)
-    //夜间模式
-    const nightMode = {
-        label: '夜间模式',
-        type: 'checkbox',
-        checked: dataStore.getNightMode(),
-        click: (menuItem => {
-            if (menuItem.checked) {
-                dataStore.set(dataStore.nightModeKey, true)
-                mainWindow.send('cut-night-mode', true)
-            } else {
-                dataStore.set(dataStore.nightModeKey, false)
-                mainWindow.send('cut-night-mode', false)
-            }
-        })
-    }
-    //实时预览
-    const cutPreview = {
-        label: '实时预览',
-        type: 'checkbox',
-        accelerator: 'CmdOrCtrl+/',
-        checked: dataStore.getCutPreview(),
-        click: (menuItem => {
-            if (menuItem.checked) {
-                dataStore.set(dataStore.cutPreviewKey, true)
-                mainWindow.send('cut-preview-mode', true)
-            } else {
-                dataStore.set(dataStore.cutPreviewKey, false)
-                mainWindow.send('cut-preview-mode', false)
-            }
-        })
-    }
-    //编辑器字体调整
-    const editorFontSizeAdjust = {
-        label: '字体',
-        submenu: [
-            {
-                label: '放大',
-                accelerator: 'CmdOrCtrl+Plus',
-                click: ()=>{
-                    mainWindow.send('editor-font-size-adjust','+')
-                }
-            },
-            {
-                label: '缩小',
-                accelerator: 'CmdOrCtrl+-',
-                click: ()=>{
-                    mainWindow.send('editor-font-size-adjust','-')
-                }
-            }
-        ]
-    }
     return [
         {
             label: app.getName(),
@@ -400,8 +365,10 @@ exports.createMenuItems = (mainWindow, app) => {
                 role: 'undo'
             }, {
                 label: '重做',
-                accelerator: 'Shift+CmdOrCtrl+Z',
-                role: 'redo'
+                accelerator: 'CmdOrCtrl+Y',
+                click: (item, focusedWindow, event) => {
+                    mainWindow.send('quick-key-insert-txt', item.accelerator)
+                }
             }, {
                 type: 'separator'
             }, {
@@ -820,13 +787,81 @@ exports.createMenuItems = (mainWindow, app) => {
                         focusedWindow.toggleDevTools()
                     }
                 }
-            },{
+            }, {
                 type: 'separator'
-            },editorFontSizeAdjust, {
+            }, {
+                label: '字体',
+                submenu: fontFamilyMenus
+            }, {
+                label: '字号',
+                submenu: [
+                    {
+                        label: '放大',
+                        accelerator: 'CmdOrCtrl+Plus',
+                        click: () => {
+                            mainWindow.send('editor-font-size-adjust', '+')
+                        }
+                    },
+                    {
+                        label: '缩小',
+                        accelerator: 'CmdOrCtrl+-',
+                        click: () => {
+                            mainWindow.send('editor-font-size-adjust', '-')
+                        }
+                    }
+                ]
+            }, {
                 type: 'separator'
-            }, cutPreview, {
+            }, {
+                label: '字数统计',
+                click: () => {
+                    mainWindow.send('text-word-count')
+                }
+            }, {
+                label: '显示行号',
+                type: 'checkbox',
+                checked: dataStore.getDisplayLineNumber(),
+                click: (menuItem => {
+                    if (menuItem.checked) {
+                        dataStore.set(dataStore.displayLineNumber, true)
+                        mainWindow.send('display-line-number', true)
+                    } else {
+                        dataStore.set(dataStore.displayLineNumber, false)
+                        mainWindow.send('display-line-number', false)
+                    }
+                })
+            }, {
                 type: 'separator'
-            }, nightMode
+            }, {
+                label: '实时预览',
+                type: 'checkbox',
+                accelerator: 'CmdOrCtrl+/',
+                checked: dataStore.getCutPreview(),
+                click: (menuItem => {
+                    if (menuItem.checked) {
+                        dataStore.set(dataStore.cutPreviewKey, true)
+                        mainWindow.send('cut-preview-mode', true)
+                    } else {
+                        dataStore.set(dataStore.cutPreviewKey, false)
+                        mainWindow.send('cut-preview-mode', false)
+                    }
+                })
+            }, {
+                type: 'separator'
+            }, {
+                label: '夜间模式',
+                type: 'checkbox',
+                checked: dataStore.getNightMode(),
+                click: (menuItem => {
+                    if (menuItem.checked) {
+                        dataStore.set(dataStore.nightModeKey, true)
+                        mainWindow.send('cut-night-mode', true)
+                    } else {
+                        dataStore.set(dataStore.nightModeKey, false)
+                        mainWindow.send('cut-night-mode', false)
+                    }
+                })
+            }
             ]
         },
         {

@@ -14,8 +14,8 @@ const options = {
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-                                       width: 900,
-                                       height: 650,
+                                       width: 850,
+                                       height: 600,
                                        webPreferences: {devTools: false, nodeIntegration: true},
                                        titleBarStyle: "hidden"
                                    })

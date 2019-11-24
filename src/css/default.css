@@ -1,6 +1,5 @@
 /*默认样式*/
-.md2html, .editor
-{
+.md2html {
     font-size: 16px;
     color: #3e3e3e;
     line-height: 1.6;

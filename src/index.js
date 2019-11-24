@@ -12,6 +12,7 @@ const querystring = require('querystring')
 const jsdom = require("jsdom")
 const zlib = require('zlib')
 const Toast = require('./script/toast')
+const stringUtil = require('./script/stringUtil')
 
 const download = function (uri, filename, callback) {
     request.head(uri, function (err, res, body) {
@@ -82,6 +83,7 @@ function closeDisplay() {
 function cutTab(k) {
     tab = tabs.get(k + '')
     tab.getPage().className = 'tab-pane fade in active'
+    tab.getCodeMirror().refresh()
 }
 
 //优雅的获取Tab对象
@@ -246,8 +248,12 @@ function createNewTab(...dataAndPath) {
     //通过点击事件先切换标签
     tab1.getHeader().click()
 
-    //改变默认字体大小
+    //默认字体大小
     editorFontSizeAdjust()
+    //显示或关闭行号
+    disPlayLineNumber(dataStore.getDisplayLineNumber())
+    //默认字体
+    changeEditorFontFamily(dataStore.getEditorFontFamily())
 }
 
 //初始化标签页
@@ -732,14 +738,17 @@ ipcRenderer.on('export-pdf-file', function () {
                                  prepend: null,
                                  deferred: $.Deferred().done(() => {
                                      //回调
+                                     Toast.toast('完成', 'success', 3000)
                                  })
                              });
 })
 
 //=================【快捷键】================
-
 ipcRenderer.on('quick-key-insert-txt', (event, args) => {
     switch (args) {
+        case 'CmdOrCtrl+Y':
+            tab.getCodeMirror().execCommand('redo')
+            break
         case 'CmdOrCtrl+1':
             tab.getCodeMirror().execCommand('goLineStart')
             insertTextareaValue(tab, '# ')
@@ -838,6 +847,7 @@ function cutPreviewMode(args) {
         document.getElementById('preview-mode').setAttribute('href', './css/PreviewMode.css')
     }
 }
+
 // 切换实时预览
 ipcRenderer.on('cut-preview-mode', (event, args) => {
     cutPreviewMode(args)
@@ -845,24 +855,77 @@ ipcRenderer.on('cut-preview-mode', (event, args) => {
 
 //字体放大缩小
 function editorFontSizeAdjust(target) {
-    let oldSize = document.getElementById(tab.getLeftId()).getElementsByClassName('CodeMirror')[0].style['font-size'] || dataStore.getEditorFontSize()
+    let oldSize = document.getElementById(tab.getLeftId())
+                      .getElementsByClassName('CodeMirror')[0].style['font-size']
+                  || dataStore.getEditorFontSize()
     let newSize = parseInt(oldSize)
     switch (target) {
         case '+':
-            newSize<30?newSize++:''
+            newSize < 30 ? newSize++ : ''
             break
         case '-':
-            newSize>10?newSize--:''
+            newSize > 10 ? newSize-- : ''
             break
     }
-    newSize+='px'
-    document.getElementById(tab.getLeftId()).getElementsByClassName('CodeMirror')[0].style['font-size'] = newSize
-    tab.getCodeMirror().refresh()
+    newSize += 'px'
+    //应用到每一个标签页
+    for (let t of tabs.values()) {
+        document.getElementById(t.getLeftId())
+            .getElementsByClassName('CodeMirror')[0].style['font-size'] = newSize
+        t.getCodeMirror().refresh()
+    }
     dataStore.setEditorFontSize(newSize)
+    if (target) {
+        Toast.toast(newSize, 'success', 1000)
+    }
 }
 
-ipcRenderer.on('editor-font-size-adjust',(event, args) => {
+ipcRenderer.on('editor-font-size-adjust', (event, args) => {
     editorFontSizeAdjust(args)
+})
+
+//显示/关闭行号
+function disPlayLineNumber(args) {
+    for (let t of tabs.values()) {
+        t.getCodeMirror().setOption('lineNumbers', args)
+    }
+    if (args) {
+        document.getElementById('editorPadding').innerHTML =
+            `.CodeMirror-sizer{padding: 1em 1em 1em 0 !important}`
+    } else {
+        document.getElementById('editorPadding').innerHTML =
+            `.CodeMirror-sizer{padding: 1em !important}`
+    }
+    dataStore.setDisplayLineNumber(args)
+}
+
+ipcRenderer.on('display-line-number', (event, args) => {
+    disPlayLineNumber(args)
+})
+
+//字数统计
+ipcRenderer.on('text-word-count', event => {
+    let result = stringUtil.stringLength(tab.getCodeMirror().doc.getValue())
+    let words = stringUtil.findStringWords(tab.getCodeMirror().doc.getValue())
+    remote.dialog.showMessageBox({
+                                     message: `
+    中文：${result.chinese}
+    英文：${result.english}
+    数字：${result.number}
+    其它：${result.other}
+    正文字数：${words}
+    `
+                                 }).then()
+})
+
+//更改字体
+function changeEditorFontFamily(args) {
+    document.getElementById('editorFontFamily').innerHTML = `.CodeMirror{font-family:${args}`
+    dataStore.setEditorFontFamily(args)
+}
+
+ipcRenderer.on('editor-font-family-adjust', (event, args) => {
+    changeEditorFontFamily(args)
 })
 
 //是否是网络图片
@@ -913,7 +976,7 @@ function uploadPictureToCnBlog(filePath) {
     })
 }
 
-const cnBlog_url = 'https://i.cnblogs.com/EditPosts.aspx?opt=1'
+let cnBlog_url = 'https://i.cnblogs.com/EditPosts.aspx?opt=1'
 
 //发布文章到博客园
 function publishArticleToCnBlog(title, content) {
@@ -929,13 +992,22 @@ function publishArticleToCnBlog(title, content) {
         res.on('end', () => {
             //上传之后result就是返回的结果
             const dom = new jsdom.JSDOM(str);
-            const input = dom.window.document.body.querySelector('#__VIEWSTATE')
-            if (!input.value) {
+            //如果是博客园Beat账号
+            let element = dom.window.document.querySelector('a')
+            if (element && element.href === 'https://i-beta.cnblogs.com/EditPosts.aspx?opt=1'){
+                cnBlog_url = 'https://i1.cnblogs.com/EditPosts.aspx?opt=1'
+                publishArticleToCnBlog(title, content)
+                return
+            }
+            const VIEWSTATE = dom.window.document.querySelector('#__VIEWSTATE').value
+            const VIEWSTATEGENERATOR = dom.window.document.querySelector(
+                '#__VIEWSTATEGENERATOR').value
+            if (!VIEWSTATE) {
                 remote.dialog.showMessageBox({message: '请先登录博客园'}).then()
                 return
             }
             //真正发布文章
-            publishArticleToCnBlogFact(title, content, input.value)
+            publishArticleToCnBlogFact(title, content, VIEWSTATE, VIEWSTATEGENERATOR)
         });
     })
 
@@ -945,16 +1017,16 @@ function publishArticleToCnBlog(title, content) {
     });
 }
 
-function publishArticleToCnBlogFact(title, content, VIEWSTATE) {
+function publishArticleToCnBlogFact(title, content, VIEWSTATE, VIEWSTATEGENERATOR) {
     const data = querystring.stringify({
                                            '__VIEWSTATE': VIEWSTATE,
-                                           '__VIEWSTATEGENERATOR': 'FE27D343',
+                                           '__VIEWSTATEGENERATOR': VIEWSTATEGENERATOR,
                                            'Editor$Edit$txbTitle': title,
                                            'Editor$Edit$EditorBody': content,
+                                           'Editor$Edit$Advanced$ckbPublished': 'on',
                                            'Editor$Edit$Advanced$chkDisplayHomePage': 'on',
                                            'Editor$Edit$Advanced$chkComments': 'on',
-                                           'Editor$Edit$Advanced$chkMainSyndication': 'ob',
-                                           'Editor$Edit$Advanced$rblPostType': '1',
+                                           'Editor$Edit$Advanced$chkMainSyndication': 'on',
                                            'Editor$Edit$Advanced$txbEntryName': '',
                                            'Editor$Edit$Advanced$txbExcerpt': '',
                                            'Editor$Edit$Advanced$txbTag': '',
@@ -965,7 +1037,7 @@ function publishArticleToCnBlogFact(title, content, VIEWSTATE) {
     let options = {
         method: 'POST',
         headers: {
-            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Encoding': 'deflate, br',
             "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
             'Referer': 'https://i.cnblogs.com',
             'Accept': '*/*',

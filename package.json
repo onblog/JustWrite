@@ -1,7 +1,7 @@
 {
   "name": "justwrite",
   "productName": "JustWrite",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -51,12 +51,13 @@
       ]
     },
     "win": {
-      "icon": "app.ico",
+      "icon": "build/app.ico",
       "target": [
         "nsis"
       ]
     },
     "linux": {
+      "icon": "build/app.ico",
       "category": "Office",
       "target": [
         "AppImage"

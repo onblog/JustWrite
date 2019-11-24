@@ -12,8 +12,13 @@ class DataStore extends Store {
     //实时预览
     cutPreviewKey = 'cut-preview-key'
 
+    //显示行号
+    displayLineNumber = 'display-line-number'
+
     //编辑器字体大小
     editorFontSizeKey = 'editor-font-size-key'
+    //字体名称
+    editorFontFamilyKey = 'editor-font-family-key'
 
     //新浪微博图床设置
     weiBoCookiesKey = 'wei-Bo-cookies-key'
@@ -87,6 +92,17 @@ class DataStore extends Store {
         return true
     }
 
+    getDisplayLineNumber() {
+        if (this.has(this.displayLineNumber)){
+            return this.get(this.displayLineNumber)
+        }
+        return true
+    }
+
+    setDisplayLineNumber(a){
+        this.set(this.displayLineNumber,a)
+    }
+
     getEditorFontSize() {
         if (this.has(this.editorFontSizeKey)){
             return this.get(this.editorFontSizeKey)
@@ -96,6 +112,17 @@ class DataStore extends Store {
 
     setEditorFontSize(v) {
         this.set(this.editorFontSizeKey,v)
+    }
+
+    getEditorFontFamily() {
+        if (this.has(this.editorFontFamilyKey)){
+            return this.get(this.editorFontFamilyKey)
+        }
+        return 'inherit'
+    }
+
+    setEditorFontFamily(v) {
+        this.set(this.editorFontFamilyKey,v)
     }
 
     getWeiBoUpload() {
