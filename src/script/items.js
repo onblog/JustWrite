@@ -38,5 +38,5 @@ exports.editorStyleItems =
      'tomorrow-night-eighties', 'ttcn', 'twilight', 'vibrant-ink', 'xq-dark', 'xq-light', 'yeti',
      'yonce', 'zenburn']
 
-exports.fontFamilyItems = ['问藏书房','方正楷体','青柠幼圆体','风雨华文圆体','神韵今晚吃鸡',
+exports.fontFamilyItems = ['华文圆体','问藏书房','方正楷体','青柠幼圆体','神韵今晚吃鸡',
                            '杨任东竹石体','ZCOOL小微']

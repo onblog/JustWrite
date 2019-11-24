@@ -3,10 +3,9 @@
     src: url('./font/ZCOOL_XiaoWei/ZCOOLXiaoWei-Regular.ttf');
 }
 @font-face {
-    font-family: '风雨华文圆体';
-    src: url('./font/FengYu-HuaWenYuanTi/FengYu-HuaWenYuanTi-2.ttf');
+    font-family: '华文圆体';
+    src: url('./font/HuaWenYuanTi-Regular/HuaWenYuanTi-REGULAR-2.ttf');
 }
-
 @font-face {
     font-family: '青柠幼圆体';
     src: url('./font/QingNingYouYuanTi/QingNingYouYuan-2.ttf');
