@@ -51,20 +51,20 @@
 h1,
 .h1,
 .f1 {
-	font-size: 2rem;
-	line-height: 2.5rem;
+	font-size: 2em;
+	line-height: 2.5em;
 }
 h2,
 .h2,
 .f2 {
-	font-size: 1.5rem;
-	line-height: 2rem;
+	font-size: 1.5em;
+	line-height: 2em;
 }
 h3,
 .h3,
 .f3 {
-	font-size: 1.25rem;
-	line-height: 1.5rem;
+	font-size: 1.25em;
+	line-height: 1.5em;
 }
 p, .p, .f4, h4, h5, h6, dl, ol, ul, table p{
 	font-size: inherit;
@@ -72,7 +72,7 @@ p, .p, .f4, h4, h5, h6, dl, ol, ul, table p{
 }
 
 h4 {
-	font-size: 1.13rem;
+	font-size: 1.13em;
 }
 img {
 	width: auto;

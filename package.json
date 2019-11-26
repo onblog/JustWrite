@@ -1,7 +1,7 @@
 {
   "name": "justwrite",
   "productName": "JustWrite",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "",
   "main": "main.js",
   "scripts": {

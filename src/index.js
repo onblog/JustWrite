@@ -203,6 +203,7 @@ function createNewTab(...dataAndPath) {
         value: '',
         theme: dataStore.getEditorStyle(),
         mode: 'markdown',
+        dragDrop: false,
         lineWrapping: true,
         autofocus: true,
         cursorHeight: 0.8,
@@ -298,8 +299,7 @@ ipcRenderer.on('new-tab', (() => {
     createNewTab()
 }))
 
-//打开文件
-ipcRenderer.on('open-md-file', (event, files) => {
+function openMdFiles(files) {
     for (let i = 0; i < files.length; i++) {
         fs.readFile(files[i], function (err, data) {
             if (err) {
@@ -315,6 +315,11 @@ ipcRenderer.on('open-md-file', (event, files) => {
             }
         });
     }
+}
+
+//打开文件
+ipcRenderer.on('open-md-file', (event, files) => {
+    openMdFiles(files)
 })
 
 //保存某标签的文件
@@ -502,6 +507,10 @@ document.addEventListener('drop', (e) => {
     e.preventDefault();
     e.stopPropagation();
     for (const f of e.dataTransfer.files) {
+        if (path.extname(f.path)==='.md'){
+            openMdFiles(Array.of(f.path))
+            continue
+        }
         //是否开启图片自动上传功能
         if (dataStore.getWeiBoUpload()) {
             //上传图片
@@ -974,7 +983,7 @@ function uploadPictureToCnBlog(filePath) {
     })
 }
 
-let cnBlog_url = 'https://i.cnblogs.com/EditPosts.aspx?opt=1'
+let cnBlog_url = 'https://i1.cnblogs.com/EditPosts.aspx?opt=1'
 
 //发布文章到博客园
 function publishArticleToCnBlog(title, content) {
@@ -985,18 +994,18 @@ function publishArticleToCnBlog(title, content) {
     }, res => {
         let str = '';
         res.on('data', function (buffer) {
-            str += buffer;//用字符串拼接
+            str += buffer; //用字符串拼接
         })
         res.on('end', () => {
             //上传之后result就是返回的结果
             const dom = new jsdom.JSDOM(str);
-            //如果是博客园Beat账号
-            let element = dom.window.document.querySelector('a')
-            if (element && element.href === 'https://i-beta.cnblogs.com/EditPosts.aspx?opt=1') {
-                cnBlog_url = 'https://i1.cnblogs.com/EditPosts.aspx?opt=1'
-                publishArticleToCnBlog(title, content)
-                return
-            }
+            //如果是博客园Beat账号(已过时)
+            // let element = dom.window.document.querySelector('a')
+            // if (element && element.href === 'https://i-beta.cnblogs.com/EditPosts.aspx?opt=1') {
+            //     cnBlog_url = 'https://i1.cnblogs.com/EditPosts.aspx?opt=1'
+            //     publishArticleToCnBlog(title, content)
+            //     return
+            // }
             const VIEWSTATE = dom.window.document.querySelector('#__VIEWSTATE').value
             const VIEWSTATEGENERATOR = dom.window.document.querySelector(
                 '#__VIEWSTATEGENERATOR').value

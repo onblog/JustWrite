@@ -14,7 +14,7 @@ const options = {
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-                                       width: 850,
+                                       width: 800,
                                        height: 600,
                                        webPreferences: {devTools: false, nodeIntegration: true},
                                        titleBarStyle: "hidden"
@@ -42,6 +42,13 @@ function createWindow() {
     Menu.setApplicationMenu(menu)
 }
 
+//直接拖拽文件到应用程序，或者在程序运行时使用该程序打开文件
+app.on('open-file', (event, path) => {
+    if (mainWindow) {
+        mainWindow.send("open-md-file", Array.of(path))
+    }
+})
+
 app.on('ready', () => {
     //共享数据
     global.sharedObject = {
@@ -56,12 +63,9 @@ app.on('ready', () => {
     // if (dataStore.isOutUseTime()) {
     //     dialog.showMessageBox({
     //                               title: '试用已到期',
-    //                               message: '您当前软件是测试体验版，48小时试用时间已到期，如需正式版，请联系邮箱yster@foxmail.com购买',
-    //                               buttons: ['确定']
-    //                           }).then((result) => {
-    //                               app.quit()
-    //     })
-    // }
+    //                               message:
+    // '您当前软件是测试体验版，48小时试用时间已到期，如需正式版，请联系邮箱yster@foxmail.com购买', buttons: ['确定'] }).then((result)
+    // => { app.quit() }) }
 
     //新建一个文件
     ipcMain.on('new-md-file', (event, id) => {
