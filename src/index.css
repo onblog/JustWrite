@@ -206,7 +206,7 @@ pre code::-webkit-scrollbar-thumb {
     z-index: 99;
     text-align: -webkit-right;
     top: 12%;
-    left: 5%;
+    right: 5%;
 }
 #toast > .alert {
     padding: 12px 25px;
