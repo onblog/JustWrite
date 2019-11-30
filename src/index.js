@@ -928,7 +928,7 @@ ipcRenderer.on('text-word-count', event => {
 
 //更改字体
 function changeEditorFontFamily(args) {
-    document.getElementById('editorFontFamily').innerHTML = `.CodeMirror{font-family:${args}`
+    document.getElementById('editorFontFamily').innerHTML = `.md2html,.CodeMirror{font-family:${args}`
 }
 
 ipcRenderer.on('editor-font-family-adjust', (event, args) => {

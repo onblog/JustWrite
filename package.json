@@ -1,12 +1,13 @@
 {
   "name": "justwrite",
   "productName": "JustWrite",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "package": "electron-packager ./ JustWrite --out ./OutApp --version 1.7.9 --overwrite --icon=./build/app.ico"
   },
   "keywords": [
     "markdown",
