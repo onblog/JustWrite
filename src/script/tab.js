@@ -1,4 +1,6 @@
 const path = require('path')
+const strUtil = require('./stringUtil')
+const fs = require('fs')
 
 class Tab {
     //text：已保存部分的文字内容
@@ -83,7 +85,12 @@ class Tab {
     }
 
     getPictureDir() {
-        return this.getDirname() + 'picture/'
+        const dirname = this.getDirname() + strUtil.stringDeal(this.getTitle())+'/'
+        //需要创建文件夹
+        if (!fs.existsSync(dirname)) {
+            fs.mkdirSync(dirname)
+        }
+        return dirname
     }
 
     setPath(p) {
@@ -112,11 +119,11 @@ class Tab {
         if (this.getText() !== txt) {
             //已编辑
             this.getHeader().innerHTML =
-                path.basename(this.getPath()) + '<span class="tip"> - 已编辑</span>'
+                this.getTitle() + '<span class="tip"> - 已编辑</span>'
             this.edit = true
         } else {
             //未编辑
-            this.getHeader().innerHTML = path.basename(this.getPath())
+            this.getHeader().innerHTML = this.getTitle()
             this.edit = false
         }
     }
