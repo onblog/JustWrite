@@ -59,9 +59,9 @@ Gitee：<https://gitee.com/zyzpp/JustWrite/releases>
 
 ## 预览
 
-![](http://ww3.sinaimg.cn/large/007ZVq6cly1g96qf4psw4j313u0u04a9.jpg)
+![](/Users/yueshutong/Downloads/JustWrite/README/007ZVq6cly1g96qf4psw4j313u0u04a9.jpg)
 
-![](http://ww3.sinaimg.cn/large/007ZVq6cly1g96qf4f5srj313u0u0k2k.jpg)
+![](/Users/yueshutong/Downloads/JustWrite/README/007ZVq6cly1g96qf4f5srj313u0u0k2k.jpg)
 
 ## 鸣谢
 
