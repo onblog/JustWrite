@@ -1,5 +1,5 @@
 const path = require('path')
-const strUtil = require('./stringUtil')
+const strUtil = require('./util')
 const fs = require('fs')
 
 class Tab {
@@ -85,7 +85,8 @@ class Tab {
     }
 
     getPictureDir() {
-        const dirname = this.getDirname() + strUtil.stringDeal(this.getTitle())+'/'
+        let s = strUtil.stringDeal(this.getTitle()) + '/'
+        const dirname = this.getDirname() + s
         //需要创建文件夹
         if (!fs.existsSync(dirname)) {
             fs.mkdirSync(dirname)
@@ -93,9 +94,19 @@ class Tab {
         return dirname
     }
 
+    getPictureDirRelative() {
+        let s = strUtil.stringDeal(this.getTitle()) + '/'
+        const dirname = this.getDirname() + s
+        //需要创建文件夹
+        if (!fs.existsSync(dirname)) {
+            fs.mkdirSync(dirname)
+        }
+        return './'+s
+    }
+
     setPath(p) {
         this.filePath = p;
-        this.getHeader().innerHTML = path.basename(this.getPath())
+        this.getHeader().innerHTML = this.getTitle()
     }
 
     hasPath() {

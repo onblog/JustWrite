@@ -1,31 +1,14 @@
-const {remote, shell, clipboard, ipcRenderer} = require('electron')
-const https = require('https');
+const {remote, clipboard, ipcRenderer} = require('electron')
 const request = require('request')
-const urlEncode = require('urlencode')
 const fs = require("fs")
 const path = require('path')
 const hljs = require('highlight.js')
 const DataStore = require('./script/store')
+const dataStore = new DataStore()
 const Tab = require('./script/tab')
-const FormData = require('form-data')
-const querystring = require('querystring')
-const jsdom = require("jsdom")
-const zlib = require('zlib')
 const Toast = require('./script/toast')
-const stringUtil = require('./script/stringUtil')
-
-const download = function (uri, filename, callback) {
-    request.head(uri, function (err, res, body) {
-        if (err) {
-            Toast.toast(err, 'danger', 3000)
-        }
-        if (!fs.existsSync(path.dirname(filename))) {
-            fs.mkdirSync(path.dirname(filename))
-        }
-        request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
-    });
-};
-
+const util = require('./script/util')
+const weibo = require('./script/weibo')
 const marked = require('markdown-it')({
                                           html: true,
                                           xhtmlOut: true,
@@ -54,10 +37,13 @@ const marked = require('markdown-it')({
 
 const tempPath = remote.getGlobal('sharedObject').temp
 
-const dataStore = new DataStore()
-
 let tabs = new Map() //标签页集合
 let tab //当前标签页
+
+let myTabs = $('#myTab')
+let myTabsContent = $('#myTabContent')
+//不断增长的随机数
+let num = 0
 
 //恢复上次设置的主题与代码风格
 cutCodeStyle(dataStore.getCodeStyle())
@@ -114,11 +100,6 @@ function deleteTab(k) {
     }
 }
 
-let myTabs = $('#myTab')
-let myTabsContent = $('#myTabContent')
-//不断增长的随机数
-let num = 0
-
 //往输入框的光标处中插入图片
 function insertPictureToTextarea(tab, src) {
     insertTextareaValue(tab, '![](' + pathSep(src) + ')')
@@ -149,12 +130,18 @@ function insertTextareaValueTwo(t, left, right) {
 
 //改变输入框的文字
 function changeTextareaValue(t, txt) {
+    let cursor = t.getCodeMirror().doc.getCursor()
     t.getCodeMirror().doc.setValue(txt)
     changeTextareaValueAfter(t, txt)
     t.getCodeMirror().refresh()
+    t.getCodeMirror().doc.setCursor(cursor)
 }
 
 function changeTextareaValueAfter(t, txt) {
+    //处理一些相对路径的图片引用
+    // util.readImgLink(txt, (src)=>{
+    //     txt = txt.replace(src, relativePath(src))
+    // })
     t.getMarked().innerHTML = marked.render(txt) // {baseUrl: t.getPath()}
     //是否已保存编辑部分
     t.isEditChangeIco(txt)
@@ -172,7 +159,7 @@ function createNewTab(...dataAndPath) {
 <li id="${tab1.getLiId()}">
     <a href="#${tab1.getPageId()}" id="${tab1.getHeaderId()}" data-id="${tab1.getId()}"
        data-toggle="tab" class="header"></a>
-    <i class="glyphicon glyphicon-remove close" id="${tab1.getCloseId(num)}" 
+    <i class="glyphicon glyphicon-remove close" id="${tab1.getCloseId()}" 
     data-id="${tab1.getId()}"></i>
 </li>
 `)
@@ -192,6 +179,12 @@ function createNewTab(...dataAndPath) {
 </div>
     </div>
 `)
+    //注册新的标签
+    putTab(tab1.getId(), tab1)
+    //一直加
+    num++;
+    //更新当前标签页
+    tab = tab1;
 
     //窗口头部
     if (tab1.getPath() && tab1.getPath().length > 0) {
@@ -237,14 +230,6 @@ function createNewTab(...dataAndPath) {
         const markedHeight = tab1.getMarked().scrollHeight - tab1.getMarked().clientHeight
         tab1.getMarked().scrollTop = markedHeight * proportion;
     })
-    //注册新的标签
-    putTab(tab1.getId(), tab1)
-
-    //更新当前标签页
-    tab = tab1;
-
-    //一直加
-    num++;
 
     //通过点击事件先切换标签
     tab1.getHeader().click()
@@ -452,10 +437,13 @@ myTabs.get(0).onwheel = function (event) {
 
 //==========================【图片处理】===========
 
-// function copyValueToClipboard() {
-//     clipboard.writeText(tab.getTextareaValue()) //拷贝原内容
-//     remote.dialog.showMessageBox({type: 'none', message: '原内容已拷贝到剪贴板', buttons: ['OK']}).then()
-// }
+//返回图片的真实路径
+function relativePath(str) {
+    if (str.indexOf('.') === 0) {
+        return tab.getDirname() + str
+    }
+    return str
+}
 
 //图片防盗链md-img
 ipcRenderer.on('picture-md-to-img', () => {
@@ -490,7 +478,7 @@ ipcRenderer.on('insert-picture-file', (event, filePaths) => {
         //是否开启图片自动上传功能
         if (dataStore.getWeiBoUpload()) {
             //上传图片
-            uploadPictureToWeiBo(filePaths[i], (src) => {
+            weibo.uploadPictureToWeiBo(filePaths[i], (src) => {
                 insertPictureToTextarea(tab, src)
             })
         } else {
@@ -507,14 +495,14 @@ document.addEventListener('drop', (e) => {
     e.preventDefault();
     e.stopPropagation();
     for (const f of e.dataTransfer.files) {
-        if (path.extname(f.path)==='.md'){
+        if (path.extname(f.path) === '.md') {
             openMdFiles(Array.of(f.path))
             continue
         }
         //是否开启图片自动上传功能
         if (dataStore.getWeiBoUpload()) {
             //上传图片
-            uploadPictureToWeiBo(f.path, (src) => {
+            weibo.uploadPictureToWeiBo(f.path, (src) => {
                 insertPictureToTextarea(tab, src)
             })
         } else {
@@ -553,7 +541,7 @@ document.addEventListener('paste', function (event) {
                     //是否开启图片自动上传功能
                     if (dataStore.getWeiBoUpload()) {
                         //上传图片
-                        uploadPictureToWeiBo(filePath, (src) => {
+                        weibo.uploadPictureToWeiBo(filePath, (src) => {
                             insertPictureToTextarea(tab, src)
                         })
                     } else {
@@ -566,99 +554,33 @@ document.addEventListener('paste', function (event) {
     }
 });
 
-/**
- * 上传图片到新浪微博
- * @param filePath
- * @param callback
- * @param errback
- */
-function uploadPictureToWeiBo(filePath, callback, errback) {
-    let image_url = 'https://picupload.weibo.com/interface/pic_upload.php?mime=image%2Fjpeg&data=base64&url=0&markpos=1&logo=&nick=0&marks=1&app=miniblog'
-    fs.readFile(filePath, {encoding: 'base64'}, function (err, data) {
+const download = function (uri, filename, callback) {
+    request.head(uri, function (err, res, body) {
         if (err) {
-            return console.error(err)
+            Toast.toast(err, 'danger', 3000)
         }
-        const image_data = 'b64_data=' + urlEncode(data)
-        let options = {
-            host: 'picupload.weibo.com',
-            method: 'POST',
-            headers: {
-                'Accept-Encoding': 'gzip, deflate, br',
-                "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
-                'Referer': 'https://weibo.com/',
-                'Accept': '*/*',
-                'Origin': 'https://weibo.com',
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Content-Length': Buffer.byteLength(image_data),
-                'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0',
-                'Cookie': dataStore.getWeiBoCookies()
-            }
+        if (!fs.existsSync(path.dirname(filename))) {
+            fs.mkdirSync(path.dirname(filename))
         }
-
-        let req = https.request(image_url, options, function (res) {
-            // console.log('STATUS: ' + res.statusCode);
-            res.setEncoding('utf8');
-            const prefix = 'http://ww3.sinaimg.cn/large/'
-            res.on('data', function (chunk) {
-                // console.log('BODY: ' + chunk);
-                let start = chunk.toString().indexOf('script>') + 'script>'.length
-                const text = chunk.toString().substring(start).trim()
-                // console.log(text)
-                const parse = JSON.parse(text)
-                const pid = parse.data.pics.pic_1.pid
-                const src = prefix + pid + '.jpg'
-                // console.log(src)
-                if (pid === undefined || pid === null) {
-                    if (errback) {
-                        errback()
-                    } else {
-                        remote.dialog.showMessageBox({message: '请先登录新浪微博'}).then()
-                    }
-                } else {
-                    callback(src)
-                }
-            });
-        });
-
-        req.on('error', function (e) {
-            console.log('problem with request: ' + e.message);
-            Toast.toast(e.message, 'warning', 3000)
-        });
-
-        req.write(image_data)
-        req.end()
-    })
-}
-
+        request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
+    });
+};
 //一键网图下载
 function downloadNetPicture() {
     if (!tab.hasPath()) {
         remote.dialog.showMessageBox({message: '文件尚未保存至本地'}).then()
         return
     }
-    // copyValueToClipboard() //拷贝原内容
-    let objReadline = tab.getTextareaValue().split('\n')
-    for (let i = 0; i < objReadline.length; i++) {
-        let line = objReadline[i] + ''
-        const split = line.indexOf('!') !== -1 ? line.split('!') : []
-        for (let i = 0; i < split.length; i++) {
-            let block = split[i]
-            if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
-                && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
-                const start = block.lastIndexOf('(')
-                const end = block.lastIndexOf(')')
-                const src = block.substring(start + 1, end) //图片地址
-                if (isWebPicture(src)) {
-                    let newSrc = tab.getPictureDir() + path.basename(src)
-                    download(src, newSrc, function () {
-                        changeTextareaValue(tab,
-                                            tab.getTextareaValue().replace(src, pathSep(newSrc))) //处理下win系统路径
-                        Toast.toast('下载成功+1', 'success', 3000)
-                    });
-                }
-            }
+    util.readImgLink(tab.getTextareaValue(), (src) => {
+        if (util.isWebPicture(src)) {
+            let newSrc = tab.getPictureDir() + path.basename(src)
+            download(src, newSrc, function () {
+                changeTextareaValue(tab,
+                                    tab.getTextareaValue().replace(src, pathSep(newSrc))) //处理下win系统路径
+                Toast.toast('下载成功+1', 'success', 3000)
+            });
         }
-    }
+    })
 }
 
 ipcRenderer.on('download-net-picture', () => {
@@ -667,35 +589,23 @@ ipcRenderer.on('download-net-picture', () => {
 
 //一键图片上传
 function uploadAllPictureToWeiBo() {
-    // copyValueToClipboard() //拷贝原内容
-    let objReadline = tab.getTextareaValue().split('\n')
     let tip = {up: true}
-    for (let i = 0; i < objReadline.length; i++) {
-        let line = objReadline[i] + ''
-        const split = line.indexOf('!') !== -1 ? line.split('!') : []
-        for (let i = 0; i < split.length; i++) {
-            let block = split[i]
-            if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
-                && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
-                const start = block.lastIndexOf('(')
-                const end = block.lastIndexOf(')')
-                const src = block.substring(start + 1, end) //图片地址
-                if (path.isAbsolute(src)) {
-                    uploadPictureToWeiBo(src
-                        , href => {
-                            changeTextareaValue(tab, tab.getTextareaValue().replace(src, href))
-                            Toast.toast('上传成功+1', 'success', 3000)
-                        }, () => {
-                            if (tip.up) {
-                                remote.dialog.showMessageBox({message: '请先登录新浪微博'}).then()
-                                tip.up = false
-                            }
-                        }
-                    )
+    util.readImgLink(tab.getTextareaValue(), (src) => {
+        // src = relativePath(src) //图片的真实路径
+        if (path.isAbsolute(src)) {
+            weibo.uploadPictureToWeiBo(src
+                , href => {
+                    changeTextareaValue(tab, tab.getTextareaValue().replace(src, href))
+                    Toast.toast('上传成功+1', 'success', 3000)
+                }, () => {
+                    if (tip.up) {
+                        remote.dialog.showMessageBox({message: '请先登录新浪微博'}).then()
+                        tip.up = false
+                    }
                 }
-            }
+            )
         }
-    }
+    })
 }
 
 ipcRenderer.on('upload-all-picture-to-weiBo', event => {
@@ -704,31 +614,20 @@ ipcRenderer.on('upload-all-picture-to-weiBo', event => {
 
 //一键图片整理到picture文件夹
 function movePictureToFolder() {
-    let objReadline = tab.getTextareaValue().split('\n')
-    for (let i = 0; i < objReadline.length; i++) {
-        let line = objReadline[i] + ''
-        const split = line.indexOf('!') !== -1 ? line.split('!') : []
-        for (let i = 0; i < split.length; i++) {
-            let block = split[i]
-            if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
-                && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
-                const start = block.lastIndexOf('(')
-                const end = block.lastIndexOf(')')
-                const src = block.substring(start + 1, end) //图片地址
-                let newSrc = tab.getPictureDir() + path.basename(src)
-                if (path.isAbsolute(src) && src !== newSrc) { //拷贝文件
-                    fs.copyFile(src, newSrc, (err) => {
-                        if (err) {
-                            return console.error(err)
-                        }
-                        changeTextareaValue(tab,
-                                            tab.getTextareaValue().replace(src, pathSep(newSrc)))
-                        Toast.toast('整理成功+1', 'success', 3000)
-                    });
+    util.readImgLink(tab.getTextareaValue(), (src) => {
+        // src = relativePath(src) //图片的真实路径
+        let newSrc = tab.getPictureDir() + path.basename(src)
+        if (path.isAbsolute(src) && src !== newSrc) { //拷贝文件
+            fs.copyFile(src, newSrc, (err) => {
+                if (err) {
+                    return console.error(err)
                 }
-            }
+                changeTextareaValue(tab,
+                                    tab.getTextareaValue().replace(src, pathSep(newSrc)))
+                Toast.toast('整理成功+1', 'success', 3000)
+            });
         }
-    }
+    })
 }
 
 ipcRenderer.on('move-picture-to-folder', event => {
@@ -753,6 +652,7 @@ ipcRenderer.on('export-pdf-file', function () {
 })
 
 //=================【快捷键】================
+
 ipcRenderer.on('quick-key-insert-txt', (event, args) => {
     switch (args) {
         case 'CmdOrCtrl+Y':
@@ -862,7 +762,7 @@ ipcRenderer.on('cut-preview-mode', (event, args) => {
     cutPreviewMode(args)
 })
 
-//字体放大缩小
+// 字体放大缩小
 function editorFontSizeAdjust(target) {
     let oldSize = document.getElementById(tab.getLeftId())
                       .getElementsByClassName('CodeMirror')[0].style['font-size']
@@ -914,8 +814,8 @@ ipcRenderer.on('display-line-number', (event, args) => {
 
 //字数统计
 ipcRenderer.on('text-word-count', event => {
-    let result = stringUtil.stringLength(tab.getCodeMirror().doc.getValue())
-    let words = stringUtil.findStringWords(tab.getCodeMirror().doc.getValue())
+    let result = util.stringLength(tab.getCodeMirror().doc.getValue())
+    let words = util.findStringWords(tab.getCodeMirror().doc.getValue())
     remote.dialog.showMessageBox({
                                      message: `
                                      中文：${result.chinese}
@@ -928,167 +828,17 @@ ipcRenderer.on('text-word-count', event => {
 
 //更改字体
 function changeEditorFontFamily(args) {
-    document.getElementById('editorFontFamily').innerHTML = `.md2html,.CodeMirror{font-family:${args}`
+    document.getElementById('editorFontFamily').innerHTML =
+        `.md2html,.CodeMirror{font-family:${args}`
 }
 
 ipcRenderer.on('editor-font-family-adjust', (event, args) => {
     changeEditorFontFamily(args)
 })
 
-//是否是网络图片
-function isWebPicture(src) {
-    return src.startsWith('http') && (src.endsWith('png') || src.endsWith('jpg')
-                                      || src.endsWith('png') || src.endsWith('jpeg')
-                                      || src.endsWith('gif') || src.endsWith('bmp'));
-}
-
 //==========================发布【博客园】===========
 
-//上传图片到博客园
-function uploadPictureToCnBlog(filePath) {
-    let formData = new FormData()
-    formData.append('imageFile', fs.createReadStream(filePath)) //'file'是服务器接受的key
-    formData.append("host", 'www.cnblogs.com')
-    formData.append("uploadType", 'Paste')
-
-    let headers = formData.getHeaders() //这个不能少
-    headers.Cookie = dataStore.getCnBlogCookies() //获取Cookie
-    //自己的headers属性在这里追加
-    return new Promise((resolve, reject) => {
-        let request = https.request({
-                                        host: 'upload.cnblogs.com',
-                                        method: 'POST',
-                                        path: '/imageuploader/CorsUpload',
-                                        headers: headers
-                                    }, function (res) {
-            let str = '';
-            res.on('data', function (buffer) {
-                       str += buffer;//用字符串拼接
-                   }
-            );
-            res.on('end', () => {
-                if (res.statusCode === 200) {
-                    const result = JSON.parse(str);
-                    //上传之后result就是返回的结果
-                    // console.log(result)
-                    if (result.success) {
-                        resolve(result.message)
-                    } else {
-                        reject(result.message)
-                    }
-                }
-            });
-        });
-        formData.pipe(request)
-    })
-}
-
-let cnBlog_url = 'https://i1.cnblogs.com/EditPosts.aspx?opt=1'
-
-//发布文章到博客园
-function publishArticleToCnBlog(title, content) {
-    let req = https.get(cnBlog_url, {
-        headers: {
-            'Cookie': dataStore.getCnBlogCookies()
-        }
-    }, res => {
-        let str = '';
-        res.on('data', function (buffer) {
-            str += buffer; //用字符串拼接
-        })
-        res.on('end', () => {
-            //上传之后result就是返回的结果
-            const dom = new jsdom.JSDOM(str);
-            //如果是博客园Beat账号(已过时)
-            // let element = dom.window.document.querySelector('a')
-            // if (element && element.href === 'https://i-beta.cnblogs.com/EditPosts.aspx?opt=1') {
-            //     cnBlog_url = 'https://i1.cnblogs.com/EditPosts.aspx?opt=1'
-            //     publishArticleToCnBlog(title, content)
-            //     return
-            // }
-            const VIEWSTATE = dom.window.document.querySelector('#__VIEWSTATE').value
-            const VIEWSTATEGENERATOR = dom.window.document.querySelector(
-                '#__VIEWSTATEGENERATOR').value
-            if (!VIEWSTATE) {
-                remote.dialog.showMessageBox({message: '请先登录博客园'}).then()
-                return
-            }
-            //真正发布文章
-            publishArticleToCnBlogFact(title, content, VIEWSTATE, VIEWSTATEGENERATOR)
-        });
-    })
-
-    req.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
-        remote.dialog.showMessageBox({message: e.message}).then()
-    });
-}
-
-function publishArticleToCnBlogFact(title, content, VIEWSTATE, VIEWSTATEGENERATOR) {
-    const data = querystring.stringify({
-                                           '__VIEWSTATE': VIEWSTATE,
-                                           '__VIEWSTATEGENERATOR': VIEWSTATEGENERATOR,
-                                           'Editor$Edit$txbTitle': title,
-                                           'Editor$Edit$EditorBody': content,
-                                           'Editor$Edit$Advanced$ckbPublished': 'on',
-                                           'Editor$Edit$Advanced$chkDisplayHomePage': 'on',
-                                           'Editor$Edit$Advanced$chkComments': 'on',
-                                           'Editor$Edit$Advanced$chkMainSyndication': 'on',
-                                           'Editor$Edit$Advanced$txbEntryName': '',
-                                           'Editor$Edit$Advanced$txbExcerpt': '',
-                                           'Editor$Edit$Advanced$txbTag': '',
-                                           'Editor$Edit$Advanced$tbEnryPassword': '',
-                                           'Editor$Edit$lkbDraft': '存为草稿'
-                                       })
-
-    let options = {
-        method: 'POST',
-        headers: {
-            'Accept-Encoding': 'deflate, br',
-            "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
-            'Referer': 'https://i.cnblogs.com',
-            'Accept': '*/*',
-            'Origin': 'https://i.cnblogs.com',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-Length': data.length,
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0',
-            'Cookie': dataStore.getCnBlogCookies()
-
-        }
-    }
-
-    let req = https.request(cnBlog_url, options, function (res) {
-        if (res.statusCode === 302) {
-            //发布成功
-            res.setEncoding('utf-8')
-            let str = ''
-            res.on('data', function (chunk) {
-                str += chunk
-            });
-            res.on('end', () => {
-                const dom = new jsdom.JSDOM(str);
-                const a = dom.window.document.body.getElementsByTagName('a')[0]
-                remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？', buttons: ['取消', '打开']})
-                    .then((res) => {
-                        if (res.response === 1) {
-                            shell.openExternal('https://i.cnblogs.com' + a.href).then()
-                        }
-                    })
-            });
-        } else {
-            //发布失败
-            remote.dialog.showMessageBox({message: '发布失败！\n原因可能是：未登录博客园账号或者发布的标题重复'}).then()
-        }
-    })
-
-    req.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
-        remote.dialog.showMessageBox({message: e.message}).then()
-    });
-
-    req.write(data)
-    req.end()
-}
+const cnblogs = require('./blogs/cnblogs')
 
 //将当前文章内容发布到博客园
 ipcRenderer.on('publish-article-to-cnblogs', () => {
@@ -1103,135 +853,35 @@ ipcRenderer.on('publish-article-to-cnblogs', () => {
     Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至博客园
-        let objReadline = tab.getTextareaValue().split('\n')
-        let newValue = ''
+        let list = []
+        util.readImgLink(tab.getTextareaValue(), (src) => {
+            //真实路径
+            list.push(src)
+        })
+        let value = tab.getTextareaValue()
         let next = true
-        for (let i = 0; i < objReadline.length && next; i++) {
-            let line = objReadline[i] + ''
-            const split = line.indexOf('!') !== -1 ? line.split('!') : []
-            for (let i = 0; i < split.length && next; i++) {
-                let block = split[i]
-                if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
-                    && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
-                    const start = block.lastIndexOf('(')
-                    const end = block.lastIndexOf(')')
-                    const src = block.substring(start + 1, end) //图片地址
-                    if (!isWebPicture(src)) {
-                        await uploadPictureToCnBlog(src).then(value => { //上传图片
-                            line = line.replace(src, value)
-                            Toast.toast('上传图片+1', 'success', 3000)
-                        }).catch(value => {
-                            remote.dialog.showMessageBox({message: value}).then()
-                            next = false
-                        })
-                    }
-                }
+        for (let src of list) {
+            if (util.isLocalPicture(src) && next) {
+                await cnblogs.uploadPictureToCnBlog(src).then(v => { //上传图片
+                    value = value.replace(src, v)
+                    Toast.toast('上传图片+1', 'success', 3000)
+                }).catch(value => {
+                    remote.dialog.showMessageBox({message: value}).then()
+                    next = false
+                })
             }
-            newValue += line + '\n'
+        }
+        if (!next) {
+            return
         }
         //第二步：将最终的文本+标题发布到博客园
-        publishArticleToCnBlog(tab.getTitle(), newValue)
+        cnblogs.publishArticleToCnBlog(tab.getTitle(), value)
     })();
 })
 
 //==========================发布【CSDN】===========
 
-//上传图片到CSDN
-function uploadPictureToCSDN(filePath) {
-    let formData = new FormData();
-    formData.append('file', fs.createReadStream(filePath))
-
-    let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getCSDNCookies() //获取Cookie
-    //自己的headers属性在这里追加
-    return new Promise((resolve, reject) => {
-        let request = https.request({
-                                        host: 'mp.csdn.net',
-                                        method: 'POST',
-                                        path: '/UploadImage?shuiyin=2',
-                                        headers: headers
-                                    }, function (res) {
-            let str = '';
-            res.on('data', function (buffer) {
-                       str += buffer;
-                   }
-            );
-            res.on('end', () => {
-                if (res.statusCode === 200) {
-                    const result = JSON.parse(str);
-                    //上传之后result就是返回的结果
-                    console.log(result)
-                    if (result.result === 1) {
-                        resolve(result.url.substring(0, result.url.indexOf('?')))
-                    } else {
-                        reject(result.content)
-                    }
-                }
-            });
-        });
-        formData.pipe(request)
-    })
-}
-
-//上传文章到CSDN
-function publishArticleToCSDN(title, markdowncontent, content) {
-    let formData = new FormData();
-    formData.append('title', title)
-    formData.append('markdowncontent', markdowncontent)
-    formData.append('content', content)
-    formData.append('id', '')
-    formData.append('readType', 'public')
-    formData.append('tags', '')
-    formData.append('status', 2)
-    formData.append('categories', '')
-    formData.append('type', '')
-    formData.append('original_link', '')
-    formData.append('authorized_status', 'undefined')
-    formData.append('articleedittype', 1)
-    formData.append('Description', '')
-    formData.append('resource_url', '')
-    formData.append('csrf_token', '')
-
-    let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getCSDNCookies() //获取Cookie
-    //自己的headers属性在这里追加
-    let request = https.request({
-                                    host: 'mp.csdn.net',
-                                    method: 'POST',
-                                    path: '/mdeditor/saveArticle',
-                                    headers: headers
-                                }, function (res) {
-        let str = '';
-        res.on('data', function (buffer) {
-                   str += buffer;
-               }
-        );
-        res.on('end', () => {
-            if (res.statusCode === 200) {
-                console.log(str)
-                const result = JSON.parse(str);
-                //上传之后result就是返回的结果
-                console.log(result)
-                if (result.status) {
-                    remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？', buttons: ['取消', '打开']})
-                        .then((res) => {
-                            if (res.response === 1) {
-                                shell.openExternal(result.data.url).then()
-                            }
-                        })
-                } else {
-                    remote.dialog.showMessageBox({message: result.content}).then()
-                }
-            }
-        });
-    });
-    formData.pipe(request)
-
-    request.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
-        remote.dialog.showMessageBox({message: e.message}).then()
-    });
-}
+const csdn = require('./blogs/csdn')
 
 //将当前文章内容发布到CSDN
 ipcRenderer.on('publish-article-to-csdn', () => {
@@ -1246,184 +896,32 @@ ipcRenderer.on('publish-article-to-csdn', () => {
     Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至CSDN
-        let objReadline = tab.getTextareaValue().split('\n')
-        let newValue = ''
+        let list = []
+        util.readImgLink(tab.getTextareaValue(), (src) => {
+            //真实路径
+            list.push(src)
+        })
+        let value = tab.getTextareaValue()
         let next = true
-        for (let i = 0; i < objReadline.length && next; i++) {
-            let line = objReadline[i] + ''
-            const split = line.indexOf('!') !== -1 ? line.split('!') : []
-            for (let i = 0; i < split.length && next; i++) {
-                let block = split[i]
-                if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
-                    && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
-                    const start = block.lastIndexOf('(')
-                    const end = block.lastIndexOf(')')
-                    const src = block.substring(start + 1, end) //图片地址
-                    if (!isWebPicture(src)) {
-                        await uploadPictureToCSDN(src).then(value => { //上传图片
-                            line = line.replace(src, value)
-                            Toast.toast('上传图片+1', 'success', 3000)
-                        }).catch(value => {
-                            remote.dialog.showMessageBox({message: value}).then()
-                            next = false
-                        })
-                    }
-                }
+        for (let src of list) {
+            if (util.isLocalPicture(src) && next) {
+                await csdn.uploadPictureToCSDN(src).then(v => { //上传图片
+                    value = value.replace(src, v)
+                    Toast.toast('上传图片+1', 'success', 3000)
+                }).catch(value => {
+                    remote.dialog.showMessageBox({message: value}).then()
+                    next = false
+                })
             }
-            newValue += line + '\n'
         }
         //第二步：将最终的文本+标题发布到CSDN
-        publishArticleToCSDN(tab.getTitle(), newValue, marked.render(newValue))
+        csdn.publishArticleToCSDN(tab.getTitle(), value, marked.render(value))
     })();
 })
 
 //==========================发布【掘金】===========
 
-//上传图片到掘金
-function uploadPictureToJueJin(filePath) {
-    let formData = new FormData();
-    formData.append('file', fs.createReadStream(filePath))
-
-    let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getJueJinCookies() //获取Cookie
-    //自己的headers属性在这里追加
-    return new Promise((resolve, reject) => {
-        let request = https.request({
-                                        host: 'cdn-ms.juejin.im',
-                                        method: 'POST',
-                                        path: '/v1/upload?bucket=gold-user-assets',
-                                        headers: headers
-                                    }, function (res) {
-            let str = '';
-            res.on('data', function (buffer) {
-                       str += buffer;
-                   }
-            );
-            res.on('end', () => {
-                if (res.statusCode === 200) {
-                    const result = JSON.parse(str);
-                    //上传之后result就是返回的结果
-                    console.log(result)
-                    if (result.m === 'ok') {
-                        resolve(result.d.url.https)
-                    } else {
-                        reject(result.m)
-                    }
-                }
-            });
-        });
-        formData.pipe(request)
-    })
-}
-
-//发布文章到掘金
-function publishArticleToJueJin(title, markdown, html) {
-    let req = https.get('https://juejin.im/auth', {
-        headers: {
-            'Cookie': dataStore.getJueJinCookies()
-        }
-    }, res => {
-        if (res.statusCode !== 200) {
-            remote.dialog.showMessageBox({message: '请先登录掘金'}).then()
-            return
-        }
-        let str = '';
-        res.on('data', function (buffer) {
-            str += buffer;//用字符串拼接
-        })
-        res.on('end', () => {
-            const result = JSON.parse(str);
-            //上传之后result就是返回的结果
-            const data = querystring.stringify({
-                                                   'uid': result.userId,
-                                                   'device_id': result.clientId,
-                                                   'token': result.token,
-                                                   'src': 'web',
-                                                   'category': '5562b428e4b00c57d9b94b9d',
-                                                   'content': '',
-                                                   'html': html,
-                                                   'markdown': markdown,
-                                                   'screenshot': '',
-                                                   'isTitleImageFullscreen': '',
-                                                   'tags': '',
-                                                   'title': title,
-                                                   'type': 'markdown'
-                                               })
-            //真正完成发布文章的请求
-            publishArticleToJueJinFact(data)
-        });
-    })
-
-    req.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
-        remote.dialog.showMessageBox({message: e.message}).then()
-    });
-}
-
-function publishArticleToJueJinFact(data) {
-    let options = {
-        method: 'POST',
-        headers: {
-            'Accept-Encoding': 'gzip, deflate, br',
-            "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
-            'Referer': 'https://juejin.im/editor/drafts/new',
-            'Accept': '*/*',
-            'Origin': 'https://juejin.im',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-Length': data.length,
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0',
-            'Cookie': dataStore.getJueJinCookies()
-
-        }
-    }
-
-    let req = https.request('https://post-storage-api-ms.juejin.im/v1/draftStorage',
-                            options, function (res) {
-            if (res.statusCode !== 200) {
-                remote.dialog.showMessageBox({message: '请先登录掘金 ' + res.statusCode}).then()
-                return
-            }
-            //解决返回数据被gzip压缩
-            let output;
-            if (res.headers['content-encoding'] === 'gzip') {
-                let gzip = zlib.createGunzip();
-                res.pipe(gzip);
-                output = gzip;
-            } else {
-                output = res;
-            }
-            res = output
-
-            let str = ''
-            res.on('data', function (chunk) {
-                str += chunk
-            });
-            res.on('end', () => {
-                const result = JSON.parse(str)
-                //上传之后result就是返回的结果
-                if (result.m === 'ok') {
-                    remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？', buttons: ['取消', '打开']})
-                        .then((res) => {
-                            if (res.response === 1) {
-                                shell.openExternal('https://juejin.im/editor/drafts/' + result.d[0])
-                                    .then()
-                            }
-                        })
-                } else {
-                    //发布失败
-                    remote.dialog.showMessageBox({message: result.m}).then()
-                }
-            });
-        })
-
-    req.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
-        remote.dialog.showMessageBox({message: e.message}).then()
-    });
-
-    req.write(data)
-    req.end()
-}
+const juejin = require('./blogs/juejin')
 
 //将当前文章内容发布到掘金
 ipcRenderer.on('publish-article-to-jueJin', () => {
@@ -1438,177 +936,32 @@ ipcRenderer.on('publish-article-to-jueJin', () => {
     Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至掘金
-        let objReadline = tab.getTextareaValue().split('\n')
-        let newValue = ''
+        let list = []
+        util.readImgLink(tab.getTextareaValue(), (src) => {
+            //真实路径
+            list.push(src)
+        })
+        let value = tab.getTextareaValue()
         let next = true
-        for (let i = 0; i < objReadline.length && next; i++) {
-            let line = objReadline[i] + ''
-            const split = line.indexOf('!') !== -1 ? line.split('!') : []
-            for (let i = 0; i < split.length && next; i++) {
-                let block = split[i]
-                if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
-                    && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
-                    const start = block.lastIndexOf('(')
-                    const end = block.lastIndexOf(')')
-                    const src = block.substring(start + 1, end) //图片地址
-                    if (!isWebPicture(src)) {
-                        await uploadPictureToJueJin(src).then(value => { //上传图片
-                            line = line.replace(src, value)
-                            Toast.toast('上传图片+1', 'success', 3000)
-                        }).catch(value => {
-                            remote.dialog.showMessageBox({message: value}).then()
-                            next = false
-                            // Toast.toast(value, 'danger', 3000)
-                        })
-                    }
-                }
+        for (let src of list) {
+            if (util.isLocalPicture(src) && next) {
+                await juejin.uploadPictureToJueJin(src).then(v => { //上传图片
+                    value = value.replace(src, v)
+                    Toast.toast('上传图片+1', 'success', 3000)
+                }).catch(value => {
+                    remote.dialog.showMessageBox({message: value}).then()
+                    next = false
+                })
             }
-            newValue += line + '\n'
         }
         //第二步：将最终的文本+标题发布到掘金
-        publishArticleToJueJin(tab.getTitle(), newValue, marked.render(newValue))
+        juejin.publishArticleToJueJin(tab.getTitle(), value, marked.render(value))
     })();
 })
 
 //==============================【开源中国】========================
 
-function getOsChinaUserCode() {
-    return dataStore.getOsChinaUserCode()
-}
-
-function getOsChinaUserId() {
-    return dataStore.getOsChinaUserId()
-}
-
-function getCsrfToken() {
-    let e, t, n, i = ''
-    if (!i || 40 !== i.length) {
-        if (i = [], e = "",
-        window.crypto && window.crypto.getRandomValues) {
-            i = new Uint8Array(40),
-                window.crypto.getRandomValues(i);
-        } else {
-            for (t = 0; t < 40; t++) {
-                i.push(Math.floor(256 * Math.random()));
-            }
-        }
-        for (t = 0; t < i.length; t++) {
-            n = "abcdefghijklmnopqrstuvwxyz0123456789".charAt(i[t] % 36),
-                e += .5 < Math.random() ? n.toUpperCase() : n;
-        }
-        i = e
-    }
-    return i
-}
-
-//上传图片至开源中国
-function uploadPictureToOsChina(filePath) {
-    let formData = new FormData();
-    formData.append('upload', fs.createReadStream(filePath))
-    formData.append('ckCsrfToken', getCsrfToken())
-
-    let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getOsChinaCookies() //获取Cookie
-    //自己的headers属性在这里追加
-    return new Promise((resolve, reject) => {
-        let request = https.request({
-                                        host: 'my.oschina.net',
-                                        method: 'POST',
-                                        path: '/u/' + getOsChinaUserId()
-                                              + '/space/ckeditor_dialog_img_upload',
-                                        headers: headers
-                                    }, function (res) {
-            let str = '';
-            res.on('data', function (buffer) {
-                       str += buffer;
-                   }
-            );
-            res.on('end', () => {
-                if (res.statusCode === 200) {
-                    const result = JSON.parse(str);
-                    //上传之后result就是返回的结果
-                    if (result.uploaded === 1) {
-                        resolve(result.url)
-                    } else {
-                        reject(result.error.message)
-                    }
-                } else {
-                    reject('上传图片失败，状态码' + res.statusCode)
-                }
-            });
-        });
-        formData.pipe(request)
-    })
-}
-
-//发布文章到开源中国
-function publishArticleToOsChina(title, content) {
-    const data = querystring.stringify({
-                                           'draft': 0,
-                                           'id': '',
-                                           'user_code': getOsChinaUserCode(),
-                                           'title': title,
-                                           'content': content,
-                                           'content_type': 3,
-                                           'catalog': 5906778,
-                                           'classification': '',
-                                           'type': 4,
-                                           'origin_url': '',
-                                           'privacy': 0,
-                                           'deny_comment': 0,
-                                           'as_top': 0,
-                                           'downloadImg': 0,
-                                           'isRecommend': 0,
-                                       })
-    let options = {
-        method: 'POST',
-        headers: {
-            'Accept-Encoding': 'gzip, deflate, br',
-            "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
-            'Accept': '*/*',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-Length': data.length,
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0',
-            'Cookie': dataStore.getOsChinaCookies()
-        }
-    }
-    const url = 'https://my.oschina.net/u/' + getOsChinaUserId() + '/blog/save_draft'
-
-    let req = https.request(url,
-                            options, function (res) {
-            //发布成功
-            res.setEncoding('utf-8')
-            let str = ''
-            res.on('data', function (chunk) {
-                str += chunk
-            });
-            res.on('end', () => {
-                const result = JSON.parse(str);
-                if (result.code === 1) {
-                    remote.dialog.showMessageBox({message: '发布成功！是否在浏览器打开？', buttons: ['取消', '打开']})
-                        .then((res) => {
-                            if (res.response === 1) {
-                                shell.openExternal('https://my.oschina.net/u/' + getOsChinaUserId()
-                                                   + '/blog/write/draft/' + result.result.draft)
-                                    .then()
-                            }
-                        })
-                } else {
-                    remote.dialog.showMessageBox({message: result.message}).then()
-                }
-            });
-
-        }
-    )
-
-    req.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
-        remote.dialog.showMessageBox({message: e.message}).then()
-    });
-
-    req.write(data)
-    req.end()
-}
+const oschina = require('./blogs/oschina')
 
 //将当前文章内容发布到开源中国
 ipcRenderer.on('publish-article-to-OsChina', () => {
@@ -1623,170 +976,32 @@ ipcRenderer.on('publish-article-to-OsChina', () => {
     Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至开源中国
-        let objReadline = tab.getTextareaValue().split('\n')
-        let newValue = ''
+        let list = []
+        util.readImgLink(tab.getTextareaValue(), (src) => {
+            //真实路径
+            list.push(src)
+        })
+        let value = tab.getTextareaValue()
         let next = true
-        for (let i = 0; i < objReadline.length && next; i++) {
-            let line = objReadline[i] + ''
-            const split = line.indexOf('!') !== -1 ? line.split('!') : []
-            for (let i = 0; i < split.length && next; i++) {
-                let block = split[i]
-                if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
-                    && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
-                    const start = block.lastIndexOf('(')
-                    const end = block.lastIndexOf(')')
-                    const src = block.substring(start + 1, end) //图片地址
-                    if (!isWebPicture(src)) {
-                        await uploadPictureToOsChina(src).then(value => { //上传图片
-                            line = line.replace(src, value)
-                            Toast.toast('上传图片+1', 'success', 3000)
-                        }).catch(value => {
-                            remote.dialog.showMessageBox({message: value}).then()
-                            next = false
-                        })
-                    }
-                }
+        for (let src of list) {
+            if (util.isLocalPicture(src) && next) {
+                await oschina.uploadPictureToOsChina(src).then(v => { //上传图片
+                    value = value.replace(src, v)
+                    Toast.toast('上传图片+1', 'success', 3000)
+                }).catch(value => {
+                    remote.dialog.showMessageBox({message: value}).then()
+                    next = false
+                })
             }
-            newValue += line + '\n'
         }
         //第二步：将最终的文本+标题发布到掘金
-        publishArticleToOsChina(tab.getTitle(), newValue)
+        oschina.publishArticleToOsChina(tab.getTitle(), value)
     })();
 })
 
 //==============================【思否】========================
 
-//上传图片至思否
-function uploadPictureToSegmentFault(filePath) {
-    let formData = new FormData();
-    formData.append('image', fs.createReadStream(filePath))
-
-    let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getSegmentFaultCookie() //获取Cookie
-    //自己的headers属性在这里追加
-    return new Promise((resolve, reject) => {
-        let request = https.request({
-                                        host: 'segmentfault.com',
-                                        method: 'POST',
-                                        path: '/img/upload/image?_='
-                                              + dataStore.getSegmentFaultToken(),
-                                        headers: headers
-                                    }, function (res) {
-            let str = '';
-            res.on('data', function (buffer) {
-                       str += buffer;
-                   }
-            );
-            res.on('end', () => {
-                if (res.statusCode === 200) {
-                    const result = JSON.parse(str);
-                    //上传之后result就是返回的结果
-                    if (result[0] === 0) {
-                        resolve(result[1])
-                    } else {
-                        reject('上传图片失败')
-                    }
-                } else {
-                    reject('上传图片失败,状态码' + res.statusCode)
-                }
-            });
-        });
-        formData.pipe(request)
-    })
-}
-
-//准备上传文章到思否
-function preparePublishArticleToSegmentFault(title, text) {
-    let req = https.get(
-        'https://segmentfault.com:9443/socket.io/?EIO=3&transport=polling&t=1574312570138-0', {
-            headers: {
-                'Cookie': dataStore.getSegmentFaultCookie()
-            }
-        }, res => {
-            let str = '';
-            res.on('data', function (buffer) {
-                str += buffer;//用字符串拼接
-            })
-            res.on('end', () => {
-                //真正发布文章
-                publishArticleToSegmentFault(title, text)
-            });
-        })
-
-    req.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
-        remote.dialog.showMessageBox({message: e.message}).then()
-    });
-}
-
-//上传文章到思否
-function publishArticleToSegmentFault(title, text) {
-    let formData = new FormData();
-    formData.append('type', 1)
-    formData.append('url', '')
-    formData.append('blogId', 0)
-    formData.append('isTiming', 0)
-    formData.append('created', '')
-    formData.append('weibo', 0)
-    formData.append('license', 0)
-    formData.append('tags', '')
-    formData.append('title', title)
-    formData.append('text', text)
-    formData.append('articleId', '')
-    formData.append('draftId', '')
-    formData.append('id', '')
-
-    let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getSegmentFaultCookie() //获取Cookie
-    //自己的headers属性在这里追加
-    headers.referer = 'https://segmentfault.com/write?freshman=1'
-    headers.origin = 'https://segmentfault.com'
-    headers['x-requested-with'] = 'XMLHttpRequest'
-    headers['accept-language'] = 'zh-CN,zh;q=0.9,en;q=0.8'
-    headers['accept-encoding'] = 'deflate, br'
-    headers['accept'] = '*/*'
-    headers['sec-fetch-site'] = 'sec-fetch-site'
-    headers['sec-fetch-mode'] = 'cors'
-    headers['User-Agent'] =
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36'
-    let request = https.request(
-        'https://segmentfault.com/api/article/draft/save?_=' + dataStore.getSegmentFaultToken(), {
-            method: 'POST',
-            headers: headers
-        }, function (res) {
-            let str = '';
-            res.on('data', function (buffer) {
-                       str += buffer;
-                   }
-            );
-            res.on('end', () => {
-                if (res.statusCode === 200) {
-                    const result = JSON.parse(str);
-                    //上传之后result就是返回的结果
-                    console.log(result)
-                    if (result.status === 0) {
-                        remote.dialog.showMessageBox(
-                            {message: '发布成功！是否在浏览器打开？', buttons: ['取消', '打开']})
-                            .then((res) => {
-                                if (res.response === 1) {
-                                    shell.openExternal('https://segmentfault.com/user/draft').then()
-                                }
-                            })
-                    } else {
-                        remote.dialog.showMessageBox({message: result.message}).then()
-                    }
-                } else {
-                    remote.dialog.showMessageBox({message: '请先登录思否'}).then()
-                }
-            });
-        });
-    formData.pipe(request)
-
-    request.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
-        remote.dialog.showMessageBox({message: e.message}).then()
-    });
-}
+const segmentfault = require('./blogs/segmentfault')
 
 //将当前文章内容发布到思否
 ipcRenderer.on('publish-article-to-SegmentFault', event => {
@@ -1801,33 +1016,25 @@ ipcRenderer.on('publish-article-to-SegmentFault', event => {
     Toast.toast('正在上传中', 'info', 3000);
     (async () => {
         //第一步：将所有本地图片上传至思否
-        let objReadline = tab.getTextareaValue().split('\n')
-        let newValue = ''
+        let list = []
+        util.readImgLink(tab.getTextareaValue(), (src) => {
+            //真实路径
+            list.push(src)
+        })
+        let value = tab.getTextareaValue()
         let next = true
-        for (let i = 0; i < objReadline.length && next; i++) {
-            let line = objReadline[i] + ''
-            const split = line.indexOf('!') !== -1 ? line.split('!') : []
-            for (let i = 0; i < split.length && next; i++) {
-                let block = split[i]
-                if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
-                    && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
-                    const start = block.lastIndexOf('(')
-                    const end = block.lastIndexOf(')')
-                    const src = block.substring(start + 1, end) //图片地址
-                    if (!isWebPicture(src)) {
-                        await uploadPictureToSegmentFault(src).then(value => { //上传图片
-                            line = line.replace(src, value)
-                            Toast.toast('上传图片+1', 'success', 3000)
-                        }).catch(value => {
-                            remote.dialog.showMessageBox({message: value}).then()
-                            next = false
-                        })
-                    }
-                }
+        for (let src of list) {
+            if (util.isLocalPicture(src) && next) {
+                await segmentfault.uploadPictureToSegmentFault(src).then(v => { //上传图片
+                    value = value.replace(src, v)
+                    Toast.toast('上传图片+1', 'success', 3000)
+                }).catch(value => {
+                    remote.dialog.showMessageBox({message: value}).then()
+                    next = false
+                })
             }
-            newValue += line + '\n'
         }
         //第二步：将最终的文本+标题发布到思否
-        preparePublishArticleToSegmentFault(tab.getTitle(), newValue)
+        segmentfault.publishArticleToSegmentFault(tab.getTitle(), value)
     })();
 })

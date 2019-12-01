@@ -6,7 +6,10 @@ exports.toast = (message, level, timeout) => {
     ${message}
 </div>
 `)
-    $('#' + num).fadeOut(timeout, () => {
+    // $('#' + num).fadeOut(timeout, () => {
+    //     $('#' + num).remove()
+    // })
+    setTimeout(()=>{
         $('#' + num).remove()
-    })
+    },timeout)
 }

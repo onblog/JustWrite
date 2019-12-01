@@ -56,3 +56,35 @@ exports.stringDeal = (str) => {
     }
     return result
 }
+
+//读取每一个已插入的图片链接
+exports.readImgLink = (text, callback)=> {
+    let objReadline = text.split('\n')
+    for (let i = 0; i < objReadline.length; i++) {
+        let line = objReadline[i] + ''
+        const split = line.indexOf('!') !== -1 ? line.split('!') : []
+        for (let i = 0; i < split.length; i++) {
+            let block = split[i]
+            if (block.length > 4 && block.indexOf('[') !== -1 && block.indexOf(']') !== -1
+                && block.indexOf('(') !== -1 && block.indexOf(')') !== -1) {
+                const start = block.lastIndexOf('(')
+                const end = block.lastIndexOf(')')
+                const src = block.substring(start + 1, end) //图片地址
+                callback(src)
+            }
+        }
+    }
+}
+//是否是网络图片
+exports.isWebPicture = (src)=> {
+    return src.startsWith('http') && (src.endsWith('png') || src.endsWith('jpg')
+                                      || src.endsWith('png') || src.endsWith('jpeg')
+                                      || src.endsWith('gif') || src.endsWith('bmp'))
+}
+
+//是否是本地图片
+exports.isLocalPicture = (src)=> {
+    return !src.startsWith('http') && (src.endsWith('png') || src.endsWith('jpg')
+                                       || src.endsWith('png') || src.endsWith('jpeg')
+                                       || src.endsWith('gif') || src.endsWith('bmp'))
+}
