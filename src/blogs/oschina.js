@@ -3,6 +3,7 @@ const https = require('https');
 const DataStore = require('../script/store')
 const dataStore = new DataStore()
 const querystring = require('querystring')
+const FormData = require('form-data')
 
 function getOsChinaUserCode() {
     return dataStore.getOsChinaUserCode()
@@ -35,14 +36,14 @@ function getCsrfToken() {
 
 //上传图片至开源中国
 function uploadPictureToOsChina(filePath) {
-    let formData = new FormData();
-    formData.append('upload', fs.createReadStream(filePath))
-    formData.append('ckCsrfToken', getCsrfToken())
-
-    let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getOsChinaCookies() //获取Cookie
-    //自己的headers属性在这里追加
     return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('upload', fs.createReadStream(filePath))
+        formData.append('ckCsrfToken', getCsrfToken())
+
+        let headers = formData.getHeaders()
+        headers.Cookie = dataStore.getOsChinaCookies() //获取Cookie
+        //自己的headers属性在这里追加
         let request = https.request({
                                         host: 'my.oschina.net',
                                         method: 'POST',

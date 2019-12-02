@@ -207,7 +207,7 @@ exports.createMenuItems = (mainWindow, app) => {
                 console.error(error)
             })
             // 发出通知
-            mainWindow.send('publish-article-to-SegmentFault')
+            mainWindow.send('publish-article-to-','segmentfault')
         })
     }
 
@@ -691,7 +691,7 @@ exports.createMenuItems = (mainWindow, app) => {
                     }, {
                         label: '一键发布',
                         click: () => {
-                            mainWindow.send('publish-article-to-cnblogs')
+                            mainWindow.send('publish-article-to-','cnblogs')
                         }
                     }]
                 }, {
@@ -702,7 +702,7 @@ exports.createMenuItems = (mainWindow, app) => {
                     }, {
                         label: '一键发布',
                         click: () => {
-                            mainWindow.send('publish-article-to-csdn')
+                            mainWindow.send('publish-article-to-','csdn')
                         }
                     }]
                 }, {
@@ -713,7 +713,7 @@ exports.createMenuItems = (mainWindow, app) => {
                     }, {
                         label: '一键发布',
                         click: () => {
-                            mainWindow.send('publish-article-to-jueJin')
+                            mainWindow.send('publish-article-to-','juejin')
                         }
                     }]
                 }, {
@@ -724,7 +724,7 @@ exports.createMenuItems = (mainWindow, app) => {
                     }, {
                         label: '一键发布',
                         click: () => {
-                            mainWindow.send('publish-article-to-OsChina')
+                            mainWindow.send('publish-article-to-','oschina')
                         }
                     }]
                 }, {

@@ -4,16 +4,17 @@ const DataStore = require('../script/store')
 const dataStore = new DataStore()
 const querystring = require('querystring')
 const zlib = require('zlib')
+const FormData = require('form-data')
 
 //上传图片到掘金
 function uploadPictureToJueJin(filePath) {
-    let formData = new FormData();
-    formData.append('file', fs.createReadStream(filePath))
-
-    let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getJueJinCookies() //获取Cookie
-    //自己的headers属性在这里追加
     return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('file', fs.createReadStream(filePath))
+
+        let headers = formData.getHeaders()
+        headers.Cookie = dataStore.getJueJinCookies() //获取Cookie
+        //自己的headers属性在这里追加
         let request = https.request({
                                         host: 'cdn-ms.juejin.im',
                                         method: 'POST',

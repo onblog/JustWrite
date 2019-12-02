@@ -2,16 +2,17 @@ const {remote, shell} = require('electron')
 const https = require('https');
 const DataStore = require('../script/store')
 const dataStore = new DataStore()
+const FormData = require('form-data')
 
 //上传图片到CSDN
 function uploadPictureToCSDN(filePath) {
-    let formData = new FormData();
-    formData.append('file', fs.createReadStream(filePath))
-
-    let headers = formData.getHeaders()
-    headers.Cookie = dataStore.getCSDNCookies() //获取Cookie
-    //自己的headers属性在这里追加
     return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('file', fs.createReadStream(filePath))
+
+        let headers = formData.getHeaders()
+        headers.Cookie = dataStore.getCSDNCookies() //获取Cookie
+        //自己的headers属性在这里追加
         let request = https.request({
                                         host: 'mp.csdn.net',
                                         method: 'POST',
@@ -75,7 +76,7 @@ function publishArticleToCSDN(title, markdowncontent, content) {
         );
         res.on('end', () => {
             if (res.statusCode === 200) {
-                console.log(str)
+                // console.log(str)
                 const result = JSON.parse(str);
                 //上传之后result就是返回的结果
                 // console.log(result)

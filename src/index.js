@@ -37,6 +37,12 @@ const marked = require('markdown-it')({
 
 const tempPath = remote.getGlobal('sharedObject').temp
 
+const segmentfault = require('./blogs/segmentfault')
+const cnblogs = require('./blogs/cnblogs')
+const csdn = require('./blogs/csdn')
+const juejin = require('./blogs/juejin')
+const oschina = require('./blogs/oschina')
+
 let tabs = new Map() //标签页集合
 let tab //当前标签页
 
@@ -139,10 +145,11 @@ function changeTextareaValue(t, txt) {
 
 function changeTextareaValueAfter(t, txt) {
     //处理一些相对路径的图片引用
-    // util.readImgLink(txt, (src)=>{
-    //     txt = txt.replace(src, relativePath(src))
-    // })
-    t.getMarked().innerHTML = marked.render(txt) // {baseUrl: t.getPath()}
+    let ntxt = txt
+    util.readImgLink(txt, (src)=>{
+        ntxt = ntxt.replace(src, relativePath(src))
+    })
+    t.getMarked().innerHTML = marked.render(ntxt) // {baseUrl: t.getPath()}
     //是否已保存编辑部分
     t.isEditChangeIco(txt)
     //窗口关闭提醒
@@ -442,12 +449,11 @@ function relativePath(str) {
     if (str.indexOf('.') === 0) {
         return tab.getDirname() + str
     }
-    return str
+    return path.normalize(str)
 }
 
 //图片防盗链md-img
 ipcRenderer.on('picture-md-to-img', () => {
-    // copyValueToClipboard()
     let objReadline = tab.getTextareaValue().split('\n')
     let newValue = ''
     objReadline.forEach(line => {
@@ -457,7 +463,7 @@ ipcRenderer.on('picture-md-to-img', () => {
                 && split[i].indexOf('(') !== -1 && split[i].indexOf(')') !== -1) {
                 const start = split[i].lastIndexOf('(')
                 const end = split[i].lastIndexOf(')')
-                let s1 = split[i].substring(start + 1, end)
+                let s1 = split[i].substring(start + 1, end) //图片的真实地址
                 line =
                     line.replace("!" + split[i], `<img src="${s1}" referrerPolicy="no-referrer"/>`)
             }
@@ -591,10 +597,9 @@ ipcRenderer.on('download-net-picture', () => {
 function uploadAllPictureToWeiBo() {
     let tip = {up: true}
     util.readImgLink(tab.getTextareaValue(), (src) => {
-        // src = relativePath(src) //图片的真实路径
-        if (path.isAbsolute(src)) {
-            weibo.uploadPictureToWeiBo(src
-                , href => {
+        const all_src = relativePath(src) //图片的真实路径
+        if (path.isAbsolute(all_src)) {
+            weibo.uploadPictureToWeiBo(all_src, href => {
                     changeTextareaValue(tab, tab.getTextareaValue().replace(src, href))
                     Toast.toast('上传成功+1', 'success', 3000)
                 }, () => {
@@ -615,17 +620,24 @@ ipcRenderer.on('upload-all-picture-to-weiBo', event => {
 //一键图片整理到picture文件夹
 function movePictureToFolder() {
     util.readImgLink(tab.getTextareaValue(), (src) => {
-        // src = relativePath(src) //图片的真实路径
-        let newSrc = tab.getPictureDir() + path.basename(src)
-        if (path.isAbsolute(src) && src !== newSrc) { //拷贝文件
-            fs.copyFile(src, newSrc, (err) => {
-                if (err) {
-                    return console.error(err)
-                }
+        const all_src = relativePath(src) //图片的真实路径
+        const new_src = relativePath(tab.getPictureDir() + path.basename(src)) //新的图片路径
+        const relativeSrc = tab.getPictureDirRelative() + path.basename(src) //相对路径
+        if (path.isAbsolute(all_src)) { //拷贝文件
+            if (all_src!==new_src) {
+                fs.copyFile(all_src, new_src, (err) => {
+                    if (err) {
+                        return console.error(err)
+                    }
+                    changeTextareaValue(tab,
+                                        tab.getTextareaValue().replace(src, pathSep(relativeSrc)))
+                    Toast.toast('整理成功+1', 'success', 3000)
+                });
+            }else {
                 changeTextareaValue(tab,
-                                    tab.getTextareaValue().replace(src, pathSep(newSrc)))
+                                    tab.getTextareaValue().replace(src, pathSep(relativeSrc)))
                 Toast.toast('整理成功+1', 'success', 3000)
-            });
+            }
         }
     })
 }
@@ -836,205 +848,127 @@ ipcRenderer.on('editor-font-family-adjust', (event, args) => {
     changeEditorFontFamily(args)
 })
 
-//==========================发布【博客园】===========
-
-const cnblogs = require('./blogs/cnblogs')
-
-//将当前文章内容发布到博客园
-ipcRenderer.on('publish-article-to-cnblogs', () => {
+//发布文章到平台
+ipcRenderer.on('publish-article-to-', (event,site) => {
     if (!tab.hasPath()) {
         remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
         return
     }
-    if (!dataStore.getCnBlogCookies()) {
-        remote.dialog.showMessageBox({message: '请先登录博客园'}).then()
-        return
-    }
-    Toast.toast('正在上传中', 'info', 3000);
-    (async () => {
-        //第一步：将所有本地图片上传至博客园
-        let list = []
-        util.readImgLink(tab.getTextareaValue(), (src) => {
-            //真实路径
-            list.push(src)
-        })
-        let value = tab.getTextareaValue()
-        let next = true
-        for (let src of list) {
-            if (util.isLocalPicture(src) && next) {
-                await cnblogs.uploadPictureToCnBlog(src).then(v => { //上传图片
-                    value = value.replace(src, v)
-                    Toast.toast('上传图片+1', 'success', 3000)
-                }).catch(value => {
-                    remote.dialog.showMessageBox({message: value}).then()
-                    next = false
-                })
+    switch (site) {
+        case 'cnblogs':
+            if (!dataStore.getCnBlogCookies()) {
+                remote.dialog.showMessageBox({message: '请先登录博客园'}).then()
+                return
             }
-        }
-        if (!next) {
-            return
-        }
-        //第二步：将最终的文本+标题发布到博客园
-        cnblogs.publishArticleToCnBlog(tab.getTitle(), value)
-    })();
-})
-
-//==========================发布【CSDN】===========
-
-const csdn = require('./blogs/csdn')
-
-//将当前文章内容发布到CSDN
-ipcRenderer.on('publish-article-to-csdn', () => {
-    if (!tab.hasPath()) {
-        remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
-        return
-    }
-    if (!dataStore.getCSDNCookies()) {
-        remote.dialog.showMessageBox({message: '请先登录CSDN'}).then()
-        return
-    }
-    Toast.toast('正在上传中', 'info', 3000);
-    (async () => {
-        //第一步：将所有本地图片上传至CSDN
-        let list = []
-        util.readImgLink(tab.getTextareaValue(), (src) => {
-            //真实路径
-            list.push(src)
-        })
-        let value = tab.getTextareaValue()
-        let next = true
-        for (let src of list) {
-            if (util.isLocalPicture(src) && next) {
-                await csdn.uploadPictureToCSDN(src).then(v => { //上传图片
-                    value = value.replace(src, v)
-                    Toast.toast('上传图片+1', 'success', 3000)
-                }).catch(value => {
-                    remote.dialog.showMessageBox({message: value}).then()
-                    next = false
-                })
+            break
+        case 'csdn':
+            if (!dataStore.getCSDNCookies()) {
+                remote.dialog.showMessageBox({message: '请先登录CSDN'}).then()
+                return
             }
-        }
-        //第二步：将最终的文本+标题发布到CSDN
-        csdn.publishArticleToCSDN(tab.getTitle(), value, marked.render(value))
-    })();
-})
-
-//==========================发布【掘金】===========
-
-const juejin = require('./blogs/juejin')
-
-//将当前文章内容发布到掘金
-ipcRenderer.on('publish-article-to-jueJin', () => {
-    if (!tab.hasPath()) {
-        remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
-        return
-    }
-    if (!dataStore.getJueJinCookies()) {
-        remote.dialog.showMessageBox({message: '请先登录掘金'}).then()
-        return
-    }
-    Toast.toast('正在上传中', 'info', 3000);
-    (async () => {
-        //第一步：将所有本地图片上传至掘金
-        let list = []
-        util.readImgLink(tab.getTextareaValue(), (src) => {
-            //真实路径
-            list.push(src)
-        })
-        let value = tab.getTextareaValue()
-        let next = true
-        for (let src of list) {
-            if (util.isLocalPicture(src) && next) {
-                await juejin.uploadPictureToJueJin(src).then(v => { //上传图片
-                    value = value.replace(src, v)
-                    Toast.toast('上传图片+1', 'success', 3000)
-                }).catch(value => {
-                    remote.dialog.showMessageBox({message: value}).then()
-                    next = false
-                })
+            break
+        case 'juejin':
+            if (!dataStore.getJueJinCookies()) {
+                remote.dialog.showMessageBox({message: '请先登录掘金'}).then()
+                return
             }
-        }
-        //第二步：将最终的文本+标题发布到掘金
-        juejin.publishArticleToJueJin(tab.getTitle(), value, marked.render(value))
-    })();
-})
-
-//==============================【开源中国】========================
-
-const oschina = require('./blogs/oschina')
-
-//将当前文章内容发布到开源中国
-ipcRenderer.on('publish-article-to-OsChina', () => {
-    if (!tab.hasPath()) {
-        remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
-        return
-    }
-    if (!dataStore.getOsChinaCookies()) {
-        remote.dialog.showMessageBox({message: '请先登录开源中国'}).then()
-        return
-    }
-    Toast.toast('正在上传中', 'info', 3000);
-    (async () => {
-        //第一步：将所有本地图片上传至开源中国
-        let list = []
-        util.readImgLink(tab.getTextareaValue(), (src) => {
-            //真实路径
-            list.push(src)
-        })
-        let value = tab.getTextareaValue()
-        let next = true
-        for (let src of list) {
-            if (util.isLocalPicture(src) && next) {
-                await oschina.uploadPictureToOsChina(src).then(v => { //上传图片
-                    value = value.replace(src, v)
-                    Toast.toast('上传图片+1', 'success', 3000)
-                }).catch(value => {
-                    remote.dialog.showMessageBox({message: value}).then()
-                    next = false
-                })
+            break
+        case 'oschina':
+            if (!dataStore.getOsChinaCookies()) {
+                remote.dialog.showMessageBox({message: '请先登录开源中国'}).then()
+                return
             }
-        }
-        //第二步：将最终的文本+标题发布到掘金
-        oschina.publishArticleToOsChina(tab.getTitle(), value)
-    })();
-})
-
-//==============================【思否】========================
-
-const segmentfault = require('./blogs/segmentfault')
-
-//将当前文章内容发布到思否
-ipcRenderer.on('publish-article-to-SegmentFault', event => {
-    if (!tab.hasPath()) {
-        remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
-        return
+            break
+        case 'segmentfault':
+            if (!dataStore.getSegmentFaultCookie()) {
+                remote.dialog.showMessageBox({message: '请先登录思否'}).then()
+                return
+            }
+            break
     }
-    if (!dataStore.getSegmentFaultCookie()) {
-        remote.dialog.showMessageBox({message: '请先登录思否'}).then()
-        return
-    }
-    Toast.toast('正在上传中', 'info', 3000);
+
+    Toast.toast('准备上传', 'info', 3000);
+
     (async () => {
         //第一步：将所有本地图片上传至思否
         let list = []
         util.readImgLink(tab.getTextareaValue(), (src) => {
-            //真实路径
             list.push(src)
         })
         let value = tab.getTextareaValue()
         let next = true
         for (let src of list) {
             if (util.isLocalPicture(src) && next) {
-                await segmentfault.uploadPictureToSegmentFault(src).then(v => { //上传图片
-                    value = value.replace(src, v)
-                    Toast.toast('上传图片+1', 'success', 3000)
-                }).catch(value => {
-                    remote.dialog.showMessageBox({message: value}).then()
-                    next = false
-                })
+                const all_src = relativePath(src) //图片的真实路径
+                switch (site) {
+                    case 'cnblogs':
+                        await cnblogs.uploadPictureToCnBlog(all_src).then(v => { //上传图片
+                            value = value.replace(src, v)
+                            Toast.toast('上传图片+1', 'success', 3000)
+                        }).catch(value => {
+                            remote.dialog.showMessageBox({message: value+''}).then()
+                            next = false
+                        })
+                        break
+                    case 'csdn':
+                        await csdn.uploadPictureToCSDN(all_src).then(v => { //上传图片
+                            value = value.replace(src, v)
+                            Toast.toast('上传图片+1', 'success', 3000)
+                        }).catch(value => {
+                            remote.dialog.showMessageBox({message: value+''}).then()
+                            next = false
+                        })
+                        break
+                    case 'juejin':
+                        await juejin.uploadPictureToJueJin(all_src).then(v => { //上传图片
+                            value = value.replace(src, v)
+                            Toast.toast('上传图片+1', 'success', 3000)
+                        }).catch(value => {
+                            remote.dialog.showMessageBox({message: value+''}).then()
+                            next = false
+                        })
+                        break
+                    case 'oschina':
+                        await oschina.uploadPictureToOsChina(all_src).then(v => { //上传图片
+                            value = value.replace(src, v)
+                            Toast.toast('上传图片+1', 'success', 3000)
+                        }).catch(value => {
+                            remote.dialog.showMessageBox({message: value+''}).then()
+                            next = false
+                        })
+                        break
+                    case 'segmentfault':
+                        await segmentfault.uploadPictureToSegmentFault(all_src).then(v => { //上传图片
+                            value = value.replace(src, v)
+                            Toast.toast('上传图片+1', 'success', 3000)
+                        }).catch(value => {
+                            remote.dialog.showMessageBox({message: value+''}).then()
+                            next = false
+                        })
+                        break
+                }
             }
         }
+        if (!next){
+            return
+        }
         //第二步：将最终的文本+标题发布到思否
-        segmentfault.publishArticleToSegmentFault(tab.getTitle(), value)
+        switch (site) {
+            case 'cnblogs':
+                cnblogs.publishArticleToCnBlog(tab.getTitle(), value)
+                break
+            case 'csdn':
+                csdn.publishArticleToCSDN(tab.getTitle(), value, marked.render(value))
+                break
+            case 'juejin':
+                juejin.publishArticleToJueJin(tab.getTitle(), value, marked.render(value))
+                break
+            case 'oschina':
+                oschina.publishArticleToOsChina(tab.getTitle(), value)
+                break
+            case 'segmentfault':
+                segmentfault.publishArticleToSegmentFault(tab.getTitle(), value)
+                break
+        }
     })();
 })

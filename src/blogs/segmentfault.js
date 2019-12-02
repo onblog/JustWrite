@@ -2,6 +2,7 @@ const {remote, shell} = require('electron')
 const https = require('https');
 const DataStore = require('../script/store')
 const dataStore = new DataStore()
+const FormData = require('form-data')
 
 //上传图片至思否
 function uploadPictureToSegmentFault(filePath) {
@@ -86,7 +87,7 @@ function publishArticleToSegmentFault(title, text) {
                 if (res.statusCode === 200) {
                     const result = JSON.parse(str);
                     //上传之后result就是返回的结果
-                    console.log(result)
+                    // console.log(result)
                     if (result.status === 0) {
                         remote.dialog.showMessageBox(
                             {message: '发布成功！是否在浏览器打开？', buttons: ['取消', '打开']})

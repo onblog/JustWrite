@@ -4,6 +4,7 @@ const DataStore = require('../script/store')
 const jsdom = require("jsdom")
 const querystring = require('querystring')
 const dataStore = new DataStore()
+const FormData = require('form-data')
 
 //上传图片到博客园
 function uploadPictureToCnBlog(filePath) {
