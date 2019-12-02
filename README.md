@@ -59,9 +59,9 @@ Gitee：<https://gitee.com/zyzpp/JustWrite/releases>
 
 ## 预览
 
-![](/Users/yueshutong/Downloads/JustWrite/README/007ZVq6cly1g96qf4psw4j313u0u04a9.jpg)
+![](./README/3144653.png)
 
-![](/Users/yueshutong/Downloads/JustWrite/README/007ZVq6cly1g96qf4f5srj313u0u0k2k.jpg)
+![](./README/4549098.png)
 
 ## 鸣谢
 
@@ -85,6 +85,6 @@ Github：<https://github.com/yueshutong/JustWrite>
 
 如果帮助到你了，请不吝赞赏！谢谢！
 
-<img src="https://user-images.githubusercontent.com/31175877/67548917-af6d1600-f735-11e9-9807-351e6a2db269.png" width="300px" referrerpolicy="no-referrer">
+![](./README/9296350.png)
 
-<img src="https://user-images.githubusercontent.com/31175877/67549023-e17e7800-f735-11e9-89d4-5ca7dac0486d.png" width="300px" referrerpolicy="no-referrer">
+![](./README/9258499.png)
