@@ -146,7 +146,7 @@ function changeTextareaValue(t, txt) {
 function changeTextareaValueAfter(t, txt) {
     //处理一些相对路径的图片引用
     let ntxt = txt
-    util.readImgLink(txt, (src)=>{
+    util.readImgLink(txt, (src) => {
         ntxt = ntxt.replace(src, relativePath(src))
     })
     t.getMarked().innerHTML = marked.render(ntxt) // {baseUrl: t.getPath()}
@@ -571,6 +571,7 @@ const download = function (uri, filename, callback) {
         request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
     });
 };
+
 //一键网图下载
 function downloadNetPicture() {
     if (!tab.hasPath()) {
@@ -600,14 +601,14 @@ function uploadAllPictureToWeiBo() {
         const all_src = relativePath(src) //图片的真实路径
         if (path.isAbsolute(all_src)) {
             weibo.uploadPictureToWeiBo(all_src, href => {
-                    changeTextareaValue(tab, tab.getTextareaValue().replace(src, href))
-                    Toast.toast('上传成功+1', 'success', 3000)
-                }, () => {
-                    if (tip.up) {
-                        remote.dialog.showMessageBox({message: '请先登录新浪微博'}).then()
-                        tip.up = false
-                    }
-                }
+                                           changeTextareaValue(tab, tab.getTextareaValue().replace(src, href))
+                                           Toast.toast('上传成功+1', 'success', 3000)
+                                       }, () => {
+                                           if (tip.up) {
+                                               remote.dialog.showMessageBox({message: '请先登录新浪微博'}).then()
+                                               tip.up = false
+                                           }
+                                       }
             )
         }
     })
@@ -624,7 +625,7 @@ function movePictureToFolder() {
         const new_src = relativePath(tab.getPictureDir() + path.basename(src)) //新的图片路径
         const relativeSrc = tab.getPictureDirRelative() + path.basename(src) //相对路径
         if (path.isAbsolute(all_src)) { //拷贝文件
-            if (all_src!==new_src) {
+            if (all_src !== new_src) {
                 fs.copyFile(all_src, new_src, (err) => {
                     if (err) {
                         return console.error(err)
@@ -633,7 +634,7 @@ function movePictureToFolder() {
                                         tab.getTextareaValue().replace(src, pathSep(relativeSrc)))
                     Toast.toast('整理成功+1', 'success', 3000)
                 });
-            }else {
+            } else {
                 changeTextareaValue(tab,
                                     tab.getTextareaValue().replace(src, pathSep(relativeSrc)))
                 Toast.toast('整理成功+1', 'success', 3000)
@@ -848,8 +849,26 @@ ipcRenderer.on('editor-font-family-adjust', (event, args) => {
     changeEditorFontFamily(args)
 })
 
+function init(){
+    //关注微信公众号
+    if (dataStore.isOutUseTime()) {
+        let img = document.createElement("img");
+        img.src = './image/gzh.png'
+        img.style.cssText = 'position: fixed;width: 20%;z-index: 9;left: 40%;bottom: 10px;'
+        document.body.appendChild(img)
+        img.addEventListener('click',()=>{
+            document.body.removeChild(img)
+        })
+        Toast.toast('请拿起手机打开微信扫一扫屏幕下方二维码^_^', 'success', 5000)
+        setTimeout(()=>{
+            Toast.toast('关注公众号后点击图片即可关闭^_^', 'success', 3000)
+        }, 5010)
+    }
+}
+init()
+
 //发布文章到平台
-ipcRenderer.on('publish-article-to-', (event,site) => {
+ipcRenderer.on('publish-article-to-', (event, site) => {
     if (!tab.hasPath()) {
         remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
         return
@@ -906,7 +925,7 @@ ipcRenderer.on('publish-article-to-', (event,site) => {
                             value = value.replace(src, v)
                             Toast.toast('上传图片+1', 'success', 3000)
                         }).catch(value => {
-                            remote.dialog.showMessageBox({message: value+''}).then()
+                            remote.dialog.showMessageBox({message: value}).then()
                             next = false
                         })
                         break
@@ -915,7 +934,7 @@ ipcRenderer.on('publish-article-to-', (event,site) => {
                             value = value.replace(src, v)
                             Toast.toast('上传图片+1', 'success', 3000)
                         }).catch(value => {
-                            remote.dialog.showMessageBox({message: value+''}).then()
+                            remote.dialog.showMessageBox({message: value}).then()
                             next = false
                         })
                         break
@@ -924,7 +943,7 @@ ipcRenderer.on('publish-article-to-', (event,site) => {
                             value = value.replace(src, v)
                             Toast.toast('上传图片+1', 'success', 3000)
                         }).catch(value => {
-                            remote.dialog.showMessageBox({message: value+''}).then()
+                            remote.dialog.showMessageBox({message: value}).then()
                             next = false
                         })
                         break
@@ -933,7 +952,7 @@ ipcRenderer.on('publish-article-to-', (event,site) => {
                             value = value.replace(src, v)
                             Toast.toast('上传图片+1', 'success', 3000)
                         }).catch(value => {
-                            remote.dialog.showMessageBox({message: value+''}).then()
+                            remote.dialog.showMessageBox({message: value}).then()
                             next = false
                         })
                         break
@@ -942,14 +961,14 @@ ipcRenderer.on('publish-article-to-', (event,site) => {
                             value = value.replace(src, v)
                             Toast.toast('上传图片+1', 'success', 3000)
                         }).catch(value => {
-                            remote.dialog.showMessageBox({message: value+''}).then()
+                            remote.dialog.showMessageBox({message: value}).then()
                             next = false
                         })
                         break
                 }
             }
         }
-        if (!next){
+        if (!next) {
             return
         }
         //第二步：将最终的文本+标题发布到思否

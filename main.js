@@ -16,7 +16,8 @@ function createWindow() {
     mainWindow = new BrowserWindow({
                                        width: 800,
                                        height: 600,
-                                       webPreferences: {devTools: true, nodeIntegration: true},
+                                       icon: './build/app.ico',
+                                       webPreferences: {devTools: false, nodeIntegration: true},
                                        titleBarStyle: "hidden"
                                    })
     mainWindow.loadFile('./src/index.html').then()
@@ -58,14 +59,6 @@ app.on('ready', () => {
 
     //创建窗口
     createWindow()
-
-    //测试版试用时间到期
-    // if (dataStore.isOutUseTime()) {
-    //     dialog.showMessageBox({
-    //                               title: '试用已到期',
-    //                               message:
-    // '您当前软件是测试体验版，48小时试用时间已到期，如需正式版，请联系邮箱yster@foxmail.com购买', buttons: ['确定'] }).then((result)
-    // => { app.quit() }) }
 
     //新建一个文件
     ipcMain.on('new-md-file', (event, id) => {
