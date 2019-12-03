@@ -245,8 +245,9 @@ class DataStore extends Store {
                 return true
             }
         }else {
-            //第一次初始化，不弹出
+            //第一次初始化，弹出
             this.set(key, timestamp)
+            return true
         }
         return false
     }
