@@ -235,21 +235,31 @@ class DataStore extends Store {
         return this.set(this.OsChinaUserIdKey, v)
     }
 
-    isOutUseTime(){
-        const key = 'out-time2'
-        const timestamp = new Date().getTime()
-        if (this.has(key)){
-            //距离上次弹出已超过24小时
-            if (timestamp - parseInt(this.get(key))>(1000*60*60*24)){
-                this.set(key, timestamp)
-                return true
-            }
-        }else {
-            //第一次初始化，弹出
-            this.set(key, timestamp)
-            return true
-        }
-        return false
+    // isOutUseTime(){
+    //     const key = 'out-time3'
+    //     const timestamp = new Date().getTime()
+    //     if (this.has(key)){
+    //         //距离上次弹出已超过24小时
+    //         if (timestamp - parseInt(this.get(key))>(1000*60*60*24)){
+    //             this.set(key, timestamp)
+    //             return true
+    //         }
+    //     }else {
+    //         //第一次初始化，弹出
+    //         this.set(key, timestamp)
+    //         return true
+    //     }
+    //     return false
+    // }
+
+    loginKey = 'login'
+
+    isLogin(){
+        return this.has(this.loginKey);
+    }
+
+    login(){
+        this.set(this.loginKey,"1")
     }
 
 }

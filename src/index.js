@@ -849,23 +849,39 @@ ipcRenderer.on('editor-font-family-adjust', (event, args) => {
     changeEditorFontFamily(args)
 })
 
-function init(){
-    //关注微信公众号
-    if (dataStore.isOutUseTime()) {
-        let img = document.createElement("img");
-        img.src = './image/gzh.png'
-        img.style.cssText = 'position: fixed;width: 20%;z-index: 9;left: 40%;bottom: 10px;'
-        document.body.appendChild(img)
-        img.addEventListener('click',()=>{
-            document.body.removeChild(img)
-        })
-        Toast.toast('请拿起手机打开微信扫一扫屏幕下方二维码^_^', 'success', 5000)
-        setTimeout(()=>{
-            Toast.toast('关注公众号后点击图片即可关闭^_^', 'success', 3000)
-        }, 5010)
+//关注微信公众号回复验证码解锁APP
+$(function () {
+    if (!dataStore.isLogin()) {
+        $('body').append(`
+<div id="gzh" style="position: fixed;align-content: center;text-align: center;width: 40%;height: 60%;z-index: 9;left: 30%;bottom: 20%;">
+    <p style="margin: 0;">扫码关注微信公众号回复<span style="color: red;">VIP</span>获取验证码</p>
+    <input type="text" id="key"/>
+    <input type="submit" value="提交" onclick="loginApp()"/>
+    <img src="./image/gzh.png" style="padding: 0 50px;" />
+</div>`)
     }
+})
+function loginApp(){
+    const key = $('input[id=key]').val()
+    $.ajax({
+        url: `http://www.onblogs.cn/authcode?key=${key}&group=justwrite`,
+        type: 'POST',
+        dataType: 'text',
+        success: function (result) { //成功响应的结果
+            if (result === 'true') {
+                dataStore.login()
+                $('#gzh').remove()
+                Toast.toast('验证成功','success',3000)
+            }else {
+                Toast.toast('验证失败','success',3000)
+            }
+        },
+        error: function (xhr,status,error) {
+            alert('网络错误，进入试用')
+            $('#gzh').remove()
+        }
+    })
 }
-init()
 
 //发布文章到平台
 ipcRenderer.on('publish-article-to-', (event, site) => {
