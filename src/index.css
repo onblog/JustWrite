@@ -6,10 +6,6 @@
     font-family: '华文圆体';
     src: url('./font/HuaWenYuanTi-Regular/HuaWenYuanTi-REGULAR-2.ttf');
 }
-@font-face {
-    font-family: '青柠幼圆体';
-    src: url('./font/QingNingYouYuanTi/QingNingYouYuan-2.ttf');
-}
 
 @font-face {
     font-family: '问藏书房';
@@ -23,10 +19,6 @@
 @font-face {
     font-family: '神韵今晚吃鸡';
     src: url('./font/ShenYunJinWanChiJi/ShenYunJinWanChiJi-2.ttf');
-}
-@font-face {
-    font-family: '方正楷体';
-    src: url('./font/FangZhengKaiTiJianTi/FangZhengKaiTiJianTi-1.ttf');
 }
 
 body {
