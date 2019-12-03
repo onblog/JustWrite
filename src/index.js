@@ -864,7 +864,7 @@ $(function () {
 function loginApp(){
     const key = $('input[id=key]').val()
     $.ajax({
-        url: `http://www.onblogs.cn/authcode?key=${key}&group=justwrite`,
+        url: `http://www.onblogs.cn/authcode?code=${key}&group=justwrite`,
         type: 'POST',
         dataType: 'text',
         success: function (result) { //成功响应的结果
