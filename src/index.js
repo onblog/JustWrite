@@ -34,6 +34,9 @@ const marked = require('markdown-it')({
     .use(require('markdown-it-deflist'))
     .use(require('markdown-it-ins'))
     .use(require('markdown-it-mark'))
+    .use(require('markdown-it-imsize'))
+    .use(require('markdown-it-sub'))
+    .use(require('markdown-it-container'))
 
 const tempPath = remote.getGlobal('sharedObject').temp
 
@@ -719,8 +722,8 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             insertTextareaValue(tab, '- ')
             break
         case 'Alt+Command+X' || 'Ctrl+Shift+X':
-            insertTextareaValue(tab,
-                                '- <input type="checkbox" disabled checked> \n- <input type="checkbox" disabled>')
+            tab.getCodeMirror().execCommand('goLineStart')
+            insertTextareaValue(tab, '- [x]>')
             break
         case 'Alt+Command+-' || 'Ctrl+Shift+-':
             insertTextareaValue(tab, '---')
@@ -861,26 +864,27 @@ $(function () {
 </div>`)
     }
 })
-function loginApp(){
+
+function loginApp() {
     const key = $('input[id=key]').val()
     $.ajax({
-        url: `http://www.onblogs.cn/authcode?code=${key}&group=justwrite`,
-        type: 'POST',
-        dataType: 'text',
-        success: function (result) { //成功响应的结果
-            if (result === 'true') {
-                dataStore.login()
-                $('#gzh').remove()
-                Toast.toast('验证成功','success',3000)
-            }else {
-                Toast.toast('验证失败','success',3000)
-            }
-        },
-        error: function (xhr,status,error) {
-            alert('网络错误，进入试用')
-            $('#gzh').remove()
-        }
-    })
+               url: `http://www.onblogs.cn/authcode?code=${key}&group=justwrite`,
+               type: 'POST',
+               dataType: 'text',
+               success: function (result) { //成功响应的结果
+                   if (result === 'true') {
+                       dataStore.login()
+                       $('#gzh').remove()
+                       Toast.toast('验证成功', 'success', 3000)
+                   } else {
+                       Toast.toast('验证失败', 'success', 3000)
+                   }
+               },
+               error: function (xhr, status, error) {
+                   alert('网络错误，进入试用')
+                   $('#gzh').remove()
+               }
+           })
 }
 
 //发布文章到平台

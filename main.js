@@ -5,7 +5,7 @@ let mainWindow
 
 const options = {
     type: 'info',
-    buttons: ['退出', '返回保存',],
+    buttons: ['不了,谢谢', '返回保存',],
     defaultId: 1,
     message: '是否保存已编辑的文本？',
     cancelId: 0,
@@ -17,7 +17,7 @@ function createWindow() {
                                        width: 800,
                                        height: 600,
                                        icon: './build/app.ico',
-                                       webPreferences: {devTools: false, nodeIntegration: true},
+                                       webPreferences: {devTools: true, nodeIntegration: true},
                                        titleBarStyle: "hidden"
                                    })
     mainWindow.loadFile('./src/index.html').then()
