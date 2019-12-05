@@ -37,6 +37,10 @@ const marked = require('markdown-it')({
     .use(require('markdown-it-imsize'))
     .use(require('markdown-it-sub'))
     .use(require('markdown-it-container'))
+    .use(require('markdown-it-anchor'))
+    .use(require('markdown-it-table-of-contents'),{
+        "markerPattern" : /^\[toc\]/im
+    })
 
 const tempPath = remote.getGlobal('sharedObject').temp
 
