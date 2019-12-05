@@ -512,7 +512,6 @@ exports.createMenuItems = (mainWindow, app) => {
                     }
                 }, {
                     label: '任务列表',
-                    visible: false,
                     accelerator: (function () {
                         if (process.platform === 'darwin') {
                             return 'Alt+Command+X'
@@ -896,9 +895,14 @@ exports.createMenuItems = (mainWindow, app) => {
                 'help',
             submenu:
                 [{
-                    label: 'Markdown语法',
+                    label: '学习Markdown',
                     click: () => {
                         shell.openExternal('http://www.markdown.cn/').then()
+                    }
+                },{
+                    label: '查看示例',
+                    click: () => {
+                        mainWindow.send('look-md-example')
                     }
                 }, {
                     type: 'separator'

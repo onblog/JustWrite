@@ -1,5 +1,5 @@
 const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron')
-const cMenu = require('./src/script/menu')
+const cMenu = require('./script/menu')
 
 let mainWindow
 
@@ -17,7 +17,7 @@ function createWindow() {
                                        width: 800,
                                        height: 600,
                                        icon: './build/app.ico',
-                                       webPreferences: {devTools: true, nodeIntegration: true},
+                                       webPreferences: {devTools: false, nodeIntegration: true},
                                        titleBarStyle: "hidden"
                                    })
     mainWindow.loadFile('./src/index.html').then()

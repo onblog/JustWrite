@@ -34,13 +34,16 @@ const marked = require('markdown-it')({
     .use(require('markdown-it-deflist'))
     .use(require('markdown-it-ins'))
     .use(require('markdown-it-mark'))
-    .use(require('markdown-it-imsize'))
     .use(require('markdown-it-sub'))
-    .use(require('markdown-it-container'))
+    .use(require('markdown-it-imsize')) //![](1.png =10x10)
     .use(require('markdown-it-anchor'))
     .use(require('markdown-it-table-of-contents'),{
         "markerPattern" : /^\[toc\]/im
-    })
+    }) // [TOC]
+    .use(require('markdown-it-attrs')) //![](1.png){style=width:200px;height:100px}
+    .use(require('markdown-it-task-lists')) //- [x] or - [ ]
+    .use(require('@iktakahiro/markdown-it-katex')) // $、$$
+    .use(require('markdown-it-plantuml')) //https://plantuml.com/
 
 const tempPath = remote.getGlobal('sharedObject').temp
 
@@ -297,6 +300,11 @@ ipcRenderer.on('or-save-md-file-result', (event, result, id) => {
 ipcRenderer.on('new-tab', (() => {
     createNewTab()
 }))
+
+//查看语法示例
+ipcRenderer.on('look-md-example',()=>{
+    createNewTab(require('./script/example').example)
+})
 
 function openMdFiles(files) {
     for (let i = 0; i < files.length; i++) {
@@ -727,7 +735,7 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             break
         case 'Alt+Command+X' || 'Ctrl+Shift+X':
             tab.getCodeMirror().execCommand('goLineStart')
-            insertTextareaValue(tab, '- [x]>')
+            insertTextareaValue(tab, '- [x] ')
             break
         case 'Alt+Command+-' || 'Ctrl+Shift+-':
             insertTextareaValue(tab, '---')
@@ -849,7 +857,7 @@ ipcRenderer.on('text-word-count', event => {
 //更改字体
 function changeEditorFontFamily(args) {
     document.getElementById('editorFontFamily').innerHTML =
-        `.md2html,.CodeMirror{font-family:${args}`
+        `.md2html,.CodeMirror{font-family:${args} !important}`
 }
 
 ipcRenderer.on('editor-font-family-adjust', (event, args) => {
