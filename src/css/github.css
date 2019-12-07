@@ -187,5 +187,5 @@ table tr td:last-child {
     margin-bottom: 0;
 }
 header, footer{
-    font-family: "Segoe UI", "Arial", sans-serif;
+    /*font-family: "Segoe UI", "Arial", sans-serif;*/
 }

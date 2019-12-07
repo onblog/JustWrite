@@ -83,7 +83,7 @@ exports.createMenuItems = (mainWindow, app) => {
 
     //登录某网站获取Cookie通用方法
     function getSiteCookie(url, callback) {
-        let win = new BrowserWindow({width: 800, height: 600, title: '【登陆成功后关闭窗口即可完成设置】'})
+        let win = new BrowserWindow({width: 800, height: 600, icon: '../../build/app.ico', title: '【登陆成功后关闭窗口即可完成设置】'})
         win.loadURL(url).then()
         win.on('close', () => {
             win = null

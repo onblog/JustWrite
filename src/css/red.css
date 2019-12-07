@@ -5,7 +5,7 @@
     line-height: 1.8; /*更改默认的行距*/
     word-spacing:2px; /*更改默认的词间距*/
     letter-spacing:2px;/*更改默认的字符间距*/
-    font-family: "Helvetica Neue",Helvetica,"Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif;
+    /*font-family: "Helvetica Neue",Helvetica,"Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif;*/
 
     /*增加背景网格*/
     background-image: linear-gradient(90deg, rgba(50, 0, 0, 0.05) 3%, rgba(0, 0, 0, 0) 3%), linear-gradient(360deg,rgba(50, 0, 0, 0.05) 3%, rgba(0, 0, 0, 0) 3%);

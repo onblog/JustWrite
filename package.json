@@ -3,11 +3,10 @@
   "productName": "JustWrite",
   "version": "5.0.0",
   "description": "",
-  "main": "src/main.js",
+  "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder",
-    "package": "electron-packager ./ JustWrite --out ./OutApp --version 1.7.9 --overwrite --icon=./build/app.ico"
+    "dist": "electron-builder"
   },
   "keywords": [
     "markdown",

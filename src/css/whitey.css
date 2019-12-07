@@ -1,7 +1,7 @@
 .md2html {
 	margin: auto;
 	background: #fefefe;
-	font-family: "Vollkorn", Palatino, Times, serif;
+	/*font-family: "Vollkorn", Palatino, Times, serif;*/
 	color: #333;
 	line-height: 1.4em;
 	text-align: justify;
@@ -72,7 +72,7 @@ blockquote {
 	border-left: 1px solid #ddd;
 }
 code, pre {
-	font-family: "Consolas", "Menlo", "Monaco", monospace, serif;
+	/*font-family: "Consolas", "Menlo", "Monaco", monospace, serif;*/
 	font-size: 13px;
 }
 

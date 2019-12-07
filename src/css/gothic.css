@@ -44,7 +44,7 @@
 
 .md2html{
 	background: #fcfcfc;
-	font-family: 'TeXGyreAdventor', "Century Gothic", "Didact Gothic", "Yu Gothic", sans-serif;
+	/*font-family: 'TeXGyreAdventor', "Century Gothic", "Didact Gothic", "Yu Gothic", sans-serif;*/
 	font-weight: 300;
 }
 h1,
@@ -54,7 +54,7 @@ h4,
 h5,
 h6 {
 	color: #111;
-	font-family: 'TeXGyreAdventor', "Century Gothic", "Didact Gothic", "Yu Gothic", sans-serif;
+	/*font-family: 'TeXGyreAdventor', "Century Gothic", "Didact Gothic", "Yu Gothic", sans-serif;*/
 }
 
 html {

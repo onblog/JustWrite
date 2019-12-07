@@ -1,5 +1,5 @@
 const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron')
-const cMenu = require('./script/menu')
+const cMenu = require('./src/script/menu')
 
 let mainWindow
 

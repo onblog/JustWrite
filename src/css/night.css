@@ -22,7 +22,7 @@ button,
 input,
 select,
 textarea {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
 }
 
 hr {
@@ -37,7 +37,7 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: "Lucida Grande", "Corbel", sans-serif;
+    /*font-family: "Lucida Grande", "Corbel", sans-serif;*/
     font-weight: normal;
     clear: both;
     -ms-word-wrap: break-word;
@@ -201,7 +201,7 @@ tt,
 var {
     background: rgba(0, 0, 0, 0.05);
     font-size: 0.875rem;
-    font-family: Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
+    /*font-family: Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;*/
 }
 
 kbd {
