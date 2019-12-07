@@ -1,57 +1,42 @@
-# JustWrite 
+# JustWrite (Typora Plus)
 
 ![](https://img.shields.io/github/license/yueshutong/JustWrite) 
 ![](https://img.shields.io/static/v1?label=electron&message=6.0.12&color=)
 ![](https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg)
 
-一款定位于Markdown文章排版与一键发布本地文章到【博客园】【CSDN】【SegmentFault】【掘金】【开源中国】等平台的多标签Markdown编辑器。
+**有了Typora为什么还要有JustWrite？**
 
-你可以尝试用JustWrite写作，因为JustWrite可以帮你排版，帮你美化，帮你处理本地图片，帮你一键发布！
+因为Typora太过国际化，在国内水土不服，无法满足我的一些需求。
+
+**JustWrite做了什么增强？**
+
+整体上：
+- [x] 跨平台Markdown编辑器（mac、windows）
+- [x] 增强微信公众号文章排版，多种主题和代码块样式，一键复制手动粘贴
+- [ ] Markdown转个人简历（待做）
+- [x] 一键发布文章到博客园、CSDN、SegmentFault、掘金、开源中国等平台
+
+细节上：
+- [x] 支持数学公式（行内公式和块公式）
+- [x] 支持UML图（参考<http://www.plantuml.com/>）
+- [x] 支持自定义图片大小（用法：\![](123.png =100x100)）
+- [x] 通过{}自定义HTML标签的属性或CSS样式，是让你可以通过Markdown做个人简历的基础，并导出为PDF。
+- [x] 支持多种写作字体，并可调节字体大小。
+- [x] 支持夜间模式，保护你的眼睛。
+- [x] 提供字数统计功能，功能仿微信公众号。
+- [x] 支持全屏写作（即关闭右半侧实时预览）
+
+针对痛点的图片问题，提供了多种解决方法：
+
+- [x] 复制粘贴或拖拽图片插入到编辑器
+- [x] 一键网络图片下载到本地以文件名命名的文件夹
+- [x] 一键本地图片整理至以文件名命名的文件夹，并通过相对路径引用
+- [x] 一键上传本地图片到新浪微博图床（虽说免费图床不稳定，不过临时用用还不错）
+- [x] 登录新浪微博后，可以开启自动上传。
 
 如果帮助到你了，请帮忙点亮[Github](https://github.com/yueshutong/JustWrite)右上角小星星，这将是我持续更新的动力！
 
-## 视频：一键发布到博客园
-
-<https://www.bilibili.com/video/av75844890/>
-
-## 功能
-
-- [x] 微信公众号排版神器（几十种主题+代码块样式）
-
-- [x] **博客园**、**CSDN**、**掘金**、**SegmentFault**、**开源中国**一键发布（带上传本地图片）
-
-- [x] 网络图片一键下载到本地
-
-- [x] 本地图片一键上传至新浪图床
-
-- [x] 本地图片一键整理至Picture文件夹
-
-- [x] 一键复制Markdown代码
-
-- [x] 一键复制Markdown转后的HTML网页
-
-- [x] 支持**夜间模式**等多种主题，保护眼睛
-
-- [x] 支持图片拖拽到文档，并可自动上传到图床
-
-- [x] 支持图片复制粘贴到文档，并可自动上传到图床
-
-- [x] 支持几十种主题、几十种代码块样式
-
-- [x] 支持一键复制发布到微信公众号等富文本编辑器
-
-- [x] 支持一键解决图床防盗链访问404
-
-- [x] 支持打印、支持一键导出PDF文档
-
-- [x] 支持切换markdown编辑器主题
-
-- [x] 支持编辑器字体放大/缩小
-
-- [x] 支持全屏写作（即关闭右半侧实时预览）
-
-
-## 下载 mac、window 客户端
+## 下载
 
 Github：<https://github.com/yueshutong/JustWrite/releases>
 
@@ -61,7 +46,9 @@ Gitee：<https://gitee.com/zyzpp/JustWrite/releases>
 
 ![](./README/3144653.png)
 
-![](./README/4549098.png)
+## 视频演示
+
+<https://www.bilibili.com/video/av75844890/>
 
 ## 鸣谢
 
@@ -69,9 +56,7 @@ Gitee：<https://gitee.com/zyzpp/JustWrite/releases>
 
 ## 反馈
 
-新项目难免有Bug，我也只是在Mac平台使用，Win平台有Bug欢迎反馈告知！24小时之内修复！
-
-唯一Bug反馈建议地址：<https://github.com/yueshutong/JustWrite/issues>
+唯一反馈建议地址：<https://github.com/yueshutong/JustWrite/issues>
 
 ## About
 
