@@ -44,7 +44,7 @@ Gitee：<https://gitee.com/zyzpp/JustWrite/releases>
 
 ## 预览
 
-![](./README/3144653.png)
+![](./README/6327537.png)
 
 ## 视频演示
 
