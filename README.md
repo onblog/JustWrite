@@ -48,7 +48,7 @@ Gitee：<https://gitee.com/zyzpp/JustWrite/releases>
 
 ## 视频演示
 
-<https://www.bilibili.com/video/av75844890/>
+<https://www.bilibili.com/video/av78534183/>
 
 ## 鸣谢
 
