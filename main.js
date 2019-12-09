@@ -61,8 +61,9 @@ app.on('ready', () => {
     createWindow()
 
     //新建一个文件
-    ipcMain.on('new-md-file', (event, id) => {
+    ipcMain.on('new-md-file', (event, id, defaultPath) => {
         dialog.showSaveDialog({
+                                  defaultPath: defaultPath,
                                   filters: [
                                       {name: 'markdown', extensions: ['md']}
                                   ]

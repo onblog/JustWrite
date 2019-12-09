@@ -37,8 +37,8 @@ const marked = require('markdown-it')({
     .use(require('markdown-it-sub'))
     .use(require('markdown-it-imsize')) //![](1.png =10x10)
     .use(require('markdown-it-anchor'))
-    .use(require('markdown-it-table-of-contents'),{
-        "markerPattern" : /^\[toc\]/im
+    .use(require('markdown-it-table-of-contents'), {
+        "markerPattern": /^\[toc\]/im
     }) // [TOC]
     .use(require('markdown-it-attrs')) //![](1.png){style=width:200px;height:100px}
     .use(require('markdown-it-task-lists')) //- [x] or - [ ]
@@ -302,7 +302,7 @@ ipcRenderer.on('new-tab', (() => {
 }))
 
 //查看语法示例
-ipcRenderer.on('look-md-example',()=>{
+ipcRenderer.on('look-md-example', () => {
     createNewTab(require('./script/example').example)
 })
 
@@ -345,7 +345,8 @@ function saveFile(id) {
         changeTextareaValue(tab1, tab1.getTextareaValue())
     } else {
         //提示创建新的文件(输入文件名，路径)
-        ipcRenderer.send('new-md-file', id)
+        let s = (tab1.getTextareaValue() + '\n').split('\n')[0].trim()
+        ipcRenderer.send('new-md-file', id, util.stringDeal(s))
     }
 }
 
@@ -370,23 +371,38 @@ ipcRenderer.on('new-md-file-complete', (event, filePath, id) => {
 })
 
 //重命名文件
-ipcRenderer.on('rename-md-file', (event, filePath) => {
-    if (tab.hasPath()) { //原路径有效
-        if (tab.isEdit()) {
-            saveFile(tab.getId())
-        }
-        fs.rename(tab.getPath(), filePath, function (err) {
-            if (err) {
-                return console.error(err)
+ipcRenderer.on('rename-md-file', (event) => {
+    remote.dialog.showSaveDialog({
+                                     title: '重命名',
+                                     defaultPath: tab.getTitle(),
+                                     filters: [
+                                         {name: 'markdown', extensions: ['md']}
+                                     ]
+                                 })
+        .then(file => {
+            if (!file.canceled) { //对话框是否被取消
+                const filePath = file.filePath
+                if (tab.hasPath()) { //原路径有效
+                    if (tab.isEdit()) {
+                        saveFile(tab.getId())
+                    }
+                    fs.rename(tab.getPath(), filePath, function (err) {
+                        if (err) {
+                            return console.error(err)
+                        }
+                        //新建一个标签打开文件，关掉原标签
+                        let tab1 = tab
+                        createNewTab(tab.getTextareaValue(), filePath)
+                        deleteTab(tab1.getId())
+                    })
+                } else { //未保存，暂时存放路径
+                    tab.setPath(filePath)
+                }
             }
-            //新建一个标签打开文件，关掉原标签
-            let tab1 = tab
-            createNewTab(tab.getTextareaValue(), filePath)
-            deleteTab(tab1.getId())
         })
-    } else { //未保存，暂时存放路径
-        tab.setPath(filePath)
-    }
+        .catch(err => {
+            console.log(err)
+        })
 })
 
 //拷贝为MD

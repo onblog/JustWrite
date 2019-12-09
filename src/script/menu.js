@@ -333,21 +333,7 @@ exports.createMenuItems = (mainWindow, app) => {
             }, {
                 label: '重命名',
                 click: function (menuItem, browserWindow, event) {
-                    dialog.showSaveDialog({
-                                              title: '重命名为',
-                                              nameFieldLabel: '重命名',
-                                              filters: [
-                                                  {name: 'markdown', extensions: ['md']}
-                                              ]
-                                          })
-                        .then(file => {
-                            if (!file.canceled) { //对话框是否被取消
-                                mainWindow.send('rename-md-file', file.filePath)
-                            }
-                        })
-                        .catch(err => {
-                            console.log(err)
-                        })
+                    mainWindow.send('rename-md-file')
                 }
             }, {
                 type: 'separator'
