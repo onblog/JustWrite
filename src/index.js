@@ -132,7 +132,7 @@ function pathSep(src) {
 //往输入框的光标处中插入文字
 function insertTextareaValue(t, txt) {
     let myCodeMirror = t.getCodeMirror()
-    myCodeMirror.doc.replaceSelection(txt)
+    myCodeMirror.doc.replaceSelection(txt,'around')
     changeTextareaValueAfter(t, myCodeMirror.doc.getValue())
 }
 
@@ -141,7 +141,6 @@ function insertTextareaValueTwo(t, left, right) {
     let myCodeMirror = t.getCodeMirror()
     myCodeMirror.doc.replaceSelection(left + myCodeMirror.doc.getSelection() + right, 'around')
     changeTextareaValueAfter(t, myCodeMirror.doc.getValue())
-
 }
 
 //改变输入框的文字
@@ -342,7 +341,7 @@ function saveFile(id) {
         });
         //更新已保存部分
         tab1.setText(tab1.getTextareaValue())
-        changeTextareaValue(tab1, tab1.getTextareaValue())
+        changeTextareaValueAfter(tab1, tab1.getTextareaValue())
     } else {
         //提示创建新的文件(输入文件名，路径)
         let s = (tab1.getTextareaValue() + '\n').split('\n')[0].trim()
@@ -873,7 +872,7 @@ ipcRenderer.on('text-word-count', event => {
 //更改字体
 function changeEditorFontFamily(args) {
     document.getElementById('editorFontFamily').innerHTML =
-        `.md2html,.CodeMirror{font-family:${args} !important}`
+        `.md2html,.CodeMirror{font-family:${args},sans-serif !important}`
 }
 
 ipcRenderer.on('editor-font-family-adjust', (event, args) => {
