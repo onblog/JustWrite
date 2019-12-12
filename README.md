@@ -13,7 +13,7 @@
 整体上：
 - [x] 跨平台Markdown编辑器（mac、windows）
 - [x] 增强微信公众号文章排版，多种主题和代码块样式，一键复制手动粘贴
-- [x] 使用Markdown编写个人简历，支持导出PDF文件
+- [x] 使用Markdown编写个人简历，使用emoji表情，导出为PDF文件
 - [x] 一键发布文章到博客园、CSDN、SegmentFault、掘金、开源中国等平台
 
 细节上：
