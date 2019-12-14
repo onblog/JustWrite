@@ -52,7 +52,7 @@
     "appId": "com.github.yueshutong.justwrite",
     "productName": "JustWrite",
     "mac": {
-      "icon": "./build/app.icns",
+      "icon": "build/app.icns",
       "type": "development",
       "category": "public.app-category.productivity",
       "target": [
@@ -60,13 +60,13 @@
       ]
     },
     "win": {
-      "icon": "./build/app.ico",
+      "icon": "build/app.ico",
       "target": [
         "nsis"
       ]
     },
     "linux": {
-      "icon": "./build/app.ico",
+      "icon": "build/app.ico",
       "category": "Office",
       "target": [
         "AppImage"
