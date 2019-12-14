@@ -47,6 +47,8 @@ const marked = require('markdown-it')({
 
 const tempPath = remote.getGlobal('sharedObject').temp
 
+let scrollSync = dataStore.getScrollSync()
+
 const segmentfault = require('./blogs/segmentfault')
 const cnblogs = require('./blogs/cnblogs')
 const csdn = require('./blogs/csdn')
@@ -85,7 +87,7 @@ function closeDisplay() {
 function cutTab(k) {
     tab = tabs.get(k + '')
     tab.getPage().className = 'tab-pane fade in active'
-    tab.getCodeMirror().refresh()
+    tab.getCodeMirror().refresh() //更改CSS样式时刷新编辑器
 }
 
 //优雅的获取Tab对象
@@ -139,17 +141,19 @@ function insertTextareaValue(t, txt) {
 //往输入框的选中的两侧插入文字
 function insertTextareaValueTwo(t, left, right) {
     let myCodeMirror = t.getCodeMirror()
-    myCodeMirror.doc.replaceSelection(left + myCodeMirror.doc.getSelection() + right, 'around')
+    let selection = myCodeMirror.doc.getSelection()
+    myCodeMirror.doc.replaceSelection(left + selection + right, 'around')
     changeTextareaValueAfter(t, myCodeMirror.doc.getValue())
 }
 
 //改变输入框的文字
 function changeTextareaValue(t, txt) {
+    const scrollInfo = t.getCodeMirror().getScrollInfo()
     let cursor = t.getCodeMirror().doc.getCursor()
     t.getCodeMirror().doc.setValue(txt)
     changeTextareaValueAfter(t, txt)
-    t.getCodeMirror().refresh()
     t.getCodeMirror().doc.setCursor(cursor)
+    t.getCodeMirror().scrollTo(scrollInfo.left, scrollInfo.top)
 }
 
 function changeTextareaValueAfter(t, txt) {
@@ -240,6 +244,9 @@ function createNewTab(...dataAndPath) {
     //监听编辑器的滚动事件
     //内容栏滑动
     myCodeMirror.on("scroll", () => {
+        if (!scrollSync){
+            return
+        }
         const scrollInfo = myCodeMirror.getScrollInfo()
         const height = scrollInfo.height - scrollInfo.clientHeight
         const proportion = scrollInfo.top / height
@@ -731,7 +738,7 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
                                      + '|   -   |      |\n')
             break
         case 'Alt+Command+C' || 'Ctrl+Shift+C':
-            insertTextareaValue(tab, '\n```\n\n```')
+            insertTextareaValue(tab, '```\n\n```')
             break
         case 'CmdOrCtrl+P':
             insertTextareaValue(tab, '![]()')
@@ -787,7 +794,7 @@ function cutNightMode(args) {
     }
 }
 
-//切换夜间模式
+// 切换夜间模式
 ipcRenderer.on('cut-night-mode', (event, args) => {
     cutNightMode(args)
 })
@@ -803,6 +810,11 @@ function cutPreviewMode(args) {
 // 切换实时预览
 ipcRenderer.on('cut-preview-mode', (event, args) => {
     cutPreviewMode(args)
+})
+
+// 切换同步滑动
+ipcRenderer.on('cut-scroll-sync',(event, args) => {
+    scrollSync = args
 })
 
 // 字体放大缩小
@@ -824,7 +836,7 @@ function editorFontSizeAdjust(target) {
     for (let t of tabs.values()) {
         document.getElementById(t.getLeftId())
             .getElementsByClassName('CodeMirror')[0].style['font-size'] = newSize
-        t.getCodeMirror().refresh()
+        t.getCodeMirror().refresh() //更改CSS样式时刷新编辑器
     }
     dataStore.setEditorFontSize(newSize)
     if (target) {
@@ -836,7 +848,7 @@ ipcRenderer.on('editor-font-size-adjust', (event, args) => {
     editorFontSizeAdjust(args)
 })
 
-//显示/关闭行号
+// 显示/关闭行号
 function disPlayLineNumber(args) {
     if (args) {
         document.getElementById('editorPadding').innerHTML =
@@ -847,7 +859,7 @@ function disPlayLineNumber(args) {
     }
     for (let t of tabs.values()) {
         t.getCodeMirror().setOption('lineNumbers', args)
-        t.getCodeMirror().refresh()
+        t.getCodeMirror().refresh() //更改CSS样式时刷新编辑器
     }
 }
 
@@ -855,7 +867,7 @@ ipcRenderer.on('display-line-number', (event, args) => {
     disPlayLineNumber(args)
 })
 
-//字数统计
+// 字数统计
 ipcRenderer.on('text-word-count', event => {
     let result = util.stringLength(tab.getCodeMirror().doc.getValue())
     let words = util.findStringWords(tab.getCodeMirror().doc.getValue())
@@ -869,7 +881,7 @@ ipcRenderer.on('text-word-count', event => {
                                  }).then()
 })
 
-//更改字体
+// 更改字体
 function changeEditorFontFamily(args) {
     document.getElementById('editorFontFamily').innerHTML =
         `.md2html,.CodeMirror{font-family:${args},sans-serif !important}`
@@ -877,6 +889,31 @@ function changeEditorFontFamily(args) {
 
 ipcRenderer.on('editor-font-family-adjust', (event, args) => {
     changeEditorFontFamily(args)
+})
+
+// 格式化代码
+ipcRenderer.on('format-md-code',event => {
+    let oldText = tab.getCodeMirror().doc.getSelection()
+    let newText = ''
+    let objReadline = oldText.split('\n')
+    let snum = 0
+    for (let i = 0; i < objReadline.length; i++) {
+        let line = objReadline[i]
+        if (i===0){
+            for (let j = 0; j < line.length; j++) {
+                if (line.charAt(j)===' '){
+                    snum++
+                }else {
+                    break
+                }
+            }
+        }
+        newText += line.substring(snum)
+        if (i!==objReadline.length-1){
+            newText+='\n'
+        }
+    }
+    tab.getCodeMirror().doc.replaceSelection(newText);
 })
 
 //关注微信公众号回复验证码解锁APP

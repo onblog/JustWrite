@@ -11,6 +11,8 @@ class DataStore extends Store {
 
     //实时预览
     cutPreviewKey = 'cut-preview-key'
+    //滑动同步
+    scrollSyncKey = 'scroll-sync-key'
 
     //显示行号
     displayLineNumber = 'display-line-number'
@@ -88,6 +90,13 @@ class DataStore extends Store {
     getCutPreview() {
         if (this.has(this.cutPreviewKey)) {
             return this.get(this.cutPreviewKey)
+        }
+        return true
+    }
+
+    getScrollSync() {
+        if (this.has(this.scrollSyncKey)) {
+            return this.get(this.scrollSyncKey)
         }
         return true
     }

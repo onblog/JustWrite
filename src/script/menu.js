@@ -377,6 +377,13 @@ exports.createMenuItems = (mainWindow, app) => {
             }, {
                 type: 'separator'
             }, {
+                label: '格式化代码',
+                click: function (item, focusedWindow, event) {
+                    mainWindow.send('format-md-code')
+                }
+            }, {
+                type: 'separator'
+            }, {
                 label: '复制为 Markdown',
                 click: function (item, focusedWindow, event) {
                     mainWindow.send('copy-to-md')
@@ -830,6 +837,19 @@ exports.createMenuItems = (mainWindow, app) => {
                     } else {
                         dataStore.set(dataStore.cutPreviewKey, false)
                         mainWindow.send('cut-preview-mode', false)
+                    }
+                })
+            }, {
+                label: '同步滑动',
+                type: 'checkbox',
+                checked: dataStore.getScrollSync(),
+                click: (menuItem => {
+                    if (menuItem.checked) {
+                        dataStore.set(dataStore.scrollSyncKey, true)
+                        mainWindow.send('cut-scroll-sync', true)
+                    } else {
+                        dataStore.set(dataStore.scrollSyncKey, false)
+                        mainWindow.send('cut-scroll-sync', false)
                     }
                 })
             }, {
