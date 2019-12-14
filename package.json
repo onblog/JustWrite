@@ -16,7 +16,6 @@
   "license": "GPL3.0",
   "repository": "https://github.com/yueshutong/JustWrite/",
   "dependencies": {
-    "@iktakahiro/markdown-it-katex": "^3.1.0",
     "bootstrap": "^3.4.1",
     "codemirror": "^5.49.2",
     "electron-store": "^5.0.0",
@@ -25,6 +24,7 @@
     "jQuery.print": "^1.5.1",
     "jquery": "^3.4.1",
     "jsdom": "^15.2.1",
+    "katex": "^0.11.1",
     "markdown-it": "^10.0.0",
     "markdown-it-abbr": "^1.0.4",
     "markdown-it-anchor": "^5.2.5",
@@ -40,6 +40,7 @@
     "markdown-it-sup": "^1.0.0",
     "markdown-it-table-of-contents": "^0.4.4",
     "markdown-it-task-lists": "^2.1.1",
+    "markdown-it-texmath": "^0.6.0",
     "request": "^2.88.0",
     "urlencode": "^1.1.0"
   },

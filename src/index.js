@@ -42,7 +42,7 @@ const marked = require('markdown-it')({
     }) // [TOC]
     .use(require('markdown-it-attrs')) //![](1.png){style=width:200px;height:100px}
     .use(require('markdown-it-task-lists')) //- [x] or - [ ]
-    .use(require('@iktakahiro/markdown-it-katex')) // $、$$
+    .use(require('markdown-it-texmath').use(require('katex'))) // $、$$
     .use(require('markdown-it-plantuml')) //https://plantuml.com/
 
 const tempPath = remote.getGlobal('sharedObject').temp
