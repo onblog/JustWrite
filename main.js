@@ -1,5 +1,6 @@
 const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron')
 const cMenu = require('./src/script/menu')
+const iconPath = require('./src/script/iconPath').iconPath //窗口图标
 
 let mainWindow
 
@@ -16,7 +17,7 @@ function createWindow() {
     mainWindow = new BrowserWindow({
                                        width: 800,
                                        height: 600,
-                                       icon: './build/app.png',
+                                       icon: iconPath,
                                        webPreferences: {devTools: false, nodeIntegration: true},
                                        titleBarStyle: "hidden"
                                    })

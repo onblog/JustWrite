@@ -5,6 +5,7 @@ const DataStore = require('./store')
 const items = require('./items')
 const https = require('https')
 const jsdom = require("jsdom")
+const iconPath = require('./iconPath').iconPath //窗口图标
 
 const dataStore = new DataStore()
 
@@ -83,7 +84,7 @@ exports.createMenuItems = (mainWindow, app) => {
 
     //登录某网站获取Cookie通用方法
     function getSiteCookie(url, callback) {
-        let win = new BrowserWindow({width: 700, height: 500, icon: './build/app.png', title: '【登陆成功后关闭窗口即可完成设置】'})
+        let win = new BrowserWindow({width: 700, height: 500, icon: iconPath, title: '【登陆成功后关闭窗口即可完成设置】'})
         win.loadURL(url).then()
         win.on('close', () => {
             win = null
