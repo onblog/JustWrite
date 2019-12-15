@@ -12,6 +12,7 @@ const weibo = require('./script/weibo')
 const marked = require('markdown-it')({
                                           html: true,
                                           xhtmlOut: true,
+                                          linkify: true,
                                           typographer: true,
                                           highlight: function (str, lang) {
                                               if (lang && hljs.getLanguage(lang)) {
@@ -36,9 +37,9 @@ const marked = require('markdown-it')({
     .use(require('markdown-it-mark'))
     .use(require('markdown-it-sub'))
     .use(require('markdown-it-imsize')) //![](1.png =10x10)
-    .use(require('markdown-it-anchor'))
-    .use(require('markdown-it-table-of-contents'), {
-        "markerPattern": /^\[toc\]/im
+    .use(require('@hikerpig/markdown-it-toc-and-anchor').default,{
+        tocPattern: /^\[toc\]/im,
+        anchorLink: false
     }) // [TOC]
     .use(require('markdown-it-attrs')) //![](1.png){style=width:200px;height:100px}
     .use(require('markdown-it-task-lists')) //- [x] or - [ ]
@@ -134,7 +135,7 @@ function pathSep(src) {
 //往输入框的光标处中插入文字
 function insertTextareaValue(t, txt) {
     let myCodeMirror = t.getCodeMirror()
-    myCodeMirror.doc.replaceSelection(txt,'around')
+    myCodeMirror.doc.replaceSelection(txt, 'around')
     changeTextareaValueAfter(t, myCodeMirror.doc.getValue())
 }
 
@@ -244,7 +245,7 @@ function createNewTab(...dataAndPath) {
     //监听编辑器的滚动事件
     //内容栏滑动
     myCodeMirror.on("scroll", () => {
-        if (!scrollSync){
+        if (!scrollSync) {
             return
         }
         const scrollInfo = myCodeMirror.getScrollInfo()
@@ -813,7 +814,7 @@ ipcRenderer.on('cut-preview-mode', (event, args) => {
 })
 
 // 切换同步滑动
-ipcRenderer.on('cut-scroll-sync',(event, args) => {
+ipcRenderer.on('cut-scroll-sync', (event, args) => {
     scrollSync = args
 })
 
@@ -884,7 +885,7 @@ ipcRenderer.on('text-word-count', event => {
 // 更改字体
 function changeEditorFontFamily(args) {
     document.getElementById('editorFontFamily').innerHTML =
-        `.md2html,.CodeMirror{font-family:${args},sans-serif !important}`
+        `.md2html,.CodeMirror{font-family:${args}, sans-serif !important}`
 }
 
 ipcRenderer.on('editor-font-family-adjust', (event, args) => {
@@ -892,25 +893,25 @@ ipcRenderer.on('editor-font-family-adjust', (event, args) => {
 })
 
 // 格式化代码
-ipcRenderer.on('format-md-code',event => {
+ipcRenderer.on('format-md-code', event => {
     let oldText = tab.getCodeMirror().doc.getSelection()
     let newText = ''
     let objReadline = oldText.split('\n')
     let snum = 0
     for (let i = 0; i < objReadline.length; i++) {
         let line = objReadline[i]
-        if (i===0){
+        if (i === 0) {
             for (let j = 0; j < line.length; j++) {
-                if (line.charAt(j)===' '){
+                if (line.charAt(j) === ' ') {
                     snum++
-                }else {
+                } else {
                     break
                 }
             }
         }
         newText += line.substring(snum)
-        if (i!==objReadline.length-1){
-            newText+='\n'
+        if (i !== objReadline.length - 1) {
+            newText += '\n'
         }
     }
     tab.getCodeMirror().doc.replaceSelection(newText);

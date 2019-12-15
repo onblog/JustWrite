@@ -1,26 +1,15 @@
 @font-face {
-    font-family: 'ZCOOL小微';
-    src: url('./font/ZCOOL_XiaoWei/ZCOOLXiaoWei-Regular.ttf');
+    font-family: 'HeiTi';
+    src: url('./font/HuaKangHeiTiW3-GB5/HuaKangHeiTiW3-P-1.ttf');
 }
 @font-face {
-    font-family: '华文圆体';
-    src: url('./font/HuaWenYuanTi-Regular/HuaWenYuanTi-REGULAR-2.ttf');
-}
-
-@font-face {
-    font-family: '问藏书房';
-    src: url('./font/WenCangShuFang/WenCangShuFang-2.ttf');
-}
-
-@font-face {
-    font-family: '杨任东竹石体';
-    src: url('./font/YangRenDongZhuShiTi-Light/YangRenDongZhuShiTi-Light-2.ttf');
+    font-family: 'YuanTi';
+    src: url('./font/HuaKangYuanTiW3-P/HuaKangYuanTiW3-P-1.ttf');
 }
 @font-face {
-    font-family: '神韵今晚吃鸡';
-    src: url('./font/ShenYunJinWanChiJi/ShenYunJinWanChiJi-2.ttf');
+    font-family: 'FangSong';
+    src: url('./font/HuaKangJianFangSong/HuaKangJianFangSong-1.ttf');
 }
-
 body {
     width: 100%;
     height: 100%;

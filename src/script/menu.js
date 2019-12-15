@@ -69,19 +69,18 @@ exports.createMenuItems = (mainWindow, app) => {
     //字体切换
     const fontFamilyItems = items.fontFamilyItems
     let fontFamilyMenus = []
-    for (let i = 0; i < fontFamilyItems.length; i++) {
+    for (const fontFamily of fontFamilyItems) {
         fontFamilyMenus.push({
-                                 label: fontFamilyItems[i],
+                                 label: fontFamily.name,
                                  type: 'radio', //多选一
                                  checked: dataStore.isChecked(dataStore.editorFontFamilyKey,
-                                                              fontFamilyItems[i]),
-                                 click: (item) => {
-                                     dataStore.setEditorFontFamily(item.label)
-                                     mainWindow.send('editor-font-family-adjust', item.label)
+                                                              fontFamily.family),
+                                 click: () => {
+                                     dataStore.setEditorFontFamily(fontFamily.family)
+                                     mainWindow.send('editor-font-family-adjust', fontFamily.family)
                                  }
                              })
     }
-
     //登录某网站获取Cookie通用方法
     function getSiteCookie(url, callback) {
         let win = new BrowserWindow({width: 700, height: 500, icon: iconPath, title: '【登陆成功后关闭窗口即可完成设置】'})

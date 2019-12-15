@@ -38,5 +38,11 @@ exports.editorStyleItems =
      'tomorrow-night-eighties', 'ttcn', 'twilight', 'vibrant-ink', 'xq-dark', 'xq-light', 'yeti',
      'yonce', 'zenburn']
 
-exports.fontFamilyItems = ['微软雅黑','华文圆体','问藏书房','cursive','serif','神韵今晚吃鸡',
-                           '杨任东竹石体','ZCOOL小微']
+exports.fontFamilyItems = [
+    {name: '网页黑体', family: 'Microsoft YaHei,微软雅黑'}
+    , {name: '网页宋体', family: 'serif'}
+    , {name: '网页楷体', family: 'cursive'}
+     , {name: '本地黑体', family: 'HeiTi'}
+    , {name: '本地圆体', family: 'YuanTi'}
+    , {name: '本地仿宋', family: 'FangSong'}
+]
