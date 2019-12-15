@@ -37,7 +37,7 @@ const marked = require('markdown-it')({
     .use(require('markdown-it-mark'))
     .use(require('markdown-it-sub'))
     .use(require('markdown-it-imsize')) //![](1.png =10x10)
-    .use(require('@hikerpig/markdown-it-toc-and-anchor').default,{
+    .use(require('@hikerpig/markdown-it-toc-and-anchor').default, {
         tocPattern: /^\[toc\]/im,
         anchorLink: false
     }) // [TOC]
@@ -168,6 +168,12 @@ function changeTextareaValueAfter(t, txt) {
     t.isEditChangeIco(txt)
     //窗口关闭提醒
     remote.getGlobal('sharedObject').closeAllWindow = t.isEdit()
+    //TOC目录去掉*
+    const elements = document.getElementsByClassName('markdownIt-TOC')
+    for (const element of elements) {
+        element.innerHTML = element.innerHTML.replace(/\n\*\n/g,'\n')
+        console.log(element.innerHTML)
+    }
 }
 
 //新建一个标签页
@@ -264,6 +270,8 @@ function createNewTab(...dataAndPath) {
     disPlayLineNumber(dataStore.getDisplayLineNumber())
     //默认字体
     changeEditorFontFamily(dataStore.getEditorFontFamily())
+    //编辑器获取焦点
+    myCodeMirror.focus()
 }
 
 //初始化标签页
@@ -310,7 +318,14 @@ ipcRenderer.on('new-tab', (() => {
 
 //查看语法示例
 ipcRenderer.on('look-md-example', () => {
-    createNewTab(require('./script/example').example)
+    //如果当前编辑器已有文字
+    if (tab.getTextareaValue() && tab.getTextareaValue().length > 0) {
+        createNewTab(require('./script/example').example)
+    } else { //未编辑
+        const tabId = tab.getId()
+        createNewTab(require('./script/example').example)
+        deleteTab(tabId)
+    }
 })
 
 function openMdFiles(files) {

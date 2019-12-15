@@ -204,5 +204,9 @@ pre code::-webkit-scrollbar-thumb {
     height: 100%;
     width: 100%;
     font-size: 16px;
-    font-family: "Microsoft YaHei",微软雅黑,"MicrosoftJhengHei",华文细黑,STHeiti,MingLiu;
+    font-family: "Microsoft YaHei", 微软雅黑, "MicrosoftJhengHei", 华文细黑, STHeiti, MingLiu, sans-serif;
+}
+/*[TOC]*/
+.markdownIt-TOC ul,.markdownIt-TOC li {
+    list-style: none !important;
 }
