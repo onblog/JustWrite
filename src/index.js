@@ -45,6 +45,8 @@ const marked = require('markdown-it')({
     .use(require('markdown-it-task-lists')) //- [x] or - [ ]
     .use(require('markdown-it-texmath').use(require('katex'))) // $、$$
     .use(require('markdown-it-plantuml')) //https://plantuml.com/
+//HTML转markdown
+const html2md=require('html-to-md')
 
 const tempPath = remote.getGlobal('sharedObject').temp
 
@@ -135,7 +137,7 @@ function pathSep(src) {
 //往输入框的光标处中插入文字
 function insertTextareaValue(t, txt) {
     let myCodeMirror = t.getCodeMirror()
-    myCodeMirror.doc.replaceSelection(txt, 'around')
+    myCodeMirror.doc.replaceSelection(txt)
     changeTextareaValueAfter(t, myCodeMirror.doc.getValue())
 }
 
@@ -156,7 +158,7 @@ function changeTextareaValue(t, txt) {
     t.getCodeMirror().doc.setCursor(cursor)
     t.getCodeMirror().scrollTo(scrollInfo.left, scrollInfo.top)
 }
-
+// md渲染为html
 function changeTextareaValueAfter(t, txt) {
     //处理一些相对路径的图片引用
     let ntxt = txt
@@ -171,9 +173,11 @@ function changeTextareaValueAfter(t, txt) {
     //TOC目录去掉*
     const elements = document.getElementsByClassName('markdownIt-TOC')
     for (const element of elements) {
-        element.innerHTML = element.innerHTML.replace(/\n\*\n/g,'\n')
+        element.innerHTML = element.innerHTML.replace(/\n\*\n/g, '\n')
         console.log(element.innerHTML)
     }
+    //刷新一下编辑器
+    t.getCodeMirror().refresh()
 }
 
 //新建一个标签页
@@ -247,6 +251,9 @@ function createNewTab(...dataAndPath) {
             v = codeMirror.doc.getValue();
         }
     });
+    myCodeMirror.on('paste', (codeMirror, event) => {
+        event.preventDefault()
+    })
 
     //监听编辑器的滚动事件
     //内容栏滑动
@@ -576,42 +583,71 @@ document.addEventListener('dragover', (e) => {
 });
 
 /*
- * 粘贴图片
+ * 粘贴图片\HTML
  */
 document.addEventListener('paste', function (event) {
     const items = event.clipboardData && event.clipboardData.items;
-    if (items && items.length) {
-        // 检索剪切板items
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') !== -1) {
-                // file = items[i].getAsFile();
-                const image = clipboard.readImage()
-                const buffer = image.toPNG();
-                let filePath
-                if (tab.hasPath()) {
-                    filePath = tab.getPictureDir() + Math.floor(Math.random() * 10000000) + '.png'
-                } else {
-                    filePath = tempPath + Math.floor(Math.random() * 10000000) + '.png'
-                }
-                fs.writeFile(filePath, buffer, (err) => {
-                    if (err) {
-                        return console.error(err);
-                    }
-                    //是否开启图片自动上传功能
-                    if (dataStore.getWeiBoUpload()) {
-                        //上传图片
-                        weibo.uploadPictureToWeiBo(filePath, (src) => {
-                            insertPictureToTextarea(tab, src)
-                        })
-                    } else {
-                        insertPictureToTextarea(tab, filePath)
-                    }
-                })
-                break;
-            }
+    if (!items || items.length < 1) {
+        return
+    }
+    const types = {
+        image: 'image',
+        rtf: 'rtf',
+        html: 'html',
+        text: 'text'
+    }
+    let type
+    for (let x of items) {
+        if (x.type.indexOf(types.image) !== -1) {
+            type = types.image
+        } else if (x.type.indexOf(types.rtf) !== -1) {
+            type = types.rtf
+        } else if (x.type.indexOf(types.html) !== -1) {
+            type = types.html
+        } else if (x.type.indexOf(types.text) !== -1) {
+            type = types.text
         }
     }
-});
+    console.log(type)
+    if (type === types.image) {
+        // 粘贴图片
+        // file = items[i].getAsFile();
+        const image = clipboard.readImage()
+        const buffer = image.toPNG();
+        let filePath
+        if (tab.hasPath()) {
+            filePath = tab.getPictureDir() + Math.floor(Math.random() * 10000000) + '.png'
+        } else {
+            filePath = tempPath + Math.floor(Math.random() * 10000000) + '.png'
+        }
+        fs.writeFile(filePath, buffer, (err) => {
+            if (err) {
+                return console.error(err);
+            }
+            //是否开启图片自动上传功能
+            if (dataStore.getWeiBoUpload()) {
+                //上传图片
+                weibo.uploadPictureToWeiBo(filePath, (src) => {
+                    insertPictureToTextarea(tab, src)
+                })
+            } else {
+                insertPictureToTextarea(tab, filePath)
+            }
+        })
+    } else if (type === types.rtf) {
+        // 粘贴富文本(转text)
+        insertTextareaValue(tab, clipboard.readText())
+    } else if (type === types.html) {
+        // 粘贴HTML
+        const html = clipboard.readHTML()
+        insertTextareaValue(tab, html2md(html,{
+            emptyTags: ['meta']
+        }).trim())
+    } else if (type === types.text) {
+        // 粘贴纯文本
+        insertTextareaValue(tab, clipboard.readText())
+    }
+})
 
 const download = function (uri, filename, callback) {
     request.head(uri, function (err, res, body) {
