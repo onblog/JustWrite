@@ -831,11 +831,10 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
 
 function cutNightMode(args) {
     if (args) {
-        document.getElementById('night-mode').setAttribute('href', './css/nightMode.css')
+        document.getElementById('night-mode').setAttribute('href', './css/mode/nightMode.css')
     } else {
-        document.getElementById('night-mode').setAttribute('href', '')
+        document.getElementById('night-mode').setAttribute('href', './css/mode/null.css')
     }
-    refresh()
 }
 
 // 切换夜间模式
@@ -848,14 +847,15 @@ function refresh() {
         tab.getCodeMirror().refresh()
     }
 }
-
 function cutPreviewMode(args) {
     if (args) {
-        document.getElementById('preview-mode').setAttribute('href', '')
+        document.getElementById('preview-mode').setAttribute('href', './css/mode/null.css')
     } else {
-        document.getElementById('preview-mode').setAttribute('href', './css/PreviewMode.css')
+        document.getElementById('preview-mode').setAttribute('href', './css/mode/PreviewMode.css')
     }
-    refresh()
+    setTimeout(()=>{
+        refresh()
+    },100)
 }
 
 // 切换实时预览

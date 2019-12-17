@@ -69,6 +69,7 @@ h3,
 p, .p, .f4, h4, h5, h6, dl, ol, ul, table p{
 	font-size: inherit;
 	line-height: inherit;
+	margin-bottom: 6px;
 }
 
 h4 {

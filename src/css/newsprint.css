@@ -116,7 +116,7 @@ h3,
 h4,
 h5,
 h6 {
-	/* margin-bottom: 1.5em; */
+	margin-bottom: 6px;
 }
 h1,
 h2,
@@ -138,7 +138,7 @@ blockquote {
 
 ul,
 ol {
-	margin: 0 0 1.5em 1.5em;
+	margin: 0 0 0 0;
 }
 
 table {
