@@ -15,6 +15,7 @@ body {
     height: 100%;
     padding-top: 25px; /*与#header的高度相同*/
     overflow: hidden;
+    -webkit-print-color-adjust: exact;
 }
 
 img {
@@ -210,3 +211,8 @@ pre code::-webkit-scrollbar-thumb {
 .markdownIt-TOC ul,.markdownIt-TOC li {
     list-style: none !important;
 }
+.markdownIt-TOC a {
+    font-size: 15px !important;
+}
+
+

@@ -8,7 +8,7 @@ const dataStore = new DataStore()
 const Tab = require('./script/tab')
 const Toast = require('./script/toast')
 const util = require('./script/util')
-const htmlTel = require('./script/htmlTel')
+const htmlTel = require('./script/htmlFileTel')
 const weibo = require('./script/weibo')
 const marked = require('markdown-it')({
                                           html: true,
@@ -1119,12 +1119,40 @@ ipcRenderer.on('publish-article-to-', (event, site) => {
     })();
 })
 
+//导出为 HTML No Style 文件
+ipcRenderer.on('export-html-no-style-file',()=>{
+    if (tab.getMarked().innerHTML.length<1){
+        remote.dialog.showMessageBox({message: '没有内容可导出'}).then()
+        return
+    }
+    //导出到 HTML 文件
+    remote.dialog.showSaveDialog({
+                                     defaultPath: tab.getTitle(),
+                                     filters: [
+                                         {name: 'html', extensions: ['html']}
+                                     ]
+                                 })
+        .then(file => {
+            if (!file.canceled) { //对话框是否被取消
+                const filePath = file.filePath
+                const data = htmlTel.headerNoStyle(tab.getTitle()) + tab.getMarked().innerHTML + htmlTel.footer
+                fs.writeFile(filePath, data, function (err) {
+                    if (err) {
+                        return console.error(err);
+                    }
+                    Toast.toast('导出成功','success',3000)
+                });
+            }
+        })
+        .catch(err => {
+            console.log(err)
+        })
+})
 
-//导出打印pdf
+//导出 HTML
 ipcRenderer.on('export-html-file', function () {
     exportHtml()
 })
-
 function exportHtml() {
     if (tab.getMarked().innerHTML.length<1){
         remote.dialog.showMessageBox({message: '没有内容可导出'}).then()
@@ -1132,7 +1160,7 @@ function exportHtml() {
     }
     //循环直到拷贝成功
     do {
-        console.log('copy')
+        // console.log('copy')
         clipboard.clear()
         copyHtmlStyle()
     }while (!clipboard.readHTML())
@@ -1146,7 +1174,8 @@ function exportHtml() {
         .then(file => {
             if (!file.canceled) { //对话框是否被取消
                 const filePath = file.filePath
-                fs.writeFile(filePath, htmlTel.header(tab.getTitle())+clipboard.readHTML()+htmlTel.footer, function (err) {
+                const data = htmlTel.header(tab.getTitle()) + clipboard.readHTML() + htmlTel.footer
+                fs.writeFile(filePath, data, function (err) {
                     if (err) {
                         return console.error(err);
                     }

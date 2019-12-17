@@ -341,9 +341,15 @@ exports.createMenuItems = (mainWindow, app) => {
                 label: '导出',
                 submenu: [
                     {
-                        label: 'HTML文件',
+                        label: 'HTML',
                         click: function () {
                             mainWindow.send("export-html-file")
+                        }
+                    },
+                    {
+                        label: 'HTML No Style',
+                        click: function () {
+                            mainWindow.send("export-html-no-style-file")
                         }
                     }
                 ]
