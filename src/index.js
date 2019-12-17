@@ -844,7 +844,9 @@ ipcRenderer.on('cut-night-mode', (event, args) => {
 })
 
 function refresh() {
-    tab.getCodeMirror().refresh()
+    if (tab && tab.getCodeMirror()){
+        tab.getCodeMirror().refresh()
+    }
 }
 
 function cutPreviewMode(args) {
