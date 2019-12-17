@@ -835,6 +835,7 @@ function cutNightMode(args) {
     } else {
         document.getElementById('night-mode').setAttribute('href', '')
     }
+    refresh()
 }
 
 // 切换夜间模式
@@ -842,12 +843,17 @@ ipcRenderer.on('cut-night-mode', (event, args) => {
     cutNightMode(args)
 })
 
+function refresh() {
+    tab.getCodeMirror().refresh()
+}
+
 function cutPreviewMode(args) {
     if (args) {
         document.getElementById('preview-mode').setAttribute('href', '')
     } else {
         document.getElementById('preview-mode').setAttribute('href', './css/PreviewMode.css')
     }
+    refresh()
 }
 
 // 切换实时预览
@@ -905,7 +911,6 @@ function disPlayLineNumber(args) {
         t.getCodeMirror().refresh() //更改CSS样式时刷新编辑器
     }
 }
-
 ipcRenderer.on('display-line-number', (event, args) => {
     disPlayLineNumber(args)
 })
