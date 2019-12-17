@@ -8,11 +8,12 @@ const dataStore = new DataStore()
 const Tab = require('./script/tab')
 const Toast = require('./script/toast')
 const util = require('./script/util')
+const htmlTel = require('./script/htmlTel')
 const weibo = require('./script/weibo')
 const marked = require('markdown-it')({
                                           html: true,
                                           xhtmlOut: true,
-                                          linkify: true,
+                                          // linkify: true,
                                           typographer: true,
                                           highlight: function (str, lang) {
                                               if (lang && hljs.getLanguage(lang)) {
@@ -46,7 +47,7 @@ const marked = require('markdown-it')({
     .use(require('markdown-it-texmath').use(require('katex'))) // $、$$
     .use(require('markdown-it-plantuml')) //https://plantuml.com/
 //HTML转markdown
-const html2md=require('html-to-md')
+const html2md = require('html-to-md')
 
 const tempPath = remote.getGlobal('sharedObject').temp
 
@@ -158,6 +159,7 @@ function changeTextareaValue(t, txt) {
     t.getCodeMirror().doc.setCursor(cursor)
     t.getCodeMirror().scrollTo(scrollInfo.left, scrollInfo.top)
 }
+
 // md渲染为html
 function changeTextareaValueAfter(t, txt) {
     //处理一些相对路径的图片引用
@@ -174,7 +176,6 @@ function changeTextareaValueAfter(t, txt) {
     const elements = document.getElementsByClassName('markdownIt-TOC')
     for (const element of elements) {
         element.innerHTML = element.innerHTML.replace(/\n\*\n/g, '\n')
-        console.log(element.innerHTML)
     }
     //刷新一下编辑器
     t.getCodeMirror().refresh()
@@ -324,13 +325,13 @@ ipcRenderer.on('new-tab', (() => {
 }))
 
 //查看语法示例
-ipcRenderer.on('look-md-example', () => {
+ipcRenderer.on('look-md-example', (event, args) => {
     //如果当前编辑器已有文字
     if (tab.getTextareaValue() && tab.getTextareaValue().length > 0) {
-        createNewTab(require('./script/example').example)
+        createNewTab(args)
     } else { //未编辑
         const tabId = tab.getId()
-        createNewTab(require('./script/example').example)
+        createNewTab(args)
         deleteTab(tabId)
     }
 })
@@ -438,17 +439,24 @@ ipcRenderer.on('rename-md-file', (event) => {
 ipcRenderer.on('copy-to-md', event => {
     clipboard.writeText(tab.getTextareaValue())
 })
-//拷贝为HTML-Style
-ipcRenderer.on('copy-to-html-style', event => {
+
+//拷贝HTML-Style到粘贴板
+function copyHtmlStyle() {
     let range = document.createRange();
     range.selectNodeContents(tab.getMarked());
     let selection = window.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
-    let result = document.execCommand("copy");
+    let result = document.execCommand("copy")
     if (!result) {
         console.log('copy fail')
     }
+    selection.removeAllRanges()
+}
+
+//拷贝为HTML-Style
+ipcRenderer.on('copy-to-html-style', event => {
+    copyHtmlStyle()
 })
 //拷贝为HTML
 ipcRenderer.on('copy-to-html', event => {
@@ -608,7 +616,7 @@ document.addEventListener('paste', function (event) {
             type = types.text
         }
     }
-    console.log(type)
+    // console.log(type)
     if (type === types.image) {
         // 粘贴图片
         // file = items[i].getAsFile();
@@ -640,7 +648,7 @@ document.addEventListener('paste', function (event) {
     } else if (type === types.html) {
         // 粘贴HTML
         const html = clipboard.readHTML()
-        insertTextareaValue(tab, html2md(html,{
+        insertTextareaValue(tab, html2md(html, {
             emptyTags: ['meta']
         }).trim())
     } else if (type === types.text) {
@@ -734,23 +742,6 @@ function movePictureToFolder() {
 
 ipcRenderer.on('move-picture-to-folder', event => {
     movePictureToFolder()
-})
-
-//导出打印pdf
-ipcRenderer.on('export-pdf-file', function () {
-    $(tab.getMarked()).print({
-                                 addGlobalStyles: true,
-                                 stylesheet: null,
-                                 rejectWindow: true,
-                                 noPrintSelector: ".no-print",
-                                 iframe: true,
-                                 append: null,
-                                 prepend: null,
-                                 deferred: $.Deferred().done(() => {
-                                     //回调
-                                     Toast.toast('完成', 'success', 3000)
-                                 })
-                             });
 })
 
 //=================【快捷键】================
@@ -1127,3 +1118,43 @@ ipcRenderer.on('publish-article-to-', (event, site) => {
         }
     })();
 })
+
+
+//导出打印pdf
+ipcRenderer.on('export-html-file', function () {
+    exportHtml()
+})
+
+function exportHtml() {
+    if (tab.getMarked().innerHTML.length<1){
+        remote.dialog.showMessageBox({message: '没有内容可导出'}).then()
+        return
+    }
+    //循环直到拷贝成功
+    do {
+        console.log('copy')
+        clipboard.clear()
+        copyHtmlStyle()
+    }while (!clipboard.readHTML())
+    //导出到HTML文件
+    remote.dialog.showSaveDialog({
+                                     defaultPath: tab.getTitle(),
+                                     filters: [
+                                         {name: 'html', extensions: ['html']}
+                                     ]
+                                 })
+        .then(file => {
+            if (!file.canceled) { //对话框是否被取消
+                const filePath = file.filePath
+                fs.writeFile(filePath, htmlTel.header(tab.getTitle())+clipboard.readHTML()+htmlTel.footer, function (err) {
+                    if (err) {
+                        return console.error(err);
+                    }
+                    Toast.toast('导出成功','success',3000)
+                });
+            }
+        })
+        .catch(err => {
+            console.log(err)
+        })
+}

@@ -23,7 +23,6 @@
     "form-data": "^3.0.0",
     "highlight.js": "^9.15.10",
     "html-to-md": "^0.3.2",
-    "jQuery.print": "^1.5.1",
     "jquery": "^3.4.1",
     "jsdom": "^15.2.1",
     "katex": "^0.11.1",

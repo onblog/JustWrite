@@ -150,6 +150,7 @@ class Tab {
     getTextareaValue(){
         return this.getCodeMirror().doc.getValue()
     }
+
 }
 
 module.exports = Tab

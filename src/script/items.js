@@ -24,7 +24,7 @@ exports.codeStyleItems =
      "tomorrow-night", "tomorrow", "vs", "vs2015", "xcode", "xt256", "zenburn"]
 
 exports.HTMlStyleItems = ['github', 'gothic', 'newsprint', 'night', 'pixyll', 'whitey'
-    , 'default', 'red', 'green', 'blue', 'black']
+    , 'default', 'red', 'green', 'blue', 'black', 'resume']
 
 exports.editorStyleItems =
     ['3024-day', '3024-night', 'abcdef', 'ambiance-mobile', 'ambiance', 'base16-dark',

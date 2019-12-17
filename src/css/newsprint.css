@@ -76,41 +76,25 @@ h6 {
 	font-weight: bold;
 }
 h1 {
-	font-size: 1.875em;
-	/*30 / 16*/
-	line-height: 1.6em;
-	/* 48 / 30*/
-	margin-top: 2em;
+	font-size: 1.6em;
+	border-bottom: 1px solid;
 }
-h2,
-h3 {
-	font-size: 1.3125em;
-	/*21 / 16*/
+h2 {
+	font-size: 1.5em;
 	line-height: 1.15;
-	/*24 / 21*/
-	margin-top: 2.285714em;
-	/*48 / 21*/
-	margin-bottom: 1.15em;
-	/*24 / 21*/
 }
 h3 {
 	font-weight: normal;
+	font-size: 1.4em;
 }
 h4 {
-	font-size: 1.125em;
-	/*18 / 16*/
-	margin-top: 2.67em;
-	/*48 / 18*/
+	font-size: 1.3em;
 }
-h5,
+h5 {
+	font-size: 1.2em;
+}
 h6 {
-	font-size: 1em;
-	/*16*/
-}
-h1 {
-	border-bottom: 1px solid;
-	margin-bottom: 1.875em;
-	padding-bottom: 0.8125em;
+	font-size:1.1em;
 }
 /* links */
 
@@ -132,7 +116,16 @@ h3,
 h4,
 h5,
 h6 {
-	margin-bottom: 1.5em;
+	/* margin-bottom: 1.5em; */
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 blockquote {
@@ -183,7 +176,7 @@ tt {
 h1 {
 	line-height: 1.3em;
 	font-weight: normal;
-	margin-bottom: 0.5em;
+	margin-bottom: 0.3em;
 }
 
 p + ul,
@@ -218,7 +211,7 @@ li li ol>li{
 
 h2,
 h3 {
-	margin-bottom: .75em;
+	/* margin-bottom: .75em; */
 }
 hr {
 	border-top: none;

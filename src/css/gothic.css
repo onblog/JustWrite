@@ -63,35 +63,43 @@ html {
 
 h1 {
 	font-weight: normal;
-	line-height: 4rem;
-	margin: 0 0 1.75rem;
-	padding: 20px 30px;
+	/* line-height: 2em; */
+	font-size: 1.6em;
+	margin: 10px 0;
+	/* padding: 20px 30px; */
 	text-align: center;
 	text-transform: uppercase;
 }
 h2 {
 	font-weight: normal;
-	line-height: 3rem;
-	margin: 0 0 1.9375rem;
-	padding: 0 30px;
+	/* line-height: 3rem; */
+	margin: 10px 0;
+	font-size: 1.5em;
+	/* padding: 0 30px; */
 	text-align: center;
 	text-transform: uppercase;
-	margin-top: 3rem
+	/* margin-top: 1em; */
 }
 h3 {
 	font-weight: normal;
+	font-size: 1.4em;
+	margin: 10px 0;
 }
 h4 {
 	font-weight: normal;
 	line-height: normal;
+	font-size: 1.3em;
+	margin: 10px 0;
 }
 h5 {
-	font-size: 1.125rem;
+	font-size: 1.2em;
+	margin: 10px 0;
 	font-weight: normal;
 }
 h6 {
-	font-size: 1rem;
+	font-size: 1.1em;
 	font-weight: bold;
+	margin: 10px 0;
 }
 p{
 	color: #111;

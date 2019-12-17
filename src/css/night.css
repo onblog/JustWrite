@@ -42,69 +42,69 @@ h6 {
     clear: both;
     -ms-word-wrap: break-word;
     word-wrap: break-word;
-    margin: 0;
     padding: 0;
-    color: #DEDEDE
+    margin: 10px 0;
+    color: #DEDEDE;
 }
 
 h1 {
-    font-size: 2em;
+    font-size: 1.6em;
     /* 36px */
-    line-height: 2.2em;
+    /* line-height: 2.2em; */
     /* 40px */
-    margin-bottom: 0.6em;
+    /* margin-bottom: 0.6em; */
     /* 24px */
     letter-spacing: -1.5px;
 }
 
 h2 {
-    font-size: 1.63em;
+    font-size: 1.5em;
     /* 24px */
-    line-height: 1.875em;
+    /* line-height: 1.875em; */
     /* 30px */
-    margin-bottom: 1.5rem;
+    /* margin-bottom: 1.5rem; */
     /* 24px */
     letter-spacing: -1px;
     font-weight: bold;
 }
 
 h3 {
-    font-size: 1.17em;
+    font-size: 1.4em;
     /* 18px */
-    line-height: 1.5em;
+    /* line-height: 1.5em; */
     /* 24px */
-    margin-bottom: 1.5rem;
+    /* margin-bottom: 1.5rem; */
     /* 24px */
     letter-spacing: -1px;
     font-weight: bold;
 }
 
 h4 {
-    font-size: 1.12em;
+    font-size: 1.3em;
     /* 16px */
-    line-height: 1.375em;
+    /* line-height: 1.375em; */
     /* 22px */
-    margin-bottom: 1em;
+    /* margin-bottom: 1em; */
     /* 24px */
     color: white;
 }
 
 h5 {
-    font-size: 0.97em;
+    font-size: 1.2em;
     /* 16px */
-    line-height: 1.25em;
+    /* line-height: 1.25em; */
     /* 22px */
-    margin-bottom: 1em;
+    /* margin-bottom: 1em; */
     /* 24px */
     font-weight: bold;
 }
 
 h6 {
-    font-size: 0.93em;
+    font-size: 1.1em;
     /* 16px */
-    line-height: 1rem;
+    /* line-height: 1rem; */
     /* 16px */
-    margin-bottom: 0.75rem;
+    /* margin-bottom: 0.75rem; */
     color: white;
 }
 
@@ -243,7 +243,7 @@ hr {
 }
 
 h1 {
-    margin-top: 16px;
+    /* margin-top: 16px; */
 }
 
 a {

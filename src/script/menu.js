@@ -338,10 +338,15 @@ exports.createMenuItems = (mainWindow, app) => {
             }, {
                 type: 'separator'
             }, {
-                label: '打印PDF',
-                click: function () {
-                    mainWindow.send("export-pdf-file")
-                }
+                label: '导出',
+                submenu: [
+                    {
+                        label: 'HTML文件',
+                        click: function () {
+                            mainWindow.send("export-html-file")
+                        }
+                    }
+                ]
             }]
         },
         {
@@ -906,9 +911,14 @@ exports.createMenuItems = (mainWindow, app) => {
                         shell.openExternal('http://www.markdown.cn/').then()
                     }
                 },{
-                    label: '查看示例',
+                    label: '功能示例',
                     click: () => {
-                        mainWindow.send('look-md-example')
+                        mainWindow.send('look-md-example',require('./example').example)
+                    }
+                },{
+                    label: '简历模版',
+                    click: () => {
+                        mainWindow.send('look-md-example',require('./example').jianLi)
                     }
                 }, {
                     type: 'separator'

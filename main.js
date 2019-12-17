@@ -38,6 +38,7 @@ function createWindow() {
             mainWindow = null;
         }
     })
+
     //创建菜单栏
     let template = cMenu.createMenuItems(mainWindow, app)
     const menu = Menu.buildFromTemplate(template)

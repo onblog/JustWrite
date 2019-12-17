@@ -8,30 +8,34 @@
 }
 
 h1 {
-	font-size:3em;
+	font-size: 1.6em;
 }
 
 h2 {
 	margin-top:2em;
+	font-size: 1.5em;
 	font-weight: normal;
 }
 
 h3 {
 	font-weight: normal;
 	font-style: italic;
+	font-size: 1.4em;
 	margin-top: 3em;
 }
 
 h4 {
-	font-size: 1.2em;
+	font-size: 1.3em;
 	line-height: 1.5em;
 }
 
 h5 {
-	font-size: 1em;
+	font-size: 1.2em;
 	line-height: 1.4em;
 }
-
+h6{
+	font-size:1.1em;
+}
 h1,
 h2,
 h3{
