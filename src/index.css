@@ -138,6 +138,7 @@ img {
     color: #444;
     padding: 1em;
     font-size: 16px;
+    position: absolute;
 }
 
 pre {

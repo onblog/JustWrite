@@ -139,7 +139,7 @@ function pathSep(src) {
 function insertTextareaValue(t, txt) {
     let myCodeMirror = t.getCodeMirror()
     myCodeMirror.doc.replaceSelection(txt)
-    changeTextareaValueAfter(t, myCodeMirror.doc.getValue())
+    changeMarkedHTMLValue(t, myCodeMirror.doc.getValue())
 }
 
 //往输入框的选中的两侧插入文字
@@ -147,7 +147,7 @@ function insertTextareaValueTwo(t, left, right) {
     let myCodeMirror = t.getCodeMirror()
     let selection = myCodeMirror.doc.getSelection()
     myCodeMirror.doc.replaceSelection(left + selection + right, 'around')
-    changeTextareaValueAfter(t, myCodeMirror.doc.getValue())
+    changeMarkedHTMLValue(t, myCodeMirror.doc.getValue())
 }
 
 //改变输入框的文字
@@ -155,13 +155,15 @@ function changeTextareaValue(t, txt) {
     const scrollInfo = t.getCodeMirror().getScrollInfo()
     let cursor = t.getCodeMirror().doc.getCursor()
     t.getCodeMirror().doc.setValue(txt)
-    changeTextareaValueAfter(t, txt)
+    changeMarkedHTMLValue(t, txt)
     t.getCodeMirror().doc.setCursor(cursor)
     t.getCodeMirror().scrollTo(scrollInfo.left, scrollInfo.top)
+    //刷新一下编辑器
+    t.getCodeMirror().refresh()
 }
 
 // md渲染为html
-function changeTextareaValueAfter(t, txt) {
+function changeMarkedHTMLValue(t, txt) {
     //处理一些相对路径的图片引用
     let ntxt = txt
     util.readImgLink(txt, (src) => {
@@ -177,8 +179,6 @@ function changeTextareaValueAfter(t, txt) {
     for (const element of elements) {
         element.innerHTML = element.innerHTML.replace(/\n\*\n/g, '\n')
     }
-    //刷新一下编辑器
-    t.getCodeMirror().refresh()
 }
 
 //新建一个标签页
@@ -248,7 +248,7 @@ function createNewTab(...dataAndPath) {
     myCodeMirror.on('change', (codeMirror, object) => {
         //实时渲染MD
         if (v !== codeMirror.doc.getValue()) {
-            changeTextareaValueAfter(tab1, codeMirror.doc.getValue())
+            changeMarkedHTMLValue(tab1, codeMirror.doc.getValue())
             v = codeMirror.doc.getValue();
         }
     });
@@ -372,7 +372,7 @@ function saveFile(id) {
         });
         //更新已保存部分
         tab1.setText(tab1.getTextareaValue())
-        changeTextareaValueAfter(tab1, tab1.getTextareaValue())
+        changeMarkedHTMLValue(tab1, tab1.getTextareaValue())
     } else {
         //提示创建新的文件(输入文件名，路径)
         let s = (tab1.getTextareaValue() + '\n').split('\n')[0].trim()
@@ -717,6 +717,10 @@ ipcRenderer.on('upload-all-picture-to-weiBo', event => {
 
 //一键图片整理到picture文件夹
 function movePictureToFolder() {
+    if (!tab.hasPath()){
+        remote.dialog.showMessageBox({message: '文件尚未保存至本地'}).then()
+        return
+    }
     util.readImgLink(tab.getTextareaValue(), (src) => {
         const all_src = relativePath(src) //图片的真实路径
         const new_src = relativePath(tab.getPictureDir() + path.basename(src)) //新的图片路径
@@ -812,7 +816,7 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             insertTextareaValueTwo(tab, '*', '*')
             break
         case 'CmdOrCtrl+U':
-            insertTextareaValueTwo(tab, '<u>', '</u>')
+            insertTextareaValueTwo(tab, '++', '++')
             break
         case 'Ctrl+`':
             insertTextareaValueTwo(tab, '`', '`')
