@@ -559,7 +559,7 @@ exports.createMenuItems = (mainWindow, app) => {
                 }
             }, {
                 label: '下划线',
-                accelerator: 'CmdOrCtrl+U',
+                accelerator: 'CmdOrCtrl+F',
                 click: (item, focusedWindow, event) => {
                     mainWindow.send('quick-key-insert-txt', item.accelerator)
                 }

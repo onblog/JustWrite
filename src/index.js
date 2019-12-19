@@ -190,7 +190,7 @@ function createNewTab(...dataAndPath) {
     myTabs.append(`
 <li id="${tab1.getLiId()}">
     <a href="#${tab1.getPageId()}" id="${tab1.getHeaderId()}" data-id="${tab1.getId()}"
-       data-toggle="tab" class="header"></a>
+       data-toggle="tab" class="header" draggable="false"></a>
     <i class="glyphicon glyphicon-remove close" id="${tab1.getCloseId()}" 
     data-id="${tab1.getId()}"></i>
 </li>
@@ -233,6 +233,7 @@ function createNewTab(...dataAndPath) {
         autofocus: true,
         cursorHeight: 0.8,
         matchBrackets: true,
+        indentUnit: 4
     })
     tab1.setCodeMirror(myCodeMirror)
     //填充默认文字
@@ -251,7 +252,15 @@ function createNewTab(...dataAndPath) {
             changeMarkedHTMLValue(tab1, codeMirror.doc.getValue())
             v = codeMirror.doc.getValue();
         }
-    });
+    })
+    //以空格替换制表符
+    myCodeMirror.setOption("extraKeys", {
+        Tab: function (cm) {
+            const spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+            cm.replaceSelection(spaces);
+        }
+    })
+    //阻止粘贴事件
     myCodeMirror.on('paste', (codeMirror, event) => {
         event.preventDefault()
     })
@@ -514,9 +523,11 @@ myTabs.get(0).onwheel = function (event) {
 
 //返回图片的真实路径
 function relativePath(str) {
+    //补齐相对路径
     if (str.indexOf('.') === 0) {
-        return tab.getDirname() + str
+        str = tab.getDirname() + str
     }
+    //最终一定是格式化好的路径
     return path.normalize(str)
 }
 
@@ -717,30 +728,35 @@ ipcRenderer.on('upload-all-picture-to-weiBo', event => {
 
 //一键图片整理到picture文件夹
 function movePictureToFolder() {
-    if (!tab.hasPath()){
+    if (!tab.hasPath()) {
         remote.dialog.showMessageBox({message: '文件尚未保存至本地'}).then()
         return
     }
     util.readImgLink(tab.getTextareaValue(), (src) => {
-        const all_src = relativePath(src) //图片的真实路径
-        const new_src = relativePath(tab.getPictureDir() + path.basename(src)) //新的图片路径
-        const relativeSrc = tab.getPictureDirRelative() + path.basename(src) //相对路径
-        if (path.isAbsolute(all_src)) { //拷贝文件
-            if (all_src !== new_src) {
-                fs.copyFile(all_src, new_src, (err) => {
-                    if (err) {
-                        return console.error(err)
-                    }
-                    changeTextareaValue(tab,
-                                        tab.getTextareaValue().replace(src, pathSep(relativeSrc)))
-                    Toast.toast('整理成功+1', 'success', 3000)
-                });
-            } else {
-                changeTextareaValue(tab,
-                                    tab.getTextareaValue().replace(src, pathSep(relativeSrc)))
-                Toast.toast('整理成功+1', 'success', 3000)
-            }
+        // 当前图片绝对路径
+        const picturePath = relativePath(src)
+        // 当前图片在本地不存在
+        if (!fs.existsSync(picturePath)){
+            return
         }
+        // 复制后的图片绝对路径
+        const myPicturePath = relativePath(tab.getPictureDir() + path.basename(src))
+        // 相对路径
+        const relativeSrc = pathSep(tab.getPictureDirRelative() + path.basename(src))
+        // 如果图片不规范，需要移动
+        if (picturePath !== myPicturePath) {
+            fs.copyFile(picturePath, myPicturePath, (err) => {
+                if (err) {
+                    return console.error(err)
+                }
+                changeTextareaValue(tab, tab.getTextareaValue().replace(src, relativeSrc))
+                Toast.toast('整理成功+1', 'success', 3000)
+            })
+        } else if (relativeSrc !== src){
+            // 不需要移动，看下是否需要切换相对路径
+            changeTextareaValue(tab, tab.getTextareaValue().replace(src, relativeSrc))
+        }
+
     })
 }
 
@@ -780,9 +796,8 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             insertTextareaValue(tab, '######')
             break
         case 'Alt+Command+T' || 'Ctrl+Shift+T':
-            insertTextareaValue(tab, '\n|   -   |      |\n'
-                                     + '| ---- | ---- |\n'
-                                     + '|   -   |      |\n')
+            //弹出询问框。读取行数和列数
+            showTableModal()
             break
         case 'Alt+Command+C' || 'Ctrl+Shift+C':
             insertTextareaValue(tab, '```\n\n```')
@@ -815,8 +830,8 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
         case 'CmdOrCtrl+I':
             insertTextareaValueTwo(tab, '*', '*')
             break
-        case 'CmdOrCtrl+U':
-            insertTextareaValueTwo(tab, '++', '++')
+        case 'CmdOrCtrl+F':
+            insertTextareaValueTwo(tab, '<u>', '</u>')
             break
         case 'Ctrl+`':
             insertTextareaValueTwo(tab, '`', '`')
@@ -833,6 +848,59 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
     }
 })
 
+//弹出表格的输入框
+function showTableModal() {
+    $('body').append(`
+<div class="modal fade in" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true" style="display: block;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"> ×
+                </button>
+                <h4 class="modal-title" id="myModalLabel"> 插入表格 </h4></div>
+            <div class="modal-body"> 
+ <div class="container">
+   <div class="row" >
+      <div class="col-xs-6 col-sm-3">
+  <div class="input-group">
+   <span class="input-group-addon">行</span>
+   <input type="text" id='table-row' class="form-control" placeholder="">
+  </div>
+    </div>
+    <div class="col-xs-6 col-sm-3">
+   <div class="input-group">
+   <span class="input-group-addon">列</span>
+   <input type="text" id="table-col" class="form-control" placeholder="">
+  </div>
+ </div>
+ </div>
+ </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="readTableInfo()" >确定</button>
+            </div>
+        </div><!-- /.modal-content --> 
+    </div><!-- /.modal --> 
+</div>
+`)
+}
+
+function readTableInfo() {
+    // 读取行数、列数
+    const row = document.getElementById('table-row').value
+    const col = document.getElementById('table-col').value
+    //插入MD代码
+    insertTextareaValue(tab, util.createTableMD(row,col))
+    // 待删除节点
+    const self = document.getElementById('myModal')
+    // 拿到父节点:
+    const parent = self.parentElement
+    // 删除:
+    const removed = parent.removeChild(self)
+}
+
 function cutNightMode(args) {
     if (args) {
         document.getElementById('night-mode').setAttribute('href', './css/mode/nightMode.css')
@@ -847,19 +915,20 @@ ipcRenderer.on('cut-night-mode', (event, args) => {
 })
 
 function refresh() {
-    if (tab && tab.getCodeMirror()){
+    if (tab && tab.getCodeMirror()) {
         tab.getCodeMirror().refresh()
     }
 }
+
 function cutPreviewMode(args) {
     if (args) {
         document.getElementById('preview-mode').setAttribute('href', './css/mode/null.css')
     } else {
         document.getElementById('preview-mode').setAttribute('href', './css/mode/PreviewMode.css')
     }
-    setTimeout(()=>{
+    setTimeout(() => {
         refresh()
-    },100)
+    }, 100)
 }
 
 // 切换实时预览
@@ -917,6 +986,7 @@ function disPlayLineNumber(args) {
         t.getCodeMirror().refresh() //更改CSS样式时刷新编辑器
     }
 }
+
 ipcRenderer.on('display-line-number', (event, args) => {
     disPlayLineNumber(args)
 })
@@ -1131,8 +1201,8 @@ ipcRenderer.on('publish-article-to-', (event, site) => {
 })
 
 //导出为 HTML No Style 文件
-ipcRenderer.on('export-html-no-style-file',()=>{
-    if (tab.getMarked().innerHTML.length<1){
+ipcRenderer.on('export-html-no-style-file', () => {
+    if (tab.getMarked().innerHTML.length < 1) {
         remote.dialog.showMessageBox({message: '没有内容可导出'}).then()
         return
     }
@@ -1146,12 +1216,13 @@ ipcRenderer.on('export-html-no-style-file',()=>{
         .then(file => {
             if (!file.canceled) { //对话框是否被取消
                 const filePath = file.filePath
-                const data = htmlTel.headerNoStyle(tab.getTitle()) + tab.getMarked().innerHTML + htmlTel.footer
+                const data = htmlTel.headerNoStyle(tab.getTitle()) + tab.getMarked().innerHTML
+                             + htmlTel.footer
                 fs.writeFile(filePath, data, function (err) {
                     if (err) {
                         return console.error(err);
                     }
-                    Toast.toast('导出成功','success',3000)
+                    Toast.toast('导出成功', 'success', 3000)
                 });
             }
         })
@@ -1164,8 +1235,9 @@ ipcRenderer.on('export-html-no-style-file',()=>{
 ipcRenderer.on('export-html-file', function () {
     exportHtml()
 })
+
 function exportHtml() {
-    if (tab.getMarked().innerHTML.length<1){
+    if (tab.getMarked().innerHTML.length < 1) {
         remote.dialog.showMessageBox({message: '没有内容可导出'}).then()
         return
     }
@@ -1174,7 +1246,7 @@ function exportHtml() {
         // console.log('copy')
         clipboard.clear()
         copyHtmlStyle()
-    }while (!clipboard.readHTML())
+    } while (!clipboard.readHTML())
     //导出到HTML文件
     remote.dialog.showSaveDialog({
                                      defaultPath: tab.getTitle(),
@@ -1190,7 +1262,7 @@ function exportHtml() {
                     if (err) {
                         return console.error(err);
                     }
-                    Toast.toast('导出成功','success',3000)
+                    Toast.toast('导出成功', 'success', 3000)
                 });
             }
         })

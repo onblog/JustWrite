@@ -88,3 +88,23 @@ exports.isLocalPicture = (src)=> {
                                        || src.endsWith('png') || src.endsWith('jpeg')
                                        || src.endsWith('gif') || src.endsWith('bmp'))
 }
+
+//创建表格md代码
+exports.createTableMD = (row,col)=> {
+    let table = ''
+    for (let i = 0; i < row; i++) {
+        table+='|'
+        for (let j = 0; j < col; j++) {
+            table+='     |'
+        }
+        table+='\n'
+        if (i===0){
+            table+='|'
+            for (let j = 0; j < col; j++) {
+                table+=' --- |'
+            }
+            table+='\n'
+        }
+    }
+    return table
+}
