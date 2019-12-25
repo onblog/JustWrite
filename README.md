@@ -1,3 +1,5 @@
+![](./README/1577279046454.jpg)
+
 # JustWrite (Typora Plus)
 
 ![](https://img.shields.io/github/license/yueshutong/JustWrite) 
