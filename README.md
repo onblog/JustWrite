@@ -72,5 +72,3 @@ Github：<https://github.com/yueshutong/JustWrite>
 如果帮助到你了，请不吝赞赏！谢谢！
 
 ![](./README/9296350.png)
-
-![](./README/9258499.png)
