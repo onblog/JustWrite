@@ -62,11 +62,7 @@ Gitee：<https://gitee.com/zyzpp/JustWrite/releases>
 
 ## About
 
-Blog：<https://yueshutong.cnblogs.com/>
-
 Email：[yster@foxmail.com](mailto:yster@foxmail.com)
-
-Github：<https://github.com/yueshutong/JustWrite>
 
 
 如果帮助到你了，请不吝赞赏！谢谢！
