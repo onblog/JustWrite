@@ -1,6 +1,6 @@
 const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron')
 const cMenu = require('./src/script/menu')
-const iconPath = require('./src/script/iconPath').iconPath //窗口图标
+const iconPath = require('./icon').iconFile //窗口图标
 
 let mainWindow
 

@@ -5,7 +5,7 @@ const DataStore = require('./store')
 const items = require('./items')
 const https = require('https')
 const jsdom = require("jsdom")
-const iconPath = require('./iconPath').iconPath //窗口图标
+const iconPath = require('../../icon').iconFile //窗口图标
 
 const dataStore = new DataStore()
 
@@ -559,7 +559,7 @@ exports.createMenuItems = (mainWindow, app) => {
                 }
             }, {
                 label: '下划线',
-                accelerator: 'CmdOrCtrl+F',
+                accelerator: 'CmdOrCtrl+0',
                 click: (item, focusedWindow, event) => {
                     mainWindow.send('quick-key-insert-txt', item.accelerator)
                 }
@@ -748,7 +748,7 @@ exports.createMenuItems = (mainWindow, app) => {
             label: '查看',
             submenu: [{
                 label: '重载',
-                accelerator: 'CmdOrCtrl+R',
+                // accelerator: 'CmdOrCtrl+R',
                 click: function (item, focusedWindow) {
                     if (focusedWindow) {
                         // 重载之后, 刷新并关闭所有的次要窗体
@@ -764,13 +764,13 @@ exports.createMenuItems = (mainWindow, app) => {
                 }
             }, {
                 label: '切换全屏',
-                accelerator: (function () {
-                    if (process.platform === 'darwin') {
-                        return 'Ctrl+Command+F'
-                    } else {
-                        return 'F11'
-                    }
-                })(),
+                // accelerator: (function () {
+                //     if (process.platform === 'darwin') {
+                //         return 'Ctrl+Command+F'
+                //     } else {
+                //         return 'F11'
+                //     }
+                // })(),
                 click: function (item, focusedWindow) {
                     if (focusedWindow) {
                         focusedWindow.setFullScreen(!focusedWindow.isFullScreen())

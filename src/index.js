@@ -124,7 +124,7 @@ function deleteTab(k) {
 
 //往输入框的光标处中插入图片
 function insertPictureToTextarea(tab, src) {
-    insertTextareaValue(tab, '![](' + pathSep(src) + ')')
+    insertTextareaValue(tab, '![](' + src + ')')
 }
 
 //win路径处理
@@ -136,44 +136,44 @@ function pathSep(src) {
 }
 
 //往输入框的光标处中插入文字
-function insertTextareaValue(t, txt) {
-    let myCodeMirror = t.getCodeMirror()
+function insertTextareaValue(tab1, txt) {
+    let myCodeMirror = tab1.getCodeMirror()
     myCodeMirror.doc.replaceSelection(txt)
-    changeMarkedHTMLValue(t, myCodeMirror.doc.getValue())
+    changeMarkedHTMLValue(tab1, myCodeMirror.doc.getValue())
 }
 
 //往输入框的选中的两侧插入文字
-function insertTextareaValueTwo(t, left, right) {
-    let myCodeMirror = t.getCodeMirror()
+function insertTextareaValueTwo(tab1, left, right) {
+    let myCodeMirror = tab1.getCodeMirror()
     let selection = myCodeMirror.doc.getSelection()
     myCodeMirror.doc.replaceSelection(left + selection + right, 'around')
-    changeMarkedHTMLValue(t, myCodeMirror.doc.getValue())
+    changeMarkedHTMLValue(tab1, myCodeMirror.doc.getValue())
 }
 
 //改变输入框的文字
-function changeTextareaValue(t, txt) {
-    const scrollInfo = t.getCodeMirror().getScrollInfo()
-    let cursor = t.getCodeMirror().doc.getCursor()
-    t.getCodeMirror().doc.setValue(txt)
-    changeMarkedHTMLValue(t, txt)
-    t.getCodeMirror().doc.setCursor(cursor)
-    t.getCodeMirror().scrollTo(scrollInfo.left, scrollInfo.top)
+function changeTextareaValue(tab1, txt) {
+    const scrollInfo = tab1.getCodeMirror().getScrollInfo()
+    let cursor = tab1.getCodeMirror().doc.getCursor()
+    tab1.getCodeMirror().doc.setValue(txt)
+    changeMarkedHTMLValue(tab1, txt)
+    tab1.getCodeMirror().doc.setCursor(cursor)
+    tab1.getCodeMirror().scrollTo(scrollInfo.left, scrollInfo.top)
     //刷新一下编辑器
-    t.getCodeMirror().refresh()
+    tab1.getCodeMirror().refresh()
 }
 
 // md渲染为html
-function changeMarkedHTMLValue(t, txt) {
-    //处理一些相对路径的图片引用
+function changeMarkedHTMLValue(tab1, txt) {
+    //处理一些相对路径的图片引用或者win平台路径
     let ntxt = txt
     util.readImgLink(txt, (src) => {
-        ntxt = ntxt.replace(src, relativePath(src))
+        ntxt = ntxt.replace(src, pathSep(relativePath(src)))
     })
-    t.getMarked().innerHTML = marked.render(ntxt) // {baseUrl: t.getPath()}
+    tab1.getMarked().innerHTML = marked.render(ntxt) // {baseUrl: tab1.getPath()}
     //是否已保存编辑部分
-    t.isEditChangeIco(txt)
+    tab1.isEditChangeIco(txt)
     //窗口关闭提醒
-    remote.getGlobal('sharedObject').closeAllWindow = t.isEdit()
+    remote.getGlobal('sharedObject').closeAllWindow = tab1.isEdit()
     //TOC目录去掉*
     const elements = document.getElementsByClassName('markdownIt-TOC')
     for (const element of elements) {
@@ -691,7 +691,7 @@ function downloadNetPicture() {
             let newSrc = tab.getPictureDir() + path.basename(src)
             download(src, newSrc, function () {
                 changeTextareaValue(tab,
-                                    tab.getTextareaValue().replace(src, pathSep(newSrc))) //处理下win系统路径
+                                    tab.getTextareaValue().replace(src, newSrc))
                 Toast.toast('下载成功+1', 'success', 3000)
             });
         }
@@ -742,7 +742,7 @@ function movePictureToFolder() {
         // 复制后的图片绝对路径
         const myPicturePath = relativePath(tab.getPictureDir() + path.basename(src))
         // 相对路径
-        const relativeSrc = pathSep(tab.getPictureDirRelative() + path.basename(src))
+        const relativeSrc = tab.getPictureDirRelative() + path.basename(src)
         // 如果图片不规范，需要移动
         if (picturePath !== myPicturePath) {
             fs.copyFile(picturePath, myPicturePath, (err) => {
@@ -830,7 +830,7 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
         case 'CmdOrCtrl+I':
             insertTextareaValueTwo(tab, '*', '*')
             break
-        case 'CmdOrCtrl+F':
+        case 'CmdOrCtrl+0':
             insertTextareaValueTwo(tab, '<u>', '</u>')
             break
         case 'Ctrl+`':
@@ -1056,7 +1056,7 @@ $(function () {
 function loginApp() {
     const key = $('input[id=key]').val()
     $.ajax({
-               url: `http://www.onblogs.cn/authcode?code=${key}&group=justwrite`,
+               url: `http://f.onblogs.cn/authcode?code=${key}&group=justwrite`,
                type: 'POST',
                dataType: 'text',
                success: function (result) { //成功响应的结果
