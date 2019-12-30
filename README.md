@@ -1,6 +1,6 @@
 ![](./README/1577279046454.jpg)
 
-<h1 algin="centent">
+<h1 algin="center">
 # JustWrite (Typora Plus)
 </h1>
 
