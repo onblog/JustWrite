@@ -1,8 +1,8 @@
 ![](./README/1577279046454.jpg)
 
-<div style="text-algin:centent;">
+<h1 algin="centent">
 # JustWrite (Typora Plus)
-</div>
+</h1>
 
 ![](https://img.shields.io/github/license/yueshutong/JustWrite) 
 ![](https://img.shields.io/static/v1?label=electron&message=6.0.12&color=)
