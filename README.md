@@ -1,7 +1,7 @@
 ![](./README/1577279046454.jpg)
 
 <h1 algin="center">
-# JustWrite (Typora Plus)
+ JustWrite (Typora Plus)
 </h1>
 
 ![](https://img.shields.io/github/license/yueshutong/JustWrite) 
