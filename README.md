@@ -1,10 +1,13 @@
 ![](./README/1577279046454.jpg)
 
-<h1 align="center">JustWrite (Typora Plus)</h1>
+<div align="center">
+<h1>JustWrite (Typora Plus)</h1>
 
-![](https://img.shields.io/github/license/yueshutong/JustWrite) 
-![](https://img.shields.io/static/v1?label=electron&message=6.0.12&color=)
-![](https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg)
+<img src="https://img.shields.io/github/license/yueshutong/JustWrite"/>
+<img src="https://img.shields.io/static/v1?label=electron&message=6.0.12&color="/>
+<img src="https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg"/>
+
+</div>
 
 **有了Typora为什么还要有JustWrite？**
 
