@@ -1,6 +1,6 @@
 const {BrowserWindow, session} = require('electron')
 const https = require('https');
-const DataStore = require('../app-store')
+const DataStore = require('../script/store')
 const dataStore = new DataStore()
 const fs = require('fs')
 const FormData = require('form-data')

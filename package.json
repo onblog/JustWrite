@@ -1,9 +1,9 @@
 {
   "name": "justwrite",
   "productName": "JustWrite",
-  "version": "5.5.0",
+  "version": "5.6.0",
   "description": "",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder"

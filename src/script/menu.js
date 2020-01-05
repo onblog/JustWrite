@@ -5,7 +5,7 @@ const DataStore = require('./store')
 const items = require('./items')
 const https = require('https')
 const jsdom = require("jsdom")
-const iconPath = require('../../icon').iconFile //窗口图标
+const iconPath = require('../icon').iconFile //窗口图标
 
 const dataStore = new DataStore()
 

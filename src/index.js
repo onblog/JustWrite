@@ -879,7 +879,7 @@ function showTableModal() {
  </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-default" onclick="dismissTable()" data-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-primary" onclick="readTableInfo()" >确定</button>
             </div>
         </div><!-- /.modal-content --> 
@@ -894,11 +894,15 @@ function readTableInfo() {
     const col = document.getElementById('table-col').value
     //插入MD代码
     insertTextareaValue(tab, util.createTableMD(row,col))
+    dismissTable()
+}
+
+function dismissTable() {
     // 待删除节点
     const self = document.getElementById('myModal')
-    // 拿到父节点:
+    // 拿到父节点
     const parent = self.parentElement
-    // 删除:
+    // 删除
     const removed = parent.removeChild(self)
 }
 

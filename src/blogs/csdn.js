@@ -1,5 +1,5 @@
 const https = require('https');
-const DataStore = require('../app-store')
+const DataStore = require('../script/store')
 const dataStore = new DataStore()
 const FormData = require('form-data')
 const fs = require('fs')

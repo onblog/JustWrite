@@ -1,5 +1,5 @@
 const https = require('https');
-const DataStore = require('../app-store')
+const DataStore = require('../script/store')
 const dataStore = new DataStore()
 const querystring = require('querystring')
 const zlib = require('zlib')

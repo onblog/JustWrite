@@ -1,6 +1,6 @@
 const {BrowserWindow} = require('electron')
 const https = require('https');
-const DataStore = require('../app-store')
+const DataStore = require('../script/store')
 const dataStore = new DataStore()
 const querystring = require('querystring')
 const FormData = require('form-data')
