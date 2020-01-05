@@ -6,11 +6,7 @@
 
 </div>
 
-有了Typora为什么还要有JustWrite？
-
-因为Typora太过国际化，在国内水土不服，无法满足我的一些需求。
-
-JustWrite做了什么增强？
+有了Typora为什么还要有JustWrite？JustWrite做了什么增强？
 
 整体上：
 - [x] 跨平台Markdown编辑器（mac、windows）
@@ -37,6 +33,10 @@ JustWrite做了什么增强？
 - [x] 登录新浪微博后，可以开启自动上传。
 
 如果帮助到你了，请帮忙点亮[Github](https://github.com/yueshutong/JustWrite)右上角小星星，这将是我持续更新的动力！
+
+## 开源
+
+GPL-3.0：该协议要求您在本项目二次开发后需要继续开源与免费。
 
 ## 下载
 
@@ -68,6 +68,6 @@ Email：[yster@foxmail.com](mailto:yster@foxmail.com)
 
 如果帮助到你了，请不吝赞赏！谢谢！
 
-<img src='./README/9296350.png' style="width:400px"/>
+<img src='./README/9296350.png' style="width:300px"/>
 
-<img src='./README/9258499.png' style="width:400px"/>
+<img src='./README/9258499.png' style="width:300px"/>
