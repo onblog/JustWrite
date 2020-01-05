@@ -1,4 +1,4 @@
-const {remote, clipboard, ipcRenderer} = require('electron')
+const {remote,shell, clipboard, ipcRenderer} = require('electron')
 const request = require('request')
 const fs = require("fs")
 const path = require('path')
@@ -672,6 +672,7 @@ const download = function (uri, filename, callback) {
     request.head(uri, function (err, res, body) {
         if (err) {
             Toast.toast(err, 'danger', 3000)
+            return
         }
         if (!fs.existsSync(path.dirname(filename))) {
             fs.mkdirSync(path.dirname(filename))
@@ -1129,7 +1130,7 @@ ipcRenderer.on('publish-article-to-', (event, site) => {
                 const all_src = relativePath(src) //图片的真实路径
                 switch (site) {
                     case 'cnblogs':
-                        await cnblogs.uploadPictureToCnBlog(all_src).then(v => { //上传图片
+                        await cnblogs.uploadPictureToCnBlogs(all_src).then(v => { //上传图片
                             value = value.replace(src, v)
                             Toast.toast('上传图片+1', 'success', 3000)
                         }).catch(value => {
@@ -1182,19 +1183,30 @@ ipcRenderer.on('publish-article-to-', (event, site) => {
         //第二步：将最终的文本+标题发布到思否
         switch (site) {
             case 'cnblogs':
-                cnblogs.publishArticleToCnBlog(tab.getTitle(), value)
+                await cnblogs.publishArticleToCnBlogs(tab.getTitle(), value)
+                    .then(openPublishUrl)
+                    .catch(openCatchInfo)
+                break
                 break
             case 'csdn':
-                csdn.publishArticleToCSDN(tab.getTitle(), value, marked.render(value))
+                await csdn.publishArticleToCSDN(tab.getTitle(), value, marked.render(value))
+                    .then(openPublishUrl)
+                    .catch(openCatchInfo)
                 break
             case 'juejin':
-                juejin.publishArticleToJueJin(tab.getTitle(), value, marked.render(value))
+                await juejin.publishArticleToJueJin(tab.getTitle(), value, marked.render(value))
+                    .then(openPublishUrl)
+                    .catch(openCatchInfo)
                 break
             case 'oschina':
-                oschina.publishArticleToOsChina(tab.getTitle(), value)
+                await oschina.publishArticleToOsChina(tab.getTitle(), value)
+                    .then(openPublishUrl)
+                    .catch(openCatchInfo)
                 break
             case 'segmentfault':
-                segmentfault.publishArticleToSegmentFault(tab.getTitle(), value)
+                await segmentfault.publishArticleToSegmentFault(tab.getTitle(), value)
+                    .then(openPublishUrl)
+                    .catch(openCatchInfo)
                 break
         }
     })();
@@ -1269,4 +1281,14 @@ function exportHtml() {
         .catch(err => {
             console.log(err)
         })
+}
+
+const openPublishUrl = url => {
+    const number = remote.dialog.showMessageBoxSync({message: '上传成功！是否在浏览器打开？', buttons: ['取消', '打开']})
+    if (number === 1) {
+        shell.openExternal(url).then()
+    }
+}
+const openCatchInfo = reason => {
+    remote.dialog.showMessageBoxSync({message: reason.toString()})
 }

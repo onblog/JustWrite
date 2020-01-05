@@ -1,7 +1,8 @@
-const {remote, shell} = require('electron')
+const {BrowserWindow, session} = require('electron')
 const https = require('https');
-const DataStore = require('../script/store')
+const DataStore = require('../app-store')
 const dataStore = new DataStore()
+const fs = require('fs')
 const FormData = require('form-data')
 
 //上传图片至思否
@@ -40,11 +41,60 @@ function uploadPictureToSegmentFault(filePath) {
             });
         });
         formData.pipe(request)
+
+        request.on('error', function (e) {
+            console.log('problem with request: ' + e.message);
+            reject('网络连接异常')
+        });
     })
 }
 
-//上传文章到思否
-function publishArticleToSegmentFault(title, text) {
+// 上传文章到思否第一步
+// 先进行必要认证
+function publishArticleToSegmentFault(title, content) {
+    return new Promise((resolve, reject) => {
+        let win = new BrowserWindow({width: 1, height: 1})
+        win.loadURL('https://segmentfault.com/howtowrite').then()
+        //页面加载完
+        win.webContents.on('did-finish-load', (event, result) => {
+            if (win.webContents.getURL() === 'https://segmentfault.com/howtowrite') {
+                // 点击按钮，开始导航到新地址
+                win.webContents.executeJavaScript(
+                    `document.querySelector("body > div > div > div > div > div > div > div > a").click()`)
+                    .then()
+            } else if (win.webContents.getURL() === 'https://segmentfault.com/write?freshman=1') {
+                // 读取token
+                win.webContents.executeJavaScript(`window.SF.token`).then((result) => {
+                    dataStore.setSegmentFaultToken(result)
+                    // 关闭窗口
+                    win.destroy()
+                })
+            } else {
+                // 关闭窗口
+                win.destroy()
+            }
+        })
+        //页面关闭后
+        win.on('closed', () => {
+            win = null
+            // 查询所有与设置的 URL 相关的所有 cookies.
+            session.defaultSession.cookies.get({url: 'https://segmentfault.com/'})
+                .then((cookies) => {
+                    let cookieString = ''
+                    for (let cookie of cookies) {
+                        cookieString += cookie.name + '=' + cookie.value + '; '
+                    }
+                    dataStore.setSegmentFaultCookie(cookieString.trim())
+                    publishArticleToSegmentFaultFact(title, content, resolve, reject)
+                }).catch((error) => {
+                console.error(error)
+            })
+        })
+    })
+}
+
+//上传文章到思否第二步
+function publishArticleToSegmentFaultFact(title, text, resolve, reject) {
     let formData = new FormData();
     formData.append('type', 1)
     formData.append('url', '')
@@ -80,27 +130,22 @@ function publishArticleToSegmentFault(title, text) {
         }, function (res) {
             let str = '';
             res.on('data', function (buffer) {
-                       str += buffer;
-                   }
-            );
+                str += buffer;
+            });
             res.on('end', () => {
                 if (res.statusCode === 200) {
                     const result = JSON.parse(str);
                     //上传之后result就是返回的结果
                     // console.log(result)
                     if (result.status === 0) {
-                        remote.dialog.showMessageBox(
-                            {message: '发布成功！是否在浏览器打开？', buttons: ['取消', '打开']})
-                            .then((res) => {
-                                if (res.response === 1) {
-                                    shell.openExternal('https://segmentfault.com/user/draft').then()
-                                }
-                            })
+                        // const url = 'https://segmentfault.com/user/draft'
+                        const url = 'https://segmentfault.com/write?draftId='+result.data
+                        resolve(url)
                     } else {
-                        remote.dialog.showMessageBox({message: result.message}).then()
+                        reject(result.message)
                     }
                 } else {
-                    remote.dialog.showMessageBox({message: '请先登录思否'}).then()
+                    reject('请先登录思否')
                 }
             });
         });
@@ -108,7 +153,7 @@ function publishArticleToSegmentFault(title, text) {
 
     request.on('error', function (e) {
         console.log('problem with request: ' + e.message);
-        remote.dialog.showMessageBox({message: e.message}).then()
+        reject('网络连接异常')
     });
 }
 
