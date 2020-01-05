@@ -70,5 +70,3 @@ Email：[yster@foxmail.com](mailto:yster@foxmail.com)
 如果帮助到你了，请不吝赞赏！谢谢！
 
 <img src='./README/9296350.png' style="width:400px"/>
-
-<img src='./README/9258499.png' style="width:300px"/>
