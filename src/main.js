@@ -18,7 +18,7 @@ function createWindow() {
                                        width: 800,
                                        height: 600,
                                        icon: iconPath,
-                                       webPreferences: {devTools: true, nodeIntegration: true},
+                                       webPreferences: {devTools: false, nodeIntegration: true},
                                        titleBarStyle: "hidden"
                                    })
     mainWindow.loadFile('./src/index.html').then()
