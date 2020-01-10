@@ -1,12 +1,11 @@
 <div align="center">
-<h1>JustWrite (Typora Plus)</h1>
+<h1>JustWrite</h1>
 <img src="https://img.shields.io/github/license/yueshutong/JustWrite"/>
 <img src="https://img.shields.io/static/v1?label=electron&message=6.0.12&color="/>
 <img src="https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg"/>
-
 </div>
 
-## 介绍
+## 简介
 
 有了Typora为什么还要有JustWrite？JustWrite做了什么增强？
 
