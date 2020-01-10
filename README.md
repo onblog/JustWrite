@@ -41,7 +41,7 @@ GPL-3.0：该协议要求您使用本项目代码进行开发需要继续贯彻�
 
 ## 下载
 
-Github：[点击下载](https://github.com/yueshutong/JustWrite/releases)
+[点击下载](https://github.com/yueshutong/JustWrite/releases)
 
 ## 预览
 
@@ -49,7 +49,7 @@ Github：[点击下载](https://github.com/yueshutong/JustWrite/releases)
 
 ## 演示
 
-<https://www.bilibili.com/video/av78534183/>
+[点击观看](https://www.bilibili.com/video/av78534183/)
 
 ## 鸣谢
 
@@ -57,7 +57,7 @@ Github：[点击下载](https://github.com/yueshutong/JustWrite/releases)
 
 ## 反馈
 
-唯一地址：<https://github.com/yueshutong/JustWrite/issues>
+[点击反馈](https://github.com/yueshutong/JustWrite/issues)
 
 ## 关于
 
