@@ -6,6 +6,8 @@
 
 </div>
 
+## 介绍
+
 有了Typora为什么还要有JustWrite？JustWrite做了什么增强？
 
 整体上：
@@ -36,19 +38,17 @@
 
 ## 开源
 
-GPL-3.0：该协议要求您在本项目二次开发后需要继续开源与免费。
+GPL-3.0：该协议要求您使用本项目代码进行开发需要继续贯彻开源与免费。
 
 ## 下载
 
-Github：<https://github.com/yueshutong/JustWrite/releases>
-
-Gitee：<https://gitee.com/zyzpp/JustWrite/releases> 
+Github：[点击下载](https://github.com/yueshutong/JustWrite/releases)
 
 ## 预览
 
 ![](./README/6327537.png)
 
-## 视频演示
+## 演示
 
 <https://www.bilibili.com/video/av78534183/>
 
@@ -60,7 +60,7 @@ Gitee：<https://gitee.com/zyzpp/JustWrite/releases>
 
 唯一地址：<https://github.com/yueshutong/JustWrite/issues>
 
-## About
+## 关于
 
 Email：[yster@foxmail.com](mailto:yster@foxmail.com)
 
