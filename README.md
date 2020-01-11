@@ -5,7 +5,7 @@
 <img src="https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg"/>
 </div>
 
-## 简介
+## 🚩简介
 
 有了Typora为什么还要有JustWrite？JustWrite做了什么增强？
 
@@ -33,33 +33,33 @@
 - [x] 一键上传本地图片到新浪微博图床（虽说免费图床不稳定，不过临时用用还不错）
 - [x] 登录新浪微博后，可以开启自动上传。
 
-如果帮助到你了，请帮忙点亮[Github](https://github.com/yueshutong/JustWrite)右上角小星星，这将是我持续更新的动力！
+#### 📣如果帮助到你了，请帮忙点亮[Github](https://github.com/yueshutong/JustWrite)右上角小星星，这将是我持续更新的动力！
 
-## 开源
+#### 如果您不想使用该编辑器，但是喜欢一键发布等功能，欢迎您使用📝[写作助手](https://github.com/yueshutong/BlogHelper)
 
-GPL-3.0：该协议要求您使用本项目代码进行开发需要继续贯彻开源与免费。
+#### ❗本项目使用GPL开源协议，使用了本项目代码的项目也必须使用 GPL 协议开源。
 
-## 下载
+## 🚩下载
 
 [点击下载](https://github.com/yueshutong/JustWrite/releases)
 
-## 预览
+## 🚩预览
 
 ![](./README/6327537.png)
 
-## 演示
+## 🚩演示
 
 [点击观看](https://www.bilibili.com/video/av78534183/)
 
-## 鸣谢
+## 🚩鸣谢
 
 李晨阳（图标创作者，QQ：1003737038）
 
-## 反馈
+## 🚩反馈
 
 [点击反馈](https://github.com/yueshutong/JustWrite/issues)
 
-## 关于
+## 🚩关于
 
 Email：[yster@foxmail.com](mailto:yster@foxmail.com)
 
