@@ -35,7 +35,7 @@
 
 #### 📣如果帮助到你了，请帮忙点亮[Github](https://github.com/yueshutong/JustWrite)右上角小星星，这将是我持续更新的动力！
 
-#### 如果您不想使用该编辑器，但是喜欢一键发布等功能，欢迎您使用📝[写作助手](https://github.com/yueshutong/BlogHelper)
+#### 如果您不想使用该编辑器，但是喜欢一键发布等功能，欢迎您使用我的另一个开源项目📝[写作助手](https://github.com/yueshutong/BlogHelper)
 
 #### ❗本项目使用GPL开源协议，使用了本项目代码的项目也必须使用 GPL 协议开源。
 
