@@ -68,5 +68,3 @@ Email：[yster@foxmail.com](mailto:yster@foxmail.com)
 如果帮助到你了，请不吝赞赏！谢谢！
 
 <img src='https://github.com/yueshutong/BlogHelper/blob/master/README/9296350.png?raw=true' width="400px" />
-
-<img src='https://github.com/yueshutong/BlogHelper/blob/master/README/9258499.png?raw=true' width="200px"/>
