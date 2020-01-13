@@ -67,4 +67,4 @@ Email：[yster@foxmail.com](mailto:yster@foxmail.com)
 
 如果帮助到你了，请不吝赞赏！谢谢！
 
-<img src='https://sm.ms/image/pPoFNwT6fKCZQ2i' width="400px" />
+<img src='https://i.loli.net/2020/01/13/pPoFNwT6fKCZQ2i.png' width="400px" />
