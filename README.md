@@ -45,7 +45,7 @@
 
 ## 🚩预览
 
-![](./README/6327537.png)
+![](https://i.loli.net/2020/01/19/Ad9yG6ljUTIo1aX.png)
 
 ## 🚩演示
 
