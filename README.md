@@ -7,15 +7,9 @@
 
 ## 🚩简介
 
-有了Typora为什么还要有JustWrite？JustWrite做了什么增强？
-
-整体上：
 - 跨平台Markdown编辑器（mac、windows）
 - 增强微信公众号文章排版，多种主题和代码块样式，一键复制手动粘贴
 - 使用Markdown编写个人简历，使用[emoji](http://m.fhdq.net/emoji/emojifuhao.html)表情，导出为PDF文件
-- 一键发布文章到博客园、CSDN、SegmentFault、掘金、开源中国等平台
-
-细节上：
 - 支持数学公式（行内公式和块公式）
 - 支持UML图（参考<http://www.plantuml.com/>）
 - 支持自定义图片大小（用法：\![](123.png =100x100)）
@@ -25,18 +19,10 @@
 - 提供字数统计功能，功能仿微信公众号。
 - 支持全屏写作（即关闭右半侧实时预览）
 
-针对痛点的图片问题，提供了多种解决方法：
-
-- 支持复制粘贴或拖拽图片插入到编辑器
-- 一键网络图片下载到本地以文件名命名的文件夹
-- 一键本地图片整理至以文件名命名的文件夹，并通过相对路径引用
-- 一键上传本地图片到新浪微博图床（虽说免费图床不稳定，不过临时用用还不错）
-
-#### 📣如果帮助到你了，请帮忙点亮[Github](https://github.com/ystcode/JustWrite)右上角小星星，这将是我持续更新的动力！
+📣如果帮助到你了，请帮忙点亮[Github](https://github.com/ystcode/JustWrite)右上角小星星，这将是我持续更新的动力！
 
 #### 从5.7.0版本开始，不再支持一键发布、图片图床等功能，这部分功能全部交由我的另一个开源项目📝[写作助手](https://github.com/ystcode/BlogHelper)
 
-#### ❗本项目使用GPL开源协议，使用了本项目代码的项目也必须使用 GPL 协议开源。
 
 ## 🚩下载
 
@@ -44,7 +30,7 @@
 
 ## 🚩预览
 
-![](https://i.loli.net/2020/01/19/Ad9yG6ljUTIo1aX.png)
+![](https://images.gitee.com/uploads/images/2020/0309/170010_bc841e4b_1620924.png)
 
 ## 🚩演示
 
@@ -59,6 +45,8 @@
 [点击反馈](https://github.com/ystcode/JustWrite/issues)
 
 ## 🚩关于
+
+#### ❗本项目使用GPL开源协议，使用了本项目代码的项目也必须使用 GPL 协议开源。
 
 Email：[yster@foxmail.com](mailto:yster@foxmail.com)
 
