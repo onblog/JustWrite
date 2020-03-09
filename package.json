@@ -1,7 +1,7 @@
 {
   "name": "justwrite",
   "productName": "JustWrite",
-  "version": "5.6.0",
+  "version": "5.7.0",
   "description": "",
   "main": "src/main.js",
   "scripts": {
@@ -12,9 +12,9 @@
     "markdown",
     "write"
   ],
-  "author": "yueshutong",
+  "author": "Github@ystcode",
   "license": "GPL3.0",
-  "repository": "https://github.com/yueshutong/JustWrite/",
+  "repository": "https://github.com/ystcode/JustWrite/",
   "dependencies": {
     "@hikerpig/markdown-it-toc-and-anchor": "^4.5.0",
     "bootstrap": "^3.4.1",
@@ -48,7 +48,7 @@
     "electron-builder": "^22.1.0"
   },
   "build": {
-    "appId": "com.github.yueshutong.justwrite",
+    "appId": "com.github.ystcode.justwrite",
     "productName": "JustWrite",
     "mac": {
       "icon": "build/app.icns",

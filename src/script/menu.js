@@ -1,11 +1,10 @@
 //菜单栏功能开发
 //按钮初始化 && 功能的初始化（remote） => 改变后通信
-const {BrowserWindow, dialog, shell, session} = require('electron')
+const {BrowserWindow, dialog, shell} = require('electron')
 const DataStore = require('./store')
 const items = require('./items')
 const https = require('https')
 const jsdom = require("jsdom")
-const iconPath = require('../icon').iconFile //窗口图标
 
 const dataStore = new DataStore()
 
@@ -81,135 +80,6 @@ exports.createMenuItems = (mainWindow, app) => {
                                  }
                              })
     }
-    //登录某网站获取Cookie通用方法
-    function getSiteCookie(url, callback) {
-        let win = new BrowserWindow({width: 700, height: 600, icon: iconPath, title: '【登陆成功后关闭窗口即可完成设置】'})
-        win.loadURL(url).then()
-        win.on('close', () => {
-            win = null
-            // 查询所有与设置的 URL 相关的所有 cookies.
-            session.defaultSession.cookies.get({url: url})
-                .then((cookies) => {
-                    let cookieString = ''
-                    for (let cookie of cookies) {
-                        cookieString += cookie.name + '=' + cookie.value + '; '
-                    }
-                    callback(cookieString.trim())
-                }).catch((error) => {
-                console.log(error)
-            })
-        })
-        win.on('page-title-updated', (e) => {
-            //阻止窗口标题更改
-            e.preventDefault()
-        })
-    }
-
-    //登录新浪图床
-    const setWebBoPicture = function (item, focusedWindow, event) {
-        getSiteCookie('https://www.weibo.com/', (cookie) => {
-            dataStore.setWeiBoCookies(cookie)
-        })
-    }
-    //登录博客园
-    const loginCnBlog = function (item, focusedWindow, event) {
-        getSiteCookie('https://www.cnblogs.com/', (cookie) => {
-            dataStore.setCnBlogCookie(cookie)
-        })
-    }
-    //登录CSDN
-    const loginCSDN = function (item, focusedWindow, event) {
-        getSiteCookie('https://blog.csdn.net/', (cookie) => {
-            dataStore.setCSDNCookie(cookie)
-        })
-    }
-    //登录掘金
-    const loginJueJin = function (item, focusedWindow, event) {
-        getSiteCookie('https://juejin.im/', (cookie) => {
-            dataStore.setJueJinCookie(cookie)
-        })
-    }
-    //登录开源中国
-    const loginOsChina = function (item, focusedWindow, event) {
-        getSiteCookie('https://my.oschina.net/', (cookie) => {
-            dataStore.setOsChinaCookie(cookie)
-            getOsChinaUserInfo()
-        })
-    }
-
-    //获取开源中国的g_user_code，获取g_user_id
-    function getOsChinaUserInfo() {
-        https.get('https://www.oschina.net/', {
-            headers: {
-                'Cookie': dataStore.getOsChinaCookies()
-            }
-        }, res => {
-            let str = '';
-            res.on('data', function (buffer) {
-                str += buffer;//用字符串拼接
-            })
-            res.on('end', () => {
-                const dom = new jsdom.JSDOM(str);
-                const g_user_code = dom.window.document.body.querySelector(
-                    'body > val[data-name=g_user_code]').dataset.value
-                const g_user_id = dom.window.document.body.querySelector(
-                    'body > val[data-name=g_user_id]').dataset.value
-                if (g_user_code && g_user_id) {
-                    dataStore.setOsChinaUserCode(g_user_code)
-                    dataStore.setOsChinaUserId(g_user_id)
-                    dialog.showMessageBox({message: '已登录开源中国'}).then()
-                }
-            });
-        })
-    }
-
-    //登录思否
-    const loginSegmentFault = function (item, focusedWindow, event) {
-        getSiteCookie('https://segmentfault.com', (cookie) => {
-            dataStore.setSegmentFaultCookie(cookie)
-        })
-    }
-    //一键发布思否的必要认证
-    const preparePublishArticleToSegmentFault = function () {
-        let win = new BrowserWindow({width: 1, height: 1})
-        win.loadURL('https://segmentfault.com/howtowrite').then()
-        //页面加载完
-        win.webContents.on('did-finish-load', (event, result) => {
-            if (win.webContents.getURL() === 'https://segmentfault.com/howtowrite') {
-                // 点击按钮，开始导航到新地址
-                win.webContents.executeJavaScript(
-                    `document.querySelector("body > div > div > div > div > div > div > div > a").click()`)
-                    .then()
-            } else if (win.webContents.getURL() === 'https://segmentfault.com/write?freshman=1') {
-                // 读取token
-                win.webContents.executeJavaScript(`window.SF.token`).then((result) => {
-                    dataStore.setSegmentFaultToken(result)
-                    // 关闭窗口
-                    win.destroy()
-                })
-            } else {
-                // 关闭窗口
-                win.destroy()
-            }
-        })
-        //页面关闭后
-        win.on('closed', () => {
-            win = null
-            // 查询所有与设置的 URL 相关的所有 cookies.
-            session.defaultSession.cookies.get({url: 'https://segmentfault.com/'})
-                .then((cookies) => {
-                    let cookieString = ''
-                    for (let cookie of cookies) {
-                        cookieString += cookie.name + '=' + cookie.value + '; '
-                    }
-                    dataStore.setSegmentFaultCookie(cookieString.trim())
-                }).catch((error) => {
-                console.error(error)
-            })
-            // 发出通知
-            mainWindow.send('publish-article-to-','segmentfault')
-        })
-    }
 
     //检查更新
     const updateApp = (bool) => {
@@ -272,7 +142,7 @@ exports.createMenuItems = (mainWindow, app) => {
                                 type: 'info',
                                 title: app.getName(),
                                 buttons: ['好的'],
-                                message: `\n版本号：${app.getVersion()}\nCopyright © 2019 yueshutong. All rights reserved.`
+                                message: `\n版本号：${app.getVersion()}\nCopyright © 2019 薛勤. All rights reserved.`
                             }
                             dialog.showMessageBox(focusedWindow, options).then()
                         }
@@ -364,7 +234,7 @@ exports.createMenuItems = (mainWindow, app) => {
             }, {
                 label: '重做',
                 accelerator: 'CmdOrCtrl+Y',
-                click: (item, focusedWindow, event) => {
+                click: (item) => {
                     mainWindow.send('quick-key-insert-txt', item.accelerator)
                 }
             }, {
@@ -388,7 +258,29 @@ exports.createMenuItems = (mainWindow, app) => {
             }, {
                 type: 'separator'
             }, {
-                label: '格式化代码',
+                label: '插入本地图片',
+                click: function (menuItem, browserWindow, event) {
+                    dialog.showOpenDialog({
+                                              properties: ['openFile', 'multiSelections'],
+                                              filters: [
+                                                  {
+                                                      name: 'Images',
+                                                      extensions: ['jpg', 'png', 'gif', 'bmp',
+                                                                   'jpeg']
+                                                  },
+                                              ]
+                                          })
+                        .then(files => {
+                            if (!files.canceled) { //对话框是否被取消
+                                mainWindow.send('insert-picture-file', files.filePaths)
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err)
+                        })
+                }
+            }, {
+                label: '代码对齐',
                 click: function (item, focusedWindow, event) {
                     mainWindow.send('format-md-code')
                 }
@@ -616,139 +508,9 @@ exports.createMenuItems = (mainWindow, app) => {
             codeMenuItems
         },
         {
-            label: '图片',
-            submenu: [
-                {
-                    label: '插入本地图片',
-                    click: function (menuItem, browserWindow, event) {
-                        dialog.showOpenDialog({
-                                                  properties: ['openFile', 'multiSelections'],
-                                                  filters: [
-                                                      {
-                                                          name: 'Images',
-                                                          extensions: ['jpg', 'png', 'gif', 'bmp',
-                                                                       'jpeg']
-                                                      },
-                                                  ]
-                                              })
-                            .then(files => {
-                                if (!files.canceled) { //对话框是否被取消
-                                    mainWindow.send('insert-picture-file', files.filePaths)
-                                }
-                            })
-                            .catch(err => {
-                                console.log(err)
-                            })
-                    }
-                },
-                {
-                    label: '新浪微博图床',
-                    type: 'submenu',
-                    submenu: [{
-                        label: '登录新浪微博',
-                        click: setWebBoPicture
-                    }, {
-                        label: '图片自动上传',
-                        type: 'checkbox',
-                        checked: dataStore.isChecked(dataStore.weiBoUploadKey, true),
-                        click: function (menuItem) {
-                            dataStore.setWeiBoUpload(menuItem.checked)
-                            mainWindow.send('cut-weiBo-upload', menuItem.checked)
-                        }
-                    }, {
-                        type: 'separator'
-                    }, {
-                        label: '一键图片上传',
-                        click: function (menuItem, browserWindow, event) {
-                            mainWindow.send('upload-all-picture-to-weiBo')
-                        }
-                    }, {
-                        label: '解决图床防盗链',
-                        click: function (menuItem, browserWindow, event) {
-                            mainWindow.send('picture-md-to-img')
-                        }
-                    }]
-                }, {
-                    type: 'separator'
-                }, {
-                    label: '网络图片下载',
-                    click: () => {
-                        mainWindow.send('download-net-picture')
-                    }
-                }, {
-                    label: '本地图片整理',
-                    click: () => {
-                        mainWindow.send('move-picture-to-folder')
-                    }
-                }
-            ]
-        },
-        {
-            label: '发布',
-            submenu: [
-                {
-                    label: '博客园',
-                    submenu: [{
-                        label: '登录博客园',
-                        click: loginCnBlog
-                    }, {
-                        label: '一键发布',
-                        click: () => {
-                            mainWindow.send('publish-article-to-','cnblogs')
-                        }
-                    }]
-                }, {
-                    label: 'CSDN',
-                    submenu: [{
-                        label: '登录CSDN',
-                        click: loginCSDN
-                    }, {
-                        label: '一键发布',
-                        click: () => {
-                            mainWindow.send('publish-article-to-','csdn')
-                        }
-                    }]
-                }, {
-                    label: '掘金',
-                    submenu: [{
-                        label: '登录掘金',
-                        click: loginJueJin
-                    }, {
-                        label: '一键发布',
-                        click: () => {
-                            mainWindow.send('publish-article-to-','juejin')
-                        }
-                    }]
-                }, {
-                    label: '开源中国',
-                    submenu: [{
-                        label: '登录开源中国',
-                        click: loginOsChina
-                    }, {
-                        label: '一键发布',
-                        click: () => {
-                            mainWindow.send('publish-article-to-','oschina')
-                        }
-                    }]
-                }, {
-                    label: '思否',
-                    submenu: [{
-                        label: '登录思否',
-                        click: loginSegmentFault
-                    }, {
-                        label: '一键发布',
-                        click: () => {
-                            preparePublishArticleToSegmentFault()
-                        }
-                    }]
-                }
-            ]
-        },
-        {
             label: '查看',
             submenu: [{
                 label: '重载',
-                // accelerator: 'CmdOrCtrl+R',
                 click: function (item, focusedWindow) {
                     if (focusedWindow) {
                         // 重载之后, 刷新并关闭所有的次要窗体
@@ -764,13 +526,6 @@ exports.createMenuItems = (mainWindow, app) => {
                 }
             }, {
                 label: '切换全屏',
-                // accelerator: (function () {
-                //     if (process.platform === 'darwin') {
-                //         return 'Ctrl+Command+F'
-                //     } else {
-                //         return 'F11'
-                //     }
-                // })(),
                 click: function (item, focusedWindow) {
                     if (focusedWindow) {
                         focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
@@ -916,28 +671,28 @@ exports.createMenuItems = (mainWindow, app) => {
                     click: () => {
                         shell.openExternal('http://www.markdown.cn/').then()
                     }
-                },{
+                }, {
                     label: '功能示例',
                     click: () => {
-                        mainWindow.send('look-md-example',require('./example').example)
+                        mainWindow.send('look-md-example', require('./example').example)
                     }
-                },{
+                }, {
                     label: '简历模版',
                     click: () => {
-                        mainWindow.send('look-md-example',require('./example').jianLi)
+                        mainWindow.send('look-md-example', require('./example').jianLi)
                     }
                 }, {
                     type: 'separator'
                 }, {
                     label: '软件主页',
                     click: function () {
-                        shell.openExternal('https://github.com/yueshutong/JustWrite/')
+                        shell.openExternal('https://github.com/ystcode/JustWrite/')
                             .then()
                     }
                 }, {
                     label: '我要反馈',
                     click: () => {
-                        shell.openExternal('https://github.com/yueshutong/JustWrite/issues')
+                        shell.openExternal('https://github.com/ystcode/JustWrite/issues')
                             .then()
                     }
                 }, {

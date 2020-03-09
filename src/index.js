@@ -1,4 +1,4 @@
-const {remote,shell, clipboard, ipcRenderer} = require('electron')
+const {remote, clipboard, ipcRenderer} = require('electron')
 const request = require('request')
 const fs = require("fs")
 const path = require('path')
@@ -52,12 +52,6 @@ const html2md = require('html-to-md')
 const tempPath = remote.getGlobal('sharedObject').temp
 
 let scrollSync = dataStore.getScrollSync()
-
-const segmentfault = require('./blogs/segmentfault')
-const cnblogs = require('./blogs/cnblogs')
-const csdn = require('./blogs/csdn')
-const juejin = require('./blogs/juejin')
-const oschina = require('./blogs/oschina')
 
 let tabs = new Map() //标签页集合
 let tab //当前标签页
@@ -531,32 +525,6 @@ function relativePath(str) {
     return path.normalize(str)
 }
 
-//图片防盗链md-img
-ipcRenderer.on('picture-md-to-img', () => {
-    let objReadline = tab.getTextareaValue().split('\n')
-    let newValue = ''
-    objReadline.forEach(line => {
-        const split = line.indexOf('!') !== -1 ? line.split('!') : []
-        for (let i = 0; i < split.length; i++) {
-            if (split[i].length > 4 && split[i].indexOf('[') !== -1 && split[i].indexOf(']') !== -1
-                && split[i].indexOf('(') !== -1 && split[i].indexOf(')') !== -1) {
-                const start = split[i].lastIndexOf('(')
-                const end = split[i].lastIndexOf(')')
-                let s1 = split[i].substring(start + 1, end) //图片的真实地址
-                line =
-                    line.replace("!" + split[i], `<img src="${s1}" referrerPolicy="no-referrer"/>`)
-            }
-        }
-        newValue += line + '\n'
-    })
-    changeTextareaValue(tab, newValue)
-})
-
-//切换图片上传的开关
-ipcRenderer.on('cut-weiBo-upload', (event, name) => {
-    dataStore.setWeiBoUpload(name)
-})
-
 //插入本地图片
 ipcRenderer.on('insert-picture-file', (event, filePaths) => {
     for (let i = 0; i < filePaths.length; i++) {
@@ -680,90 +648,6 @@ const download = function (uri, filename, callback) {
         request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
     });
 };
-
-//一键网图下载
-function downloadNetPicture() {
-    if (!tab.hasPath()) {
-        remote.dialog.showMessageBox({message: '文件尚未保存至本地'}).then()
-        return
-    }
-    util.readImgLink(tab.getTextareaValue(), (src) => {
-        if (util.isWebPicture(src)) {
-            let newSrc = tab.getPictureDir() + path.basename(src)
-            download(src, newSrc, function () {
-                changeTextareaValue(tab,
-                                    tab.getTextareaValue().replace(src, newSrc))
-                Toast.toast('下载成功+1', 'success', 3000)
-            });
-        }
-    })
-}
-
-ipcRenderer.on('download-net-picture', () => {
-    downloadNetPicture()
-})
-
-//一键图片上传
-function uploadAllPictureToWeiBo() {
-    let tip = {up: true}
-    util.readImgLink(tab.getTextareaValue(), (src) => {
-        const all_src = relativePath(src) //图片的真实路径
-        if (path.isAbsolute(all_src)) {
-            weibo.uploadPictureToWeiBo(all_src, href => {
-                                           changeTextareaValue(tab, tab.getTextareaValue().replace(src, href))
-                                           Toast.toast('上传成功+1', 'success', 3000)
-                                       }, () => {
-                                           if (tip.up) {
-                                               remote.dialog.showMessageBox({message: '请先登录新浪微博'}).then()
-                                               tip.up = false
-                                           }
-                                       }
-            )
-        }
-    })
-}
-
-ipcRenderer.on('upload-all-picture-to-weiBo', event => {
-    uploadAllPictureToWeiBo()
-})
-
-//一键图片整理到picture文件夹
-function movePictureToFolder() {
-    if (!tab.hasPath()) {
-        remote.dialog.showMessageBox({message: '文件尚未保存至本地'}).then()
-        return
-    }
-    util.readImgLink(tab.getTextareaValue(), (src) => {
-        // 当前图片绝对路径
-        const picturePath = relativePath(src)
-        // 当前图片在本地不存在
-        if (!fs.existsSync(picturePath)){
-            return
-        }
-        // 复制后的图片绝对路径
-        const myPicturePath = relativePath(tab.getPictureDir() + path.basename(src))
-        // 相对路径
-        const relativeSrc = tab.getPictureDirRelative() + path.basename(src)
-        // 如果图片不规范，需要移动
-        if (picturePath !== myPicturePath) {
-            fs.copyFile(picturePath, myPicturePath, (err) => {
-                if (err) {
-                    return console.error(err)
-                }
-                changeTextareaValue(tab, tab.getTextareaValue().replace(src, relativeSrc))
-                Toast.toast('整理成功+1', 'success', 3000)
-            })
-        } else if (relativeSrc !== src){
-            // 不需要移动，看下是否需要切换相对路径
-            changeTextareaValue(tab, tab.getTextareaValue().replace(src, relativeSrc))
-        }
-
-    })
-}
-
-ipcRenderer.on('move-picture-to-folder', event => {
-    movePictureToFolder()
-})
 
 //=================【快捷键】================
 
@@ -1045,177 +929,6 @@ ipcRenderer.on('format-md-code', event => {
     tab.getCodeMirror().doc.replaceSelection(newText);
 })
 
-//关注微信公众号回复验证码解锁APP
-$(function () {
-    if (!dataStore.isLogin()) {
-        $('body').append(`
-<div id="gzh" style="position: fixed;align-content: center;text-align: center;width: 40%;height: 60%;z-index: 9;left: 30%;bottom: 20%;">
-    <p style="margin: 0;">扫码关注微信公众号回复<span style="color: red;">VIP</span>获取验证码</p>
-    <input type="text" id="key"/>
-    <input type="submit" value="提交" onclick="loginApp()"/>
-    <img src="./image/gzh.png" style="padding: 0 50px;" />
-</div>`)
-    }
-})
-
-function loginApp() {
-    const key = $('input[id=key]').val()
-    $.ajax({
-               url: `http://f.onblogs.cn/authcode?code=${key}&group=justwrite`,
-               type: 'POST',
-               dataType: 'text',
-               success: function (result) { //成功响应的结果
-                   if (result === 'true') {
-                       dataStore.login()
-                       $('#gzh').remove()
-                       Toast.toast('验证成功', 'success', 3000)
-                   } else {
-                       Toast.toast('验证失败', 'success', 3000)
-                   }
-               },
-               error: function (xhr, status, error) {
-                   alert('网络错误，进入试用')
-                   $('#gzh').remove()
-               }
-           })
-}
-
-//发布文章到平台
-ipcRenderer.on('publish-article-to-', (event, site) => {
-    if (!tab.hasPath()) {
-        remote.dialog.showMessageBox({message: '文章尚未保存至本地'}).then()
-        return
-    }
-    switch (site) {
-        case 'cnblogs':
-            if (!dataStore.getCnBlogCookies()) {
-                remote.dialog.showMessageBox({message: '请先登录博客园'}).then()
-                return
-            }
-            break
-        case 'csdn':
-            if (!dataStore.getCSDNCookies()) {
-                remote.dialog.showMessageBox({message: '请先登录CSDN'}).then()
-                return
-            }
-            break
-        case 'juejin':
-            if (!dataStore.getJueJinCookies()) {
-                remote.dialog.showMessageBox({message: '请先登录掘金'}).then()
-                return
-            }
-            break
-        case 'oschina':
-            if (!dataStore.getOsChinaCookies()) {
-                remote.dialog.showMessageBox({message: '请先登录开源中国'}).then()
-                return
-            }
-            break
-        case 'segmentfault':
-            if (!dataStore.getSegmentFaultCookie()) {
-                remote.dialog.showMessageBox({message: '请先登录思否'}).then()
-                return
-            }
-            break
-    }
-
-    Toast.toast('准备上传', 'info', 3000);
-
-    (async () => {
-        //第一步：将所有本地图片上传至思否
-        let list = []
-        util.readImgLink(tab.getTextareaValue(), (src) => {
-            list.push(src)
-        })
-        let value = tab.getTextareaValue()
-        let next = true
-        for (let src of list) {
-            if (util.isLocalPicture(src) && next) {
-                const all_src = relativePath(src) //图片的真实路径
-                switch (site) {
-                    case 'cnblogs':
-                        await cnblogs.uploadPictureToCnBlogs(all_src).then(v => { //上传图片
-                            value = value.replace(src, v)
-                            Toast.toast('上传图片+1', 'success', 3000)
-                        }).catch(value => {
-                            remote.dialog.showMessageBox({message: value}).then()
-                            next = false
-                        })
-                        break
-                    case 'csdn':
-                        await csdn.uploadPictureToCSDN(all_src).then(v => { //上传图片
-                            value = value.replace(src, v)
-                            Toast.toast('上传图片+1', 'success', 3000)
-                        }).catch(value => {
-                            remote.dialog.showMessageBox({message: value}).then()
-                            next = false
-                        })
-                        break
-                    case 'juejin':
-                        await juejin.uploadPictureToJueJin(all_src).then(v => { //上传图片
-                            value = value.replace(src, v)
-                            Toast.toast('上传图片+1', 'success', 3000)
-                        }).catch(value => {
-                            remote.dialog.showMessageBox({message: value}).then()
-                            next = false
-                        })
-                        break
-                    case 'oschina':
-                        await oschina.uploadPictureToOsChina(all_src).then(v => { //上传图片
-                            value = value.replace(src, v)
-                            Toast.toast('上传图片+1', 'success', 3000)
-                        }).catch(value => {
-                            remote.dialog.showMessageBox({message: value}).then()
-                            next = false
-                        })
-                        break
-                    case 'segmentfault':
-                        await segmentfault.uploadPictureToSegmentFault(all_src).then(v => { //上传图片
-                            value = value.replace(src, v)
-                            Toast.toast('上传图片+1', 'success', 3000)
-                        }).catch(value => {
-                            remote.dialog.showMessageBox({message: value}).then()
-                            next = false
-                        })
-                        break
-                }
-            }
-        }
-        if (!next) {
-            return
-        }
-        //第二步：将最终的文本+标题发布到思否
-        switch (site) {
-            case 'cnblogs':
-                await cnblogs.publishArticleToCnBlogs(tab.getTitle(), value)
-                    .then(openPublishUrl)
-                    .catch(openCatchInfo)
-                break
-                break
-            case 'csdn':
-                await csdn.publishArticleToCSDN(tab.getTitle(), value, marked.render(value))
-                    .then(openPublishUrl)
-                    .catch(openCatchInfo)
-                break
-            case 'juejin':
-                await juejin.publishArticleToJueJin(tab.getTitle(), value, marked.render(value))
-                    .then(openPublishUrl)
-                    .catch(openCatchInfo)
-                break
-            case 'oschina':
-                await oschina.publishArticleToOsChina(tab.getTitle(), value)
-                    .then(openPublishUrl)
-                    .catch(openCatchInfo)
-                break
-            case 'segmentfault':
-                await segmentfault.publishArticleToSegmentFault(tab.getTitle(), value)
-                    .then(openPublishUrl)
-                    .catch(openCatchInfo)
-                break
-        }
-    })();
-})
-
 //导出为 HTML No Style 文件
 ipcRenderer.on('export-html-no-style-file', () => {
     if (tab.getMarked().innerHTML.length < 1) {
@@ -1285,14 +998,4 @@ function exportHtml() {
         .catch(err => {
             console.log(err)
         })
-}
-
-const openPublishUrl = url => {
-    const number = remote.dialog.showMessageBoxSync({message: '上传成功！是否在浏览器打开？', buttons: ['取消', '打开']})
-    if (number === 1) {
-        shell.openExternal(url).then()
-    }
-}
-const openCatchInfo = reason => {
-    remote.dialog.showMessageBoxSync({message: reason.toString()})
 }

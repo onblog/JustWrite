@@ -1,6 +1,6 @@
 <div align="center">
 <h1>JustWrite</h1>
-<img src="https://img.shields.io/github/license/yueshutong/JustWrite"/>
+<img src="https://img.shields.io/github/license/ystcode/JustWrite"/>
 <img src="https://img.shields.io/static/v1?label=electron&message=6.0.12&color="/>
 <img src="https://img.shields.io/badge/platform-mac|window|linux-lightgrey.svg"/>
 </div>
@@ -35,13 +35,13 @@
 
 #### 📣如果帮助到你了，请帮忙点亮[Github](https://github.com/yueshutong/JustWrite)右上角小星星，这将是我持续更新的动力！
 
-#### 如果您不想使用该编辑器，但是喜欢一键发布等功能，欢迎您使用我的另一个开源项目📝[写作助手](https://github.com/yueshutong/BlogHelper)
+#### 从5.7.0版本开始，不再支持一键发布、图片图床等功能，这部分功能全部交由我的另一个开源项目📝[写作助手](https://github.com/yueshutong/BlogHelper)
 
 #### ❗本项目使用GPL开源协议，使用了本项目代码的项目也必须使用 GPL 协议开源。
 
 ## 🚩下载
 
-[点击下载](https://github.com/yueshutong/JustWrite/releases)
+[点击下载](https://github.com/ystcode/JustWrite/releases)
 
 ## 🚩预览
 
@@ -57,7 +57,7 @@
 
 ## 🚩反馈
 
-[点击反馈](https://github.com/yueshutong/JustWrite/issues)
+[点击反馈](https://github.com/ystcode/JustWrite/issues)
 
 ## 🚩关于
 

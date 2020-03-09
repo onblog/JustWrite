@@ -41,7 +41,7 @@ class DataStore extends Store {
     SegmentFaultTokenKey = 'segmentFault-token-key'
 
     constructor(settings) {
-        const baseConfig = {name: 'md-html-style'}
+        const baseConfig = {name: 'md-html-style-5-6'}
         const finalConfig = {...baseConfig, ...settings};
         super(finalConfig)
     }
