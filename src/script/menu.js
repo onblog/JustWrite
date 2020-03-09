@@ -83,7 +83,7 @@ exports.createMenuItems = (mainWindow, app) => {
 
     //检查更新
     const updateApp = (bool) => {
-        const releases = 'https://github.com/yueshutong/JustWrite/releases'
+        const releases = 'https://github.com/ystcode/JustWrite/releases'
         const req = https.request(releases, {}, function (req) {
             let result = '';
             req.on('data', function (data) {
