@@ -29,7 +29,7 @@
 
 ## 🚩预览
 
-![](https://images.gitee.com/uploads/images/2020/0309/170010_bc841e4b_1620924.png)
+![](https://imgkr.cn-bj.ufileos.com/e21be7ed-3d15-4425-bd99-1b758960050e.png)
 
 ## 🚩演示
 
