@@ -6,5 +6,4 @@ const appIcon = path.join(__dirname, '../build');
 // 按平台选择，mac是18px的倍数，win是16px的倍数
 const iconFile = 'app.png'
 
-exports.appIcon = appIcon
 exports.iconFile = path.join(appIcon, iconFile)

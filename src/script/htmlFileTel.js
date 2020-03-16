@@ -38,39 +38,3 @@ exports.headerNoStyle = (title)=>{
 `}
 
 exports.footer = `</div></body></html>`
-
-//        p, span, code, pre, code span, body, a {
-//             /*font-size: 14px !important;*/
-//         }
-//
-//         p {
-//             /*margin-bottom: 0 !important;*/
-//         }
-//
-//         /*h1 {*/
-//         /*    font-size: 20px !important;*/
-//         /*}*/
-//
-//         /*h2 {*/
-//         /*    font-size: 19px !important;*/
-//         /*}*/
-//
-//         /*h3 {*/
-//         /*    font-size: 18px !important;*/
-//         /*}*/
-//
-//         /*h4 {*/
-//         /*    font-size: 17px !important;*/
-//         /*}*/
-//
-//         /*h5 {*/
-//         /*    font-size: 16px !important;*/
-//         /*}*/
-//
-//         /*h6 {*/
-//         /*    font-size: 15px !important;*/
-//         /*}*/
-//
-//         /*pre {*/
-//         /*    word-wrap: break-word;*/
-//         /*}*/
