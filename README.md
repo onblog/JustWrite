@@ -7,7 +7,7 @@
 
 ## 🚩简介
 
-- 跨平台Markdown编辑器（mac、windows）
+- 跨平台Markdown编辑器（mac、windows、linux）
 - 增强微信公众号文章排版，多种主题和代码块样式，一键复制手动粘贴
 - 使用Markdown编写个人简历，使用[emoji](http://m.fhdq.net/emoji/emojifuhao.html)表情，导出为PDF文件
 - 支持数学公式（行内公式和块公式）
@@ -22,7 +22,6 @@
 📣如果帮助到你了，请帮忙点亮[Github](https://github.com/ystcode/JustWrite)右上角小星星，这将是我持续更新的动力！
 
 #### 从5.7.0版本开始，不再支持一键发布、图片图床等功能，这部分功能全部交由我的另一个开源项目📝[写作助手](https://github.com/ystcode/BlogHelper)
-
 
 ## 🚩下载
 
@@ -49,8 +48,6 @@
 #### ❗本项目使用GPL开源协议，使用了本项目代码的项目也必须使用 GPL 协议开源。
 
 Email：[yster@foxmail.com](mailto:yster@foxmail.com)
-
-交流QQ群：781927207
 
 如果帮助到你了，请不吝赞赏！谢谢！
 

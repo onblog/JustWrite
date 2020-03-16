@@ -1,5 +1,4 @@
 const {remote, clipboard, ipcRenderer} = require('electron')
-const request = require('request')
 const fs = require("fs")
 const path = require('path')
 const hljs = require('highlight.js')
@@ -8,8 +7,8 @@ const dataStore = new DataStore()
 const Tab = require('./script/tab')
 const Toast = require('./script/toast')
 const util = require('./script/util')
+const relativePath = require('./script/util').relativePath
 const htmlTel = require('./script/htmlFileTel')
-const weibo = require('./script/weibo')
 const marked = require('markdown-it')({
                                           html: true,
                                           xhtmlOut: true,
@@ -161,7 +160,7 @@ function changeMarkedHTMLValue(tab1, txt) {
     //处理一些相对路径的图片引用或者win平台路径
     let ntxt = txt
     util.readImgLink(txt, (src) => {
-        ntxt = ntxt.replace(src, pathSep(relativePath(src)))
+        ntxt = ntxt.replace(src, pathSep(relativePath(tab1.getDirname(), src)))
     })
     tab1.getMarked().innerHTML = marked.render(ntxt) // {baseUrl: tab1.getPath()}
     //是否已保存编辑部分
@@ -234,9 +233,6 @@ function createNewTab(...dataAndPath) {
     if (text && text.length > 0) {
         changeTextareaValue(tab1, text)
     }
-    // setTimeout(() => {
-    //     myCodeMirror.refresh() //刷新字体的会刷新，此处注释掉
-    // }, 100)
 
     //监听页面的输入事件
     let v = text;
@@ -515,29 +511,11 @@ myTabs.get(0).onwheel = function (event) {
 
 //==========================【图片处理】===========
 
-//返回图片的真实路径
-function relativePath(str) {
-    //补齐相对路径
-    if (str.indexOf('.') === 0) {
-        str = tab.getDirname() + str
-    }
-    //最终一定是格式化好的路径
-    return path.normalize(str)
-}
-
 //插入本地图片
 ipcRenderer.on('insert-picture-file', (event, filePaths) => {
     for (let i = 0; i < filePaths.length; i++) {
-        //是否开启图片自动上传功能
-        if (dataStore.getWeiBoUpload()) {
-            //上传图片
-            weibo.uploadPictureToWeiBo(filePaths[i], (src) => {
-                insertPictureToTextarea(tab, src)
-            })
-        } else {
-            //不上传图片
-            insertPictureToTextarea(tab, filePaths[i])
-        }
+        //不上传图片
+        insertPictureToTextarea(tab, filePaths[i])
     }
 })
 
@@ -552,16 +530,8 @@ document.addEventListener('drop', (e) => {
             openMdFiles(Array.of(f.path))
             continue
         }
-        //是否开启图片自动上传功能
-        if (dataStore.getWeiBoUpload()) {
-            //上传图片
-            weibo.uploadPictureToWeiBo(f.path, (src) => {
-                insertPictureToTextarea(tab, src)
-            })
-        } else {
-            //不上传图片
-            insertPictureToTextarea(tab, f.path)
-        }
+        //不上传图片
+        insertPictureToTextarea(tab, f.path)
     }
 });
 document.addEventListener('dragover', (e) => {
@@ -611,15 +581,7 @@ document.addEventListener('paste', function (event) {
             if (err) {
                 return console.error(err);
             }
-            //是否开启图片自动上传功能
-            if (dataStore.getWeiBoUpload()) {
-                //上传图片
-                weibo.uploadPictureToWeiBo(filePath, (src) => {
-                    insertPictureToTextarea(tab, src)
-                })
-            } else {
-                insertPictureToTextarea(tab, filePath)
-            }
+            insertPictureToTextarea(tab, filePath)
         })
     } else if (type === types.rtf) {
         // 粘贴富文本(转text)
@@ -635,19 +597,6 @@ document.addEventListener('paste', function (event) {
         insertTextareaValue(tab, clipboard.readText())
     }
 })
-
-const download = function (uri, filename, callback) {
-    request.head(uri, function (err, res, body) {
-        if (err) {
-            Toast.toast(err, 'danger', 3000)
-            return
-        }
-        if (!fs.existsSync(path.dirname(filename))) {
-            fs.mkdirSync(path.dirname(filename))
-        }
-        request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
-    });
-};
 
 //=================【快捷键】================
 
@@ -777,7 +726,7 @@ function readTableInfo() {
     const row = document.getElementById('table-row').value
     const col = document.getElementById('table-col').value
     //插入MD代码
-    insertTextareaValue(tab, util.createTableMD(row,col))
+    insertTextareaValue(tab, util.createTableMD(row, col))
     dismissTable()
 }
 
@@ -998,4 +947,63 @@ function exportHtml() {
         .catch(err => {
             console.log(err)
         })
+}
+
+String.prototype.hashCode = function() {
+    var hash = 0, i, chr;
+    if (this.length === 0) return hash;
+    for (i = 0; i < this.length; i++) {
+        chr   = this.charCodeAt(i);
+        hash  = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+};
+
+/**
+ * 编辑区预览图片
+ */
+function prePic() {
+    const all = document.querySelectorAll('span.cm-string.cm-url')
+    for (const node of all){
+        let parent = node.parentNode
+        console.log(parent)
+        // 排除
+        if (parent.getElementsByClassName("cm-image").length<1){
+            continue;
+        }
+        // 读取图片URL
+        let url = node.innerText
+        if (url.length<2){
+            continue;
+        }
+        if (url.startsWith("(")){
+            url = url.substring(1)
+        }
+        if (url.endsWith(")")){
+            url = url.substring(0,url.length-1)
+        }
+        url = relativePath(tab.getDirname(),url)
+        console.log(url)
+        // 跳过
+        if (document.getElementById(url.hashCode())){
+            continue;
+        }
+        // 新建IMG标签
+        let img = document.createElement('img')
+        img.id = url.hashCode()
+        img.src = url
+        //
+        let pre = document.createElement("pre")
+        pre.className = "CodeMirror-line"
+        pre.setAttribute('role',"presentation")
+        pre.style.height = "500px"
+        pre.appendChild(img)
+        // 插入到DOM
+        // parent.insertBefore(img,parent.firstElementChild)
+        console.log(parent.parentNode)
+        console.log(parent.parentNode.parentNode)
+        // parent.parentNode.parentNode.insertBefore(pre,parent.parentNode)
+        // parent.appendChild(img)
+    }
 }

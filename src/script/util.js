@@ -76,12 +76,12 @@ exports.readImgLink = (text, callback)=> {
     }
 }
 //是否是网络图片
-exports.isWebPicture = (src)=> {
+function isWebPicture(src) {
     return src.startsWith('http') && (src.endsWith('png') || src.endsWith('jpg')
                                       || src.endsWith('png') || src.endsWith('jpeg')
                                       || src.endsWith('gif') || src.endsWith('bmp'))
 }
-
+exports.isWebPicture = isWebPicture
 //是否是本地图片
 exports.isLocalPicture = (src)=> {
     return !src.startsWith('http') && (src.endsWith('png') || src.endsWith('jpg')
@@ -107,4 +107,17 @@ exports.createTableMD = (row,col)=> {
         }
     }
     return table
+}
+
+//返回图片的真实路径
+exports.relativePath = (dirname,str)=> {
+    if (isWebPicture(str)){
+        return str
+    }
+    //若是相对路径，补齐
+        if (!path.isAbsolute(str)) {
+            str = path.join(dirname, str)
+        }
+    //最终一定是格式化好的路径
+    return path.normalize(str)
 }
