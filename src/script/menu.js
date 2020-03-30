@@ -5,6 +5,8 @@ const DataStore = require('./store')
 const items = require('./items')
 const https = require('https')
 const jsdom = require("jsdom")
+const util = require('./util')
+const constant = require('./constant')
 
 const dataStore = new DataStore()
 
@@ -83,7 +85,7 @@ exports.createMenuItems = (mainWindow, app) => {
 
     //检查更新
     const updateApp = (bool) => {
-        const releases = 'https://github.com/ystcode/JustWrite/releases'
+        const releases = constant.releases
         const req = https.request(releases, {}, function (req) {
             let result = '';
             req.on('data', function (data) {
@@ -105,7 +107,7 @@ exports.createMenuItems = (mainWindow, app) => {
                     return
                 }
                 const version = element.getAttribute('title')
-                if (CompareVersion(version, app.getVersion()) > 0) {
+                if (util.CompareVersion(version, app.getVersion()) > 0) {
                     //发现更新
                     dialog.showMessageBox({
                                               type: 'info',
@@ -667,9 +669,9 @@ exports.createMenuItems = (mainWindow, app) => {
                 'help',
             submenu:
                 [{
-                    label: '学习Markdown',
+                    label: '学习MD',
                     click: () => {
-                        shell.openExternal('http://www.markdown.cn/').then()
+                        shell.openExternal(constant.studymd).then()
                     }
                 }, {
                     label: '功能示例',
@@ -686,54 +688,19 @@ exports.createMenuItems = (mainWindow, app) => {
                 }, {
                     label: '软件主页',
                     click: function () {
-                        shell.openExternal('https://github.com/ystcode/JustWrite/')
-                            .then()
+                        shell.openExternal(constant.page).then()
                     }
                 }, {
                     label: '我要反馈',
                     click: () => {
-                        shell.openExternal('https://github.com/ystcode/JustWrite/issues')
-                            .then()
+                        shell.openExternal(constant.issues).then()
                     }
                 }, {
                     label: '联系作者',
                     click: () => {
-                        dialog.showMessageBox(
-                            {type: 'info', message: '邮箱：yster@foxmail.com'})
-                            .then()
-                    }
-                }, {
-                    label: '加入群聊',
-                    click: () => {
-                        shell.openExternal(
-                            'https://shang.qq.com/wpa/qunwpa?idkey=d0756ea301050e3f093124a97ba19f7b5e40d5e03b6a849e7ca1748421eb193b')
-                            .then()
+                        shell.openExternal(constant.mail).then()
                     }
                 }]
         }
     ]
-}
-
-/**
- * 版本号比较
- * @return {number}
- */
-function CompareVersion(v1, v2) {
-    const vv1 = v1.split('.')
-    const vv2 = v2.split('.')
-    const length = vv1.length >= vv2.length ? vv1.length : vv2.length
-    for (let i = 0; i < length; i++) {
-        if (!vv1[i]) {
-            vv1[i] = 0
-        }
-        if (!vv2[i]) {
-            vv2[i] = 0
-        }
-        if (vv1[i] > vv2[i]) {
-            return 1
-        } else if (vv1[i] < vv2[i]) {
-            return -1
-        }
-    }
-    return 0
 }

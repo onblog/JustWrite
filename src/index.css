@@ -221,28 +221,28 @@ pre code::-webkit-scrollbar-thumb {
  */
 
 span.cm-header.cm-header-1 {
-    font-size: 26px;
-    line-height: 1.7em;
+    font-size: 25px;
+    line-height: 50px;
 }
 
 span.cm-header.cm-header-2 {
-    font-size: 1.5em;
-    line-height: 1.6em;
+    font-size: 23px;
+    line-height: 50px;
 }
 
 span.cm-header.cm-header-3 {
-    font-size: 1.4em;
-    line-height: 1.5em;
+    font-size: 22px;
+    line-height: 50px;
 }
 span.cm-header.cm-header-4 {
-    font-size: 1.3em;
-    line-height: 1.5em;
+    font-size: 21px;
+    line-height: 50px;
 }
 span.cm-header.cm-header-5 {
-    font-size: 1.2em;
-    line-height: 1.5em;
+    font-size: 20px;
+    line-height: 50px;
 }
 span.cm-header.cm-header-6 {
-    font-size: 1.1em;
-    line-height: 1.5em;
+    font-size: 19px;
+    line-height: 50px;
 }

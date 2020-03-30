@@ -634,7 +634,7 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             showTableModal()
             break
         case 'Alt+Command+C' || 'Ctrl+Shift+C':
-            insertTextareaValue(tab, '```\n\n```')
+            insertTextareaValueTwo(tab, '```\n','\n```')
             break
         case 'CmdOrCtrl+P':
             insertTextareaValue(tab, '![]()')

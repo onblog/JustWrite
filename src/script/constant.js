@@ -1,0 +1,5 @@
+exports.releases = 'https://github.com/ystcode/JustWrite/releases'
+exports.page = 'https://github.com/ystcode/JustWrite/'
+exports.issues = 'https://github.com/ystcode/JustWrite/issues'
+exports.mail = 'mailto:yster@foxmail.com'
+exports.studymd = 'http://www.markdown.cn/'
