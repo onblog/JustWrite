@@ -526,12 +526,13 @@ document.addEventListener('drop', (e) => {
     e.preventDefault();
     e.stopPropagation();
     for (const f of e.dataTransfer.files) {
-        if (path.extname(f.path) === '.md') {
+        // 拖拽的是MD文件
+        if (path.extname(f.path).toLocaleLowerCase() === '.md') {
             openMdFiles(Array.of(f.path))
-            continue
+        }// 拖拽的文件直接引用
+        else if (util.isLocalPicture(f.path)) {
+            insertPictureToTextarea(tab, f.path)
         }
-        //不上传图片
-        insertPictureToTextarea(tab, f.path)
     }
 });
 document.addEventListener('dragover', (e) => {
@@ -634,7 +635,7 @@ ipcRenderer.on('quick-key-insert-txt', (event, args) => {
             showTableModal()
             break
         case 'Alt+Command+C' || 'Ctrl+Shift+C':
-            insertTextareaValueTwo(tab, '```\n','\n```')
+            insertTextareaValueTwo(tab, '```\n', '\n```')
             break
         case 'CmdOrCtrl+P':
             insertTextareaValue(tab, '![]()')
@@ -814,10 +815,10 @@ ipcRenderer.on('editor-font-size-adjust', (event, args) => {
 function disPlayLineNumber(args) {
     if (args) {
         document.getElementById('editorPadding').innerHTML =
-            `.CodeMirror{padding: 1em 1em 1em 0 !important}`
+            `.CodeMirror{padding-left: 0 !important}`
     } else {
         document.getElementById('editorPadding').innerHTML =
-            `.CodeMirror{padding: 1em !important}`
+            `.CodeMirror{padding-left: 1em !important}`
     }
     for (let t of tabs.values()) {
         t.getCodeMirror().setOption('lineNumbers', args)

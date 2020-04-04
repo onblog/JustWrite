@@ -86,6 +86,7 @@ function isWebPicture(src) {
 exports.isWebPicture = isWebPicture
 //是否是本地图片
 exports.isLocalPicture = (src) => {
+    src = src.toLocaleLowerCase();
     return !src.startsWith('http') && (src.endsWith('png') || src.endsWith('jpg')
                                        || src.endsWith('png') || src.endsWith('jpeg')
                                        || src.endsWith('gif') || src.endsWith('bmp'))
