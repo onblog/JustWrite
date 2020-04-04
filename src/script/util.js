@@ -78,6 +78,7 @@ exports.readImgLink = (text, callback) => {
 
 //是否是网络图片
 function isWebPicture(src) {
+    src = src.toLocaleLowerCase();
     return src.startsWith('http') && (src.endsWith('png') || src.endsWith('jpg')
                                       || src.endsWith('png') || src.endsWith('jpeg')
                                       || src.endsWith('gif') || src.endsWith('bmp'))
