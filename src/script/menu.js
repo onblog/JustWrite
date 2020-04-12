@@ -85,8 +85,8 @@ exports.createMenuItems = (mainWindow, app) => {
 
     //检查更新
     const updateApp = (bool) => {
-        const releases = constant.releases
-        const req = https.request(releases, {}, function (req) {
+        const url = constant.releases
+        const req = https.request(url, {}, function (req) {
             let result = '';
             req.on('data', function (data) {
                 result += data;
@@ -102,7 +102,8 @@ exports.createMenuItems = (mainWindow, app) => {
                     'div.release-header > ul> li > a[title]')
                 if (!(element && element.getAttribute('title'))) {
                     if (bool) {
-                        dialog.showMessageBox({message: '已经是最新版本！'}).then()
+                        dialog.showMessageBox({message: '检查更新失败, 请前去官网查看'}).then()
+                        shell.openExternal(url).then()
                     }
                     return
                 }
@@ -116,7 +117,7 @@ exports.createMenuItems = (mainWindow, app) => {
                                           }
                     ).then(function (res) {
                         if (res.response === 1) {
-                            shell.openExternal(releases).then()
+                            shell.openExternal(url).then()
                         }
                     })
                 } else if (bool) {
@@ -201,6 +202,12 @@ exports.createMenuItems = (mainWindow, app) => {
                 accelerator: 'CmdOrCtrl+S',
                 click: function (menuItem, browserWindow, event) {
                     mainWindow.send("save-md-file")
+                }
+            }, {
+                label: '刷新',
+                accelerator: 'CmdOrCtrl+L',
+                click: function (menuItem, browserWindow, event) {
+                    mainWindow.send("flush-md-file")
                 }
             }, {
                 label: '重命名',
@@ -669,7 +676,7 @@ exports.createMenuItems = (mainWindow, app) => {
                 'help',
             submenu:
                 [{
-                    label: '学习MD',
+                    label: '学习语法',
                     click: () => {
                         shell.openExternal(constant.studymd).then()
                     }

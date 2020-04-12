@@ -949,3 +949,16 @@ function exportHtml() {
             console.log(err)
         })
 }
+
+
+// 刷新当前文件内容
+ipcRenderer.on('flush-md-file',function () {
+    fs.readFile(tab.getPath(), {encoding: 'utf8'} ,function (err, data) {
+        if (err) {
+            return console.error(err);
+        }
+        const tabId = tab.getId()
+        createNewTab(data, tab.getPath())
+        deleteTab(tabId)
+    });
+})
