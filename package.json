@@ -1,12 +1,13 @@
 {
   "name": "justwrite",
   "productName": "JustWrite",
-  "version": "5.7.3",
+  "version": "5.7.4",
   "description": "",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "ico": "png-to-ico build/app.png > build/app.ico"
   },
   "keywords": [
     "markdown",
@@ -45,7 +46,8 @@
   },
   "devDependencies": {
     "electron": "^6.0.12",
-    "electron-builder": "^22.1.0"
+    "electron-builder": "^22.1.0",
+    "png-to-ico": "^2.1.0"
   },
   "build": {
     "appId": "com.github.ystcode.justwrite",
