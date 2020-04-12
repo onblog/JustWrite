@@ -51,7 +51,7 @@
   },
   "build": {
     "appId": "com.github.ystcode.justwrite",
-    "productName": "JustWrite",
+    "productName": "简单写作",
     "mac": {
       "icon": "build/app.icns",
       "type": "development",
