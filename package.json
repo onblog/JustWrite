@@ -1,6 +1,5 @@
 {
   "name": "justwrite",
-  "productName": "JustWrite",
   "version": "5.7.4",
   "description": "",
   "main": "src/main.js",
