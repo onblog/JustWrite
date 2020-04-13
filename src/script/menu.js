@@ -7,6 +7,8 @@ const https = require('https')
 const jsdom = require("jsdom")
 const util = require('./util')
 const constant = require('./constant')
+const Path = require('path')
+const Inform = require('./toast')
 
 const dataStore = new DataStore()
 
@@ -82,6 +84,26 @@ exports.createMenuItems = (mainWindow, app) => {
                                  }
                              })
     }
+    //最近打开的文件
+    let recentlyOpenedList = []
+    for (const filePath of dataStore.getRecentlyOpenedList()){
+        recentlyOpenedList.push({
+                                    label: Path.basename(filePath),
+                                    click: () => {
+                                        mainWindow.send("open-md-file", Array.of(filePath))
+                                    }
+                                })
+    }
+    recentlyOpenedList.push({
+                                type: 'separator'
+                            })
+    recentlyOpenedList.push({
+                                label: '清空历史记录',
+                                click: () => {
+                                    dataStore.clearRecentlyOpenedList()
+                                    Inform.inform({title:'历史记录已清空'})
+                                }
+                            })
 
     //检查更新
     const updateApp = (bool) => {
@@ -197,6 +219,9 @@ exports.createMenuItems = (mainWindow, app) => {
                             console.log(err)
                         })
                 }
+            }, {
+                label: '打开..',
+                submenu: recentlyOpenedList
             }, {
                 label: '保存',
                 accelerator: 'CmdOrCtrl+S',

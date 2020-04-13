@@ -22,10 +22,41 @@ class DataStore extends Store {
     //字体名称
     editorFontFamilyKey = 'editor-font-family-key'
 
+    //最近打开的文件列表
+    recentlyOpenedListKey = 'recently-opened-list-key'
+
     constructor(settings) {
         const baseConfig = {name: 'md-html-style-5-6'}
         const finalConfig = {...baseConfig, ...settings};
         super(finalConfig)
+    }
+
+    getRecentlyOpenedList() {
+        if (this.has(this.recentlyOpenedListKey)) {
+            return this.get(this.recentlyOpenedListKey)
+        } else {
+            return []
+        }
+    }
+
+    addRecentlyOpenedList(line) {
+        if (this.has(this.recentlyOpenedListKey)) {
+            let list = this.get(this.recentlyOpenedListKey)
+            let set = new Set()
+            for (let x of list) {
+                set.add(x.toString())
+            }
+            set.add(line)
+            this.set(this.recentlyOpenedListKey, Array.from(set))
+        } else {
+            let list = []
+            list.push(line)
+            this.set(this.recentlyOpenedListKey, list)
+        }
+    }
+
+    clearRecentlyOpenedList() {
+        this.delete(this.recentlyOpenedListKey)
     }
 
     isChecked(k, v) {

@@ -180,6 +180,11 @@ function createNewTab(...dataAndPath) {
     let filePath = dataAndPath[1] || '未命名' + (num === 0 ? '' : num + 1)
     let tab1 = new Tab(num, text, filePath, document);
 
+    // 最近打开的文件
+    if (dataAndPath[1]){
+        dataStore.addRecentlyOpenedList(filePath)
+    }
+
     myTabs.append(`
 <li id="${tab1.getLiId()}">
     <a href="#${tab1.getPageId()}" id="${tab1.getHeaderId()}" data-id="${tab1.getId()}"

@@ -13,3 +13,14 @@ exports.toast = (message, level, timeout) => {
         $('#' + num).remove()
     },timeout)
 }
+
+const {Notification, dialog} = require('electron')
+
+// 异步弹出提示消息
+exports.inform = function inform(config) {
+    if (Notification.isSupported()){
+        new Notification(config).show()
+    }else {
+        dialog.showMessageBox({message:config.title+'\n'+config.body}).then()
+    }
+}
