@@ -519,7 +519,6 @@ myTabs.get(0).onwheel = function (event) {
 //插入本地图片
 ipcRenderer.on('insert-picture-file', (event, filePaths) => {
     for (let i = 0; i < filePaths.length; i++) {
-        //不上传图片
         insertPictureToTextarea(tab, filePaths[i])
     }
 })
@@ -534,7 +533,7 @@ document.addEventListener('drop', (e) => {
         // 拖拽的是MD文件
         if (path.extname(f.path).toLocaleLowerCase() === '.md') {
             openMdFiles(Array.of(f.path))
-        }// 拖拽的文件直接引用
+        }// 拖拽的图片直接引用
         else if (util.isLocalPicture(f.path)) {
             insertPictureToTextarea(tab, f.path)
         }
@@ -586,6 +585,9 @@ document.addEventListener('paste', function (event) {
         fs.writeFile(filePath, buffer, (err) => {
             if (err) {
                 return console.error(err);
+            }
+            if (filePath.startsWith(tab.getPictureDir())){
+                filePath = filePath.replace(tab.getPictureDir(),'./')
             }
             insertPictureToTextarea(tab, filePath)
         })
