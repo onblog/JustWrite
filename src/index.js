@@ -587,7 +587,7 @@ document.addEventListener('paste', function (event) {
                 return console.error(err);
             }
             if (filePath.startsWith(tab.getPictureDir())){
-                filePath = filePath.replace(tab.getPictureDir(),'./')
+                filePath = filePath.replace(tab.getPictureDir(),`./${path.basename(tab.getPictureDir())}/`)
             }
             insertPictureToTextarea(tab, filePath)
         })
