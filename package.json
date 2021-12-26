@@ -1,0 +1,76 @@
+{
+  "name": "justwrite",
+  "version": "5.7.6",
+  "description": "",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "ico": "png-to-ico build/app.png > build/app.ico"
+  },
+  "keywords": [
+    "markdown",
+    "write"
+  ],
+  "author": "Github@onblog",
+  "license": "GPL3.0",
+  "repository": "https://github.com/onblog/JustWrite/",
+  "dependencies": {
+    "@hikerpig/markdown-it-toc-and-anchor": "^4.5.0",
+    "bootstrap": "^3.4.1",
+    "codemirror": "^5.49.2",
+    "electron-store": "^5.0.0",
+    "form-data": "^3.0.0",
+    "highlight.js": "^9.15.10",
+    "html-to-md": "^0.3.2",
+    "jquery": "^3.4.1",
+    "jsdom": "^15.2.1",
+    "katex": "^0.11.1",
+    "markdown-it": "^10.0.0",
+    "markdown-it-abbr": "^1.0.4",
+    "markdown-it-attrs": "^3.0.1",
+    "markdown-it-deflist": "^2.0.3",
+    "markdown-it-emoji": "^1.4.0",
+    "markdown-it-footnote": "^3.0.2",
+    "markdown-it-imsize": "^2.0.1",
+    "markdown-it-ins": "^3.0.0",
+    "markdown-it-mark": "^3.0.0",
+    "markdown-it-plantuml": "^1.4.1",
+    "markdown-it-sub": "^1.0.0",
+    "markdown-it-sup": "^1.0.0",
+    "markdown-it-task-lists": "^2.1.1",
+    "markdown-it-texmath": "^0.6.0",
+    "request": "^2.88.0",
+    "urlencode": "^1.1.0"
+  },
+  "devDependencies": {
+    "electron": "^6.0.12",
+    "electron-builder": "^22.1.0",
+    "png-to-ico": "^2.1.0"
+  },
+  "build": {
+    "appId": "com.github.onblog.justwrite",
+    "productName": "简单写作",
+    "mac": {
+      "icon": "build/app.icns",
+      "type": "development",
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg"
+      ]
+    },
+    "win": {
+      "icon": "build/app.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "icon": "build/app.ico",
+      "category": "Office",
+      "target": [
+        "AppImage"
+      ]
+    }
+  }
+}
