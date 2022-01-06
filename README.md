@@ -21,7 +21,13 @@
 
 ## 🚩预览
 
-![](xxx)
+![aaaa1](https://user-images.githubusercontent.com/31175877/148340794-fbaaec22-8168-409e-a3d6-92960a6bf082.jpg)
+
+![aaaa2](https://user-images.githubusercontent.com/31175877/148340863-12ebcc0d-c7d0-48c7-9c78-db49e71ff183.jpg)
+
+![aaaa3](https://user-images.githubusercontent.com/31175877/148340885-2f74cead-2dae-4ca2-9501-348acc0ebe01.jpg)
+
+![aaaa4](https://user-images.githubusercontent.com/31175877/148340898-8e0da23e-e2e2-4c79-8441-d07004c1aef6.jpg)
 
 ## 🚩下载
 
