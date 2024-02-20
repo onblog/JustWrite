@@ -3,4 +3,3 @@ node_modules
 dist
 *.iml
 test
-package-lock.json

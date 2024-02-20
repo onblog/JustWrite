@@ -6,7 +6,8 @@
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder",
-    "ico": "png-to-ico build/app.png > build/app.ico"
+    "ico": "png-to-ico build/app.png > build/app.ico",
+    "mirror": "npm config set registry https://mirrors.huaweicloud.com/repository/npm/"
   },
   "keywords": [
     "markdown",

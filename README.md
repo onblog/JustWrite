@@ -29,9 +29,11 @@
 
 ![aaaa4](https://user-images.githubusercontent.com/31175877/148340898-8e0da23e-e2e2-4c79-8441-d07004c1aef6.jpg)
 
-## 🚩下载
+## 🚩本地运行
 
-[releases](https://github.com/onblog/JustWrite/releases)
+```shell
+npm run mirror && npm install -arch=x64 && npm run start
+```
 
 #### 一键发布到知乎、CSDN等博客平台、剪贴板图片一键上传等功能，请访问我的另一个开源项目📝写作助手
 
