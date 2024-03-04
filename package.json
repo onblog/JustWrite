@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "electron": "^6.0.12",
-    "electron-builder": "^22.1.0",
+    "electron-builder": "^24.13.3",
     "png-to-ico": "^2.1.0"
   },
   "build": {
