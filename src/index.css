@@ -1,0 +1,250 @@
+@font-face {
+    font-family: 'HeiTi';
+    src: url('./font/HuaKangHeiTiW3-GB5/HuaKangHeiTiW3-P-1.ttf');
+}
+@font-face {
+    font-family: 'YuanTi';
+    src: url('./font/HuaKangYuanTiW3-P/HuaKangYuanTiW3-P-1.ttf');
+}
+@font-face {
+    font-family: 'FangSong';
+    src: url('./font/HuaKangJianFangSong/HuaKangJianFangSong-1.ttf');
+}
+body {
+    width: 100%;
+    height: 100%;
+    padding-top: 25px; /*与#header的高度相同*/
+    overflow: hidden;
+    -webkit-print-color-adjust: exact;
+}
+
+img {
+    max-width: 100%;
+    display: inline;
+}
+
+/*标题栏*/
+/*滚动条宽度*/
+#myTab::-webkit-scrollbar {
+    height: 0;
+    width: 0;
+}
+
+#myTab > li.active > a {
+    background-color: #fff !important;
+}
+
+#myTab > li > a:hover {
+    background-color: #ccc;
+}
+
+#myTab > li > a {
+    position: absolute;
+    text-decoration: blink;
+    width: 100%;
+    border-radius: inherit;
+    top: 0;
+    background-color: #eee;
+    height: 26px;
+    text-align: center;
+    margin-right: 0;
+    font-size: 13px;
+    padding-top: 3px;
+    color: #666;
+    border: 0;
+    /* border-image-width: 0; */
+}
+
+#myTab > li {
+    display: inline-block;
+    min-width: 100px;
+    width: inherit;
+    height: 26px;
+}
+
+#myTab {
+    position: absolute;
+    top: 0;
+    margin-left: 0;
+    height: initial;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-bottom: 0;
+    overflow-y: hidden;
+    width: 100%;
+    display: inline-flex;
+}
+
+/*关闭按钮*/
+.close {
+    color: #999999;
+    font-size: 10px;
+    float: right;
+    font-weight: 100;
+    margin: 5px;
+}
+
+.close:hover {
+    color: #666666;
+}
+
+.tip {
+    color: #999;
+}
+
+/**内容页*/
+.page-header {
+    width: 100%;
+    margin-top: 0px;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0;
+}
+
+/*编辑器*/
+.editor {
+    width: 100%;
+    box-shadow: none;
+    padding: 20px;
+    border: 0 !important;
+    height: 100% !important;
+    border-radius: 0;
+    resize: none;
+    font-size: 16px;
+    color: #444;
+    overflow-y: auto;
+}
+
+.editor:focus {
+    outline: none;
+    box-shadow: none;
+    border-width: 0;
+}
+
+/*展示区*/
+.col {
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.md2html {
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+    word-wrap: break-word;
+    word-break: break-all;
+    display: block;
+    color: #444;
+    padding: 1em;
+    font-size: 16px;
+    position: absolute;
+}
+
+pre {
+    padding: 0 !important;
+}
+
+/*代码滚动条*/
+pre code {
+    min-height: 30px !important;
+    overflow-x: auto;
+    white-space: pre;
+    font-weight: normal;
+    word-spacing: 0;
+    letter-spacing: 0;
+}
+pre code::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+pre code::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: #E0E0E0;
+}
+
+/*默认滚动条*/
+::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0);
+    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0);
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.12);
+    -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/*toast*/
+#toast {
+    margin: 0 !important;
+    position: absolute;
+    z-index: 99;
+    text-align: -webkit-right;
+    top: 12%;
+    right: 5%;
+}
+#toast > .alert {
+    padding: 12px 25px;
+    background-color: rgba(0,0,0,.8) !important;
+    border-radius: 2px;
+    color: #fff;
+    width: fit-content;
+    font-size: 14px;
+    font-weight: 300;
+    border: none;
+    margin-bottom: 10px;
+}
+.CodeMirror {
+    height: 100%;
+    width: 100%;
+    font-size: 16px;
+    font-family: "Microsoft YaHei", 微软雅黑, "MicrosoftJhengHei", 华文细黑, STHeiti, MingLiu, sans-serif;
+    padding: 1em 1em 3em 1em;
+
+}
+/*[TOC]*/
+.markdownIt-TOC ul,.markdownIt-TOC li {
+    list-style: none !important;
+}
+.markdownIt-TOC a {
+    font-size: 15px !important;
+}
+
+/**
+编辑器样式
+ */
+
+span.cm-header.cm-header-1 {
+    font-size: 25px;
+    line-height: 50px;
+}
+
+span.cm-header.cm-header-2 {
+    font-size: 23px;
+    line-height: 50px;
+}
+
+span.cm-header.cm-header-3 {
+    font-size: 22px;
+    line-height: 50px;
+}
+span.cm-header.cm-header-4 {
+    font-size: 21px;
+    line-height: 50px;
+}
+span.cm-header.cm-header-5 {
+    font-size: 20px;
+    line-height: 50px;
+}
+span.cm-header.cm-header-6 {
+    font-size: 19px;
+    line-height: 50px;
+}

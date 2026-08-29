@@ -1,0 +1,6 @@
+#myTabContent > div > div > div > div:nth-child(2){
+    display: none;
+}
+#myTabContent > div > div > div > div:nth-child(1){
+    width: 100%;
+}

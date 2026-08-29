@@ -1,0 +1,280 @@
+@import "night/mermaid.dark.css";
+@import "night/codeblock.dark.css";
+@import "night/sourcemode.dark.css";
+
+.md2html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    background: #363B40;
+    color: #E0E0E0;
+    fill: currentColor;
+    line-height: 1.625em;
+}
+
+button, input, select, textarea, table {
+    color: #E0E0E0;
+    border-color: transparent;
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+    /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
+}
+
+hr {
+    height: 2px;
+    border: 0;
+    margin: 24px 0 !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    /*font-family: "Lucida Grande", "Corbel", sans-serif;*/
+    font-weight: normal;
+    clear: both;
+    -ms-word-wrap: break-word;
+    word-wrap: break-word;
+    padding: 0;
+    margin: 10px 0;
+    color: #DEDEDE;
+}
+
+h1 {
+    font-size: 1.6em;
+    /* 36px */
+    /* line-height: 2.2em; */
+    /* 40px */
+    /* margin-bottom: 0.6em; */
+    /* 24px */
+    letter-spacing: -1.5px;
+}
+
+h2 {
+    font-size: 1.5em;
+    /* 24px */
+    /* line-height: 1.875em; */
+    /* 30px */
+    /* margin-bottom: 1.5rem; */
+    /* 24px */
+    letter-spacing: -1px;
+    font-weight: bold;
+}
+
+h3 {
+    font-size: 1.4em;
+    /* 18px */
+    /* line-height: 1.5em; */
+    /* 24px */
+    /* margin-bottom: 1.5rem; */
+    /* 24px */
+    letter-spacing: -1px;
+    font-weight: bold;
+}
+
+h4 {
+    font-size: 1.3em;
+    /* 16px */
+    /* line-height: 1.375em; */
+    /* 22px */
+    /* margin-bottom: 1em; */
+    /* 24px */
+    color: white;
+}
+
+h5 {
+    font-size: 1.2em;
+    /* 16px */
+    /* line-height: 1.25em; */
+    /* 22px */
+    /* margin-bottom: 1em; */
+    /* 24px */
+    font-weight: bold;
+}
+
+h6 {
+    font-size: 1.1em;
+    /* 16px */
+    /* line-height: 1rem; */
+    /* 16px */
+    /* margin-bottom: 0.75rem; */
+    color: white;
+}
+
+a {
+    text-decoration: none;
+    outline: 0;
+}
+
+a:hover {
+    outline: 0;
+}
+
+a:focus {
+    outline: thin dotted;
+}
+
+p {
+    -ms-word-wrap: break-word;
+    word-wrap: break-word;
+    color: #E0E0E0;
+}
+
+p,
+ul,
+dd,
+ol,
+hr,
+address,
+pre,
+table,
+iframe{
+    margin-top: 0;
+    margin-bottom: 6px;
+    /* 24px */
+}
+
+li > blockquote {
+    margin-bottom: 0;
+}
+
+audio:not([controls]) {
+    display: none;
+}
+
+[hidden] {
+    display: none;
+}
+
+ul,
+ol {
+    padding: 0 0 0 1.875rem;
+}
+
+ul {
+    list-style: square;
+}
+
+ol {
+    list-style: decimal;
+}
+
+ul ul,
+ol ol,
+ul ol,
+ol ul {
+    margin: 0;
+}
+
+b,
+th,
+dt,
+strong {
+    font-weight: bold;
+}
+
+i,
+em,
+dfn,
+cite {
+    font-style: italic;
+}
+
+blockquote {
+    padding-left: 1.875rem;
+    margin: 0 0 1.875rem 1.875rem;
+    border-left: solid 2px #474d54;
+    padding-left: 30px;
+    font-size: inherit;
+    margin-top: 35px;
+}
+
+kbd,
+tt,
+var {
+    background: rgba(0, 0, 0, 0.05);
+    font-size: 0.875rem;
+    /*font-family: Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;*/
+}
+
+kbd {
+    padding: 2px 4px;
+    font-size: 90%;
+    color: #fff;
+    background-color: #333;
+    border-radius: 3px;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.25);
+}
+
+kbd,
+tt,
+var {
+    padding: 2px 5px;
+}
+
+table {
+    max-width: 100%;
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+th,
+td {
+    padding: 5px 10px;
+    vertical-align: top;
+}
+
+a {
+    -webkit-transition: all .2s ease-in-out;
+    transition: all .2s ease-in-out;
+}
+
+hr {
+    background: #474d54;
+    /* variable */
+}
+
+h1 {
+    /* margin-top: 16px; */
+}
+
+a {
+    color: #e0e0e0;
+    text-decoration: underline;
+}
+
+a:hover {
+    color: #fff;
+}
+
+b, th, dt, strong, li, body, textarea, table, h1,h2,h3,h4,h5,h6,table tr,blockquote,table th, p, thead,table tr:nth-child(2n) {
+    color: #DEDEDE !important;
+    /* variable */
+}
+
+mark {
+    background: #D3D40E;
+}
+
+blockquote {
+    color: #9DA2A6;
+}
+
+table a {
+    color: #DEDEDE;
+    /* variable */
+}
+
+th,
+td {
+    border: solid 1px #474d54;
+    /* variable */
+}
