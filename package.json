@@ -1,0 +1,42 @@
+{
+  "name": "justwrite",
+  "version": "6.0.0",
+  "description": "Local-first Markdown document workspace with AI writing assistance",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "vite build --logLevel warn && node server/index.js",
+    "build": "vite build",
+    "serve": "node server/index.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "gray-matter": "^4.0.3",
+    "highlight.js": "^11.11.1",
+    "katex": "^0.16.15",
+    "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.2.0",
+    "markdown-it-attrs": "^4.3.1",
+    "markdown-it-deflist": "^3.0.0",
+    "markdown-it-emoji": "^3.0.0",
+    "markdown-it-footnote": "^4.0.0",
+    "markdown-it-mark": "^4.0.0",
+    "markdown-it-sub": "^2.0.0",
+    "markdown-it-sup": "^2.0.0",
+    "markdown-it-task-lists": "^2.1.1",
+    "markdown-it-texmath": "^1.0.0"
+  },
+  "devDependencies": {
+    "@codemirror/lang-markdown": "^6.3.1",
+    "@codemirror/language-data": "^6.5.1",
+    "codemirror": "^6.0.1",
+    "vite": "^6.0.7"
+  },
+  "author": "Github@onblog <github521@outlook.com>",
+  "repository": "https://github.com/onblog/JustWrite",
+  "license": "GPL-3.0-only"
+}
