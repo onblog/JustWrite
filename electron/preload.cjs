@@ -1,0 +1,40 @@
+'use strict';
+
+const { contextBridge, ipcRenderer } = require('electron');
+
+/**
+ * Only this surface is exposed to the renderer. Nothing else from Node or
+ * Electron leaks through, so the UI cannot touch the filesystem directly.
+ */
+contextBridge.exposeInMainWorld('miaomiao', {
+  platform: process.platform,
+
+  vault: {
+    info: () => ipcRenderer.invoke('vault:info'),
+    open: () => ipcRenderer.invoke('vault:open'),
+  },
+
+  notes: {
+    tree: () => ipcRenderer.invoke('notes:tree'),
+    list: () => ipcRenderer.invoke('notes:list'),
+    read: (path) => ipcRenderer.invoke('notes:read', path),
+    write: (path, content) => ipcRenderer.invoke('notes:write', path, content),
+    create: (path, content) => ipcRenderer.invoke('notes:create', path, content),
+    mkdir: (path) => ipcRenderer.invoke('notes:mkdir', path),
+    rename: (from, to) => ipcRenderer.invoke('notes:rename', from, to),
+    remove: (path) => ipcRenderer.invoke('notes:remove', path),
+    search: (query) => ipcRenderer.invoke('notes:search', query),
+    reveal: (path) => ipcRenderer.invoke('notes:reveal', path),
+    menu: (path) => ipcRenderer.invoke('notes:menu', path),
+  },
+
+  dialog: {
+    confirm: (options) => ipcRenderer.invoke('dialog:confirm', options),
+  },
+
+  onMenuNewNote: (callback) => {
+    const listener = () => callback();
+    ipcRenderer.on('menu:new-note', listener);
+    return () => ipcRenderer.removeListener('menu:new-note', listener);
+  },
+});

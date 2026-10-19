@@ -1,72 +1,71 @@
-# JustWrite
+# 喵喵笔记
 
-**本地优先的 Markdown 文档工作台，带 AI 写作助手。** 你的笔记始终是磁盘上的普通 `.md` 文件——不需要账号、不上传云端、不被锁定。
+**一只喵喵的本地 Markdown 笔记应用，通过 iCloud Drive 同步。**
 
 [🇨🇳 中文](README.zh-CN.md) · [🇺🇸 English](README.md)
 
 ---
 
-## 为什么重做
+## 为什么又做一个笔记软件？
 
-大部分笔记软件想要你的数据。JustWrite 只想要你的文件夹。
+因为笔记应该是**文件**，而不是别人数据库里的一行记录。
 
-- 本地 Node 服务 + 浏览器打开，不再需要 Electron，也不用下载 200 MB 安装包
-- 每篇文档都是普通 Markdown 文件，随时可以用任何编辑器打开
-- AI 能力可选，兼容任意 OpenAI 协议接口，包括本地 Ollama
-- 原子写入 + `.trash` 回收目录：崩溃或误删都不会真的丢稿
+- 三栏布局参考 macOS 备忘录：文件夹 → 笔记 → 内容
+- 每条笔记都是 iCloud Drive 里的普通 `.md` 文件，多台 Mac 免费同步
+- 没有账号、没有服务器、没有订阅、没有埋点
+- 界面刻意做小做暖——一套认真打磨的主题，而不是二十套凑数的皮肤
 
 ## 功能
 
-| 模块 | 内容 |
+| 模块 | 说明 |
 | --- | --- |
-| 文档管理 | 文件树、文件夹、重命名、软删除、全文搜索 |
-| 编辑体验 | CodeMirror 6、实时预览、表格、代码高亮、KaTeX 公式、任务列表 |
-| AI 写作 | 润色、续写、摘要、扩写、精简、纠错、取标题、生成大纲、解释、翻译 |
-| 安全 | 仅监听回环地址、Host 头校验、会话级 Token、原子写 |
+| 布局 | 文件夹栏、笔记栏、编辑区，原生 macOS 窗口 |
+| 编辑 | CodeMirror 6、Markdown 语法高亮、实时预览（⌘E） |
+| 存储 | `iCloud Drive/MiaomiaoNotes` 下的普通 `.md` 文件 |
+| 同步 | 依赖 macOS 自带 iCloud Drive，不引入额外服务 |
+| 安全 | 原子写入、`.trash` 软删除、iCloud 冲突检测 |
+| 搜索 | 标题 + 摘要即时过滤 |
 
-## 快速开始
+## 环境要求
+
+- macOS 12 及以上（Apple Silicon 或 Intel）
+- 已开启 iCloud Drive（可选，未开启时回退到本地目录）
+
+## 本地开发
 
 ```bash
-git clone https://github.com/onblog/JustWrite.git
-cd JustWrite
 npm install
-npm run start
+npm run dev      # Vite + Electron 热更新
+npm run start    # 构建一次后启动 Electron
+npm run dist     # 打包 macOS dmg
 ```
 
-打开 <http://127.0.0.1:7788>。
+## 笔记存在哪
 
-文档库默认位于 `~/JustWrite`，可以指向任意目录：
-
-```bash
-JUSTWRITE_VAULT=~/notes npm run start
-PORT=8080 npm run start
+```
+~/Library/Mobile Documents/com~apple~CloudDocs/MiaomiaoNotes/
 ```
 
-## 配置 AI
+每条笔记都是普通 Markdown 文件，你随时可以用别的工具打开、编辑、搜索，应用不会锁定你的数据。
 
-点右上角 **⚙ 设置**，填入任意 OpenAI 兼容接口：
+## iCloud 冲突怎么处理
 
-| 服务商 | Base URL | 模型 |
-| --- | --- | --- |
-| DeepSeek | `https://api.deepseek.com/v1` | `deepseek-chat` |
-| OpenAI | `https://api.openai.com/v1` | `gpt-4o-mini` |
-| Ollama（本地） | `http://localhost:11434/v1` | `qwen2.5:7b` |
+iCloud 是最终一致同步。同一篇笔记在两台 Mac 上编辑、且还没同步回来时，iCloud 会生成 `笔记 2.md` 这样的副本。喵喵笔记的做法是：
 
-API Key 保存在 `~/.justwrite/config.json`，权限 `0600`，不会下发到浏览器。在编辑器里选中文字，切到 **AI** 面板，点任意动作即可流式生成。
+- 写入前后都检测冲突副本
+- 在编辑区顶部给出黄色提示条
+- **绝不自动合并**——静默合并丢数据的概率，比让人手动处理高得多
 
 ## 项目结构
 
 ```
-server/    Node HTTP 服务 —— 文件 CRUD、搜索、AI 代理（SSE）
-web/       Vite 前端 —— CodeMirror 编辑器、Markdown 预览、AI 面板
-dist/      构建产物，由 Node 进程托管
+electron/   主进程：窗口、iCloud 路径、文件读写、原生菜单、IPC
+src/        渲染进程：三栏 UI、CodeMirror 编辑器、Markdown 预览
+src/styles/ 设计变量与主题（换肤只需新增一个 [data-theme] 块）
 ```
 
-服务只监听 `127.0.0.1`，并拒绝 `Host` 头不是回环地址的请求，以此阻断 DNS rebinding 攻击；所有 `/api/*` 调用都需要启动时注入 HTML 的会话级 Token。
-
-## 历史版本
-
-Electron 桌面版（v5.x）已冻结，源码保留在 `master` 分支。
+渲染进程不直接碰文件系统，所有能力都通过 `contextBridge` 暴露的窄接口，
+并且开启了 `contextIsolation` 与 sandbox。
 
 ## 开源协议
 

@@ -1,0 +1,28 @@
+appId: com.onblog.miaomiao
+productName: 喵喵笔记
+copyright: Copyright © 2026 onblog
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+  - '!**/*.map'
+
+mac:
+  category: public.app-category.productivity
+  darkModeSupport: false
+  target:
+    - target: dmg
+      arch:
+        - arm64
+        - x64
+  # 未签名构建：本地使用可以，分发前需要配置开发者证书
+  identity: null
+
+dmg:
+  title: 喵喵笔记
+  artifactName: miaomiao-notes-${version}-${arch}.${ext}

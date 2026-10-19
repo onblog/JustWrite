@@ -20,12 +20,6 @@ import css from 'highlight.js/lib/languages/css';
 import sql from 'highlight.js/lib/languages/sql';
 import markdown from 'highlight.js/lib/languages/markdown';
 
-import 'katex/dist/katex.min.css';
-
-/**
- * Register only the languages we actually render. Importing the full
- * highlight.js bundle costs ~1MB and slows the first paint to a crawl.
- */
 const LANGS = {
   javascript,
   typescript,
@@ -50,23 +44,21 @@ for (const [name, definition] of Object.entries(LANGS)) {
 const md = new MarkdownIt({
   html: false,
   linkify: true,
-  breaks: false,
+  breaks: true,
   highlight(code, lang) {
     if (lang && hljs.getLanguage(lang)) {
       try {
         const html = hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
         return `<pre class="hljs"><code class="language-${lang}">${html}</code></pre>`;
       } catch {
-        /* fall through to escaped output */
+        /* fall through */
       }
     }
     return `<pre class="hljs"><code>${md.utils.escapeHtml(code)}</code></pre>`;
   },
 });
 
-md.use(anchor, {
-  permalink: anchor.permalink.linkInsideHeader({ symbol: '#', placement: 'before' }),
-});
+md.use(anchor, { permalink: false });
 md.use(attrs);
 md.use(footnote);
 md.use(taskLists, { enabled: true, label: true });
@@ -76,7 +68,6 @@ md.use(texmath, {
   katexOptions: { throwOnError: false, output: 'html' },
 });
 
-/** Render markdown to HTML. Raw HTML is disabled, so output is safe to inject. */
 export function renderMarkdown(source) {
   return md.render(String(source || ''));
 }

@@ -1,42 +1,42 @@
 {
-  "name": "justwrite",
-  "version": "6.0.0",
-  "description": "Local-first Markdown document workspace with AI writing assistance",
-  "type": "module",
+  "name": "miaomiao-notes",
+  "productName": "喵喵笔记",
+  "version": "1.0.0",
+  "description": "A cute, local-first Markdown notes app for macOS, synced through iCloud Drive. 一只喵喵的本地 Markdown 笔记应用，通过 iCloud Drive 同步。",
+  "main": "electron/main.cjs",
+  "author": "Github@onblog <github521@outlook.com>",
+  "license": "GPL-3.0-only",
+  "repository": "https://github.com/onblog/miaomiao-notes",
   "private": true,
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "start": "vite build --logLevel warn && node server/index.js",
+    "dev": "concurrently -k -n VITE,ELECTRON -c cyan,magenta \"vite\" \"wait-on tcp:5173 && VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
     "build": "vite build",
-    "serve": "node server/index.js",
-    "test": "node --test test/*.test.js"
+    "start": "npm run build && electron .",
+    "dist": "npm run build && electron-builder --mac",
+    "dist:arm64": "npm run build && electron-builder --mac --arm64",
+    "dist:x64": "npm run build && electron-builder --mac --x64"
   },
   "dependencies": {
     "chokidar": "^4.0.3",
-    "gray-matter": "^4.0.3",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.15",
     "markdown-it": "^14.1.0",
     "markdown-it-anchor": "^9.2.0",
     "markdown-it-attrs": "^4.3.1",
-    "markdown-it-deflist": "^3.0.0",
-    "markdown-it-emoji": "^3.0.0",
     "markdown-it-footnote": "^4.0.0",
-    "markdown-it-mark": "^4.0.0",
-    "markdown-it-sub": "^2.0.0",
-    "markdown-it-sup": "^2.0.0",
     "markdown-it-task-lists": "^2.1.1",
     "markdown-it-texmath": "^1.0.0"
   },
   "devDependencies": {
     "@codemirror/lang-markdown": "^6.3.1",
-    "@codemirror/language-data": "^6.5.1",
     "codemirror": "^6.0.1",
-    "vite": "^6.0.7"
-  },
-  "author": "Github@onblog <github521@outlook.com>",
-  "repository": "https://github.com/onblog/JustWrite",
-  "license": "GPL-3.0-only"
+    "concurrently": "^9.1.2",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "vite": "^6.0.7",
+    "wait-on": "^8.0.2"
+  }
 }

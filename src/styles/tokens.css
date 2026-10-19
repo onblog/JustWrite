@@ -1,0 +1,59 @@
+/* ------------------------------------------------------------------
+   主题：奶油猫（cream）
+   换肤只需要在这里追加 [data-theme="xxx"] 块，无需改动任何组件样式。
+   ------------------------------------------------------------------ */
+
+[data-theme='cream'] {
+  /* 表面 */
+  --surface-app: #fbf7f1;
+  --surface-sidebar: rgba(246, 239, 230, 0.72);
+  --surface-list: #fffdfa;
+  --surface-content: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-hover: rgba(240, 138, 93, 0.08);
+  --surface-active: rgba(240, 138, 93, 0.14);
+  --surface-search: rgba(120, 100, 85, 0.07);
+
+  /* 文字 */
+  --text-strong: #3b3530;
+  --text-body: #4a433c;
+  --text-muted: #8b8079;
+  --text-faint: #b3a89f;
+  --text-inverse: #ffffff;
+
+  /* 品牌 */
+  --accent: #f08a5d;
+  --accent-strong: #e76f51;
+  --accent-soft: #fde6d8;
+  --accent-line: #f5b898;
+
+  /* 语义 */
+  --danger: #d9534f;
+  --danger-soft: #fbe7e6;
+  --warning: #c98a2b;
+  --warning-soft: #fdf3e2;
+  --success: #5a9e6f;
+
+  /* 结构 */
+  --border-subtle: rgba(120, 100, 85, 0.1);
+  --border-strong: rgba(120, 100, 85, 0.18);
+  --shadow-soft: 0 1px 2px rgba(80, 60, 45, 0.04), 0 6px 18px rgba(80, 60, 45, 0.05);
+  --shadow-pop: 0 10px 32px rgba(80, 60, 45, 0.14);
+
+  /* 形状 */
+  --radius-sm: 7px;
+  --radius-md: 11px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* 排版 */
+  --font-ui: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace;
+  --font-reading: -apple-system, 'PingFang SC', 'Songti SC', serif;
+
+  /* 布局 */
+  --sidebar-width: 208px;
+  --list-width: 312px;
+  --titlebar-height: 52px;
+}

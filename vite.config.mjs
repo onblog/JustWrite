@@ -5,10 +5,10 @@ import { fileURLToPath } from 'node:url';
 const root = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  root,
-  base: '/',
+  root: path.join(root, 'src'),
+  base: './',
   build: {
-    outDir: 'dist',
+    outDir: path.join(root, 'dist'),
     emptyOutDir: true,
     target: 'es2022',
     sourcemap: false,
