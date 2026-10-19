@@ -17,7 +17,7 @@
     "chokidar": "^4.0.3",
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.11.1",
-    "katex": "^0.16.15",
+    "katex": "^0.18.2",
     "markdown-it": "^14.1.0",
     "markdown-it-anchor": "^9.2.0",
     "markdown-it-attrs": "^4.3.1",
