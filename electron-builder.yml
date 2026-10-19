@@ -6,6 +6,9 @@ directories:
   output: release
   buildResources: build
 
+# 直接使用 node_modules 里已解压的 Electron，避免打包时再下载一次
+electronDist: node_modules/electron/dist
+
 files:
   - dist/**/*
   - electron/**/*
