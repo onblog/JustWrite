@@ -166,6 +166,10 @@ export function createMockApi() {
         return { ok: true, data: { path } };
       },
       search: async () => ({ ok: true, data: [] }),
+      saveImage: async (notePath, base64, ext) => ({
+        ok: true,
+        data: `${notePath.replace(/\.md$/, '').split('/').pop()}/${Date.now()}${ext}`,
+      }),
       reveal: async () => ({ ok: true }),
       menu: async () => ({ ok: true, data: null }),
     },

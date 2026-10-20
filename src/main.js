@@ -44,6 +44,7 @@ const el = {
 const editor = createEditor({
   parent: el.editorHost,
   onChange: onDocChange,
+  onPasteImage: handlePasteImage,
 });
 
 /* ---------------------------------------------------------------- helpers */
@@ -341,7 +342,7 @@ async function openNote(path) {
   el.contentDate.textContent = t('note.updated', { time: formatDate(result.data.mtime) });
   const wantPreview = Boolean(state?.settings?.defaultPreview);
   if (wantPreview) {
-    el.previewHost.innerHTML = renderMarkdown(result.data.content);
+    el.previewHost.innerHTML = renderMarkdown(result.data.content, noteBaseDir());
     el.previewHost.hidden = false;
     el.editorHost.hidden = true;
     state.previewing = true;
@@ -366,9 +367,43 @@ async function openNote(path) {
 
 /* ---------------------------------------------------------------- save */
 
+/** Read a pasted image, store it next to the note and insert a Markdown link. */
+async function handlePasteImage(file) {
+  if (!state.activeNote) {
+    toast(t('toast.needNote'), true);
+    return;
+  }
+
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+  const base64 = String(dataUrl).split(',')[1] || '';
+  const subtype = (file.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
+  const result = await api.notes.saveImage(state.activeNote, base64, `.${subtype}`);
+
+  if (!result.ok) {
+    toast(t('toast.imageFailed'), true);
+    return;
+  }
+
+  editor.insertAtCursor(`\n![图片](${result.data})\n`);
+  toast(t('toast.imageSaved'));
+}
+
+function noteBaseDir() {
+  if (!state.vaultPath || !state.activeNote) return '';
+  const cut = state.activeNote.lastIndexOf('/');
+  const folder = cut === -1 ? '' : state.activeNote.slice(0, cut);
+  return folder ? `${state.vaultPath}/${folder}` : state.vaultPath;
+}
+
 function onDocChange() {
   if (el.previewHost.hidden === false) {
-    el.previewHost.innerHTML = renderMarkdown(editor.getValue());
+    el.previewHost.innerHTML = renderMarkdown(editor.getValue(), noteBaseDir());
   }
   if (!state.activeNote) return;
   state.dirty = true;
@@ -540,7 +575,7 @@ async function noteMenu(path) {
 function togglePreview() {
   state.previewing = !state.previewing;
   if (state.previewing) {
-    el.previewHost.innerHTML = renderMarkdown(editor.getValue());
+    el.previewHost.innerHTML = renderMarkdown(editor.getValue(), noteBaseDir());
     el.previewHost.hidden = false;
     el.editorHost.hidden = true;
   } else {

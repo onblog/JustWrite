@@ -337,6 +337,35 @@ function registerIpc() {
   handle('notes:remove', (relative) => files.remove(relative));
   handle('notes:search', (query) => files.search(query));
 
+  /**
+   * Save a pasted image next to its note, inside a folder named after the note.
+   * `工作/周报.md` -> `工作/周报/<timestamp>.png`, and the returned value is the
+   * path relative to the note so it can go straight into Markdown.
+   */
+  handle('notes:save-image', async (notePath, base64, ext) => {
+    const allowed = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp']);
+    const suffix = allowed.has(String(ext)) ? String(ext) : '.png';
+
+    const relative = String(notePath || '');
+    if (!relative.toLowerCase().endsWith('.md')) {
+      const error = new Error('save the note first');
+      error.status = 400;
+      throw error;
+    }
+
+    const dir = path.posix.dirname(relative);
+    const stem = path.posix.basename(relative, path.posix.extname(relative));
+    const folder = dir === '.' ? stem : `${dir}/${stem}`;
+
+    const absoluteDir = path.join(vaultDir, folder);
+    await fs.promises.mkdir(absoluteDir, { recursive: true });
+
+    const fileName = `${Date.now()}${suffix}`;
+    await fs.promises.writeFile(path.join(absoluteDir, fileName), Buffer.from(String(base64), 'base64'));
+
+    return `${stem}/${fileName}`;
+  });
+
   handle('notes:reveal', (relative) => {
     const target = path.join(files.root, relative);
     shell.showItemInFolder(target);

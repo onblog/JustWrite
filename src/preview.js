@@ -68,6 +68,20 @@ md.use(texmath, {
   katexOptions: { throwOnError: false, output: 'html' },
 });
 
-export function renderMarkdown(source) {
-  return md.render(String(source || ''));
+/**
+ * Render markdown to HTML. Raw HTML is disabled, so output is safe to inject.
+ * `baseDir` (absolute) rewrites relative image paths to file:// URLs so pasted
+ * screenshots render inside the preview.
+ */
+export function renderMarkdown(source, baseDir) {
+  const html = md.render(String(source || ''));
+  if (!baseDir) return html;
+
+  const root = baseDir.replace(/\/+$/, '');
+  return html.replace(/<img\s+([^>]*?)src="([^"]+)"/g, (match, attrs, src) => {
+    if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(src)) return match;
+    // markdown-it already URL-encodes the link target; encoding again would
+    // turn %E4%BB%A3 into %25E4%25BB and break the file:// lookup.
+    return `<img ${attrs}src="file://${encodeURI(root)}/${src}"`;
+  });
 }

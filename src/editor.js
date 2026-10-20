@@ -38,7 +38,7 @@ const warmHighlight = HighlightStyle.define([
   { tag: tags.comment, color: 'var(--text-faint)' },
 ]);
 
-function extensionsFor(onChange) {
+function extensionsFor(onChange, onPasteImage) {
   return [
     history(),
     drawSelection(),
@@ -60,13 +60,30 @@ function extensionsFor(onChange) {
     EditorView.updateListener.of((update) => {
       if (update.docChanged) onChange?.(update.state.doc.toString());
     }),
+    EditorView.domEventHandlers({
+      paste(event) {
+        const items = event.clipboardData?.items;
+        if (!items) return false;
+
+        for (const item of items) {
+          if (item.kind !== 'file' || !item.type.startsWith('image/')) continue;
+          const file = item.getAsFile();
+          if (!file) continue;
+
+          event.preventDefault();
+          onPasteImage?.(file);
+          return true;
+        }
+        return false;
+      },
+    }),
   ];
 }
 
-export function createEditor({ parent, onChange }) {
+export function createEditor({ parent, onChange, onPasteImage }) {
   const view = new EditorView({
     parent,
-    state: EditorState.create({ doc: '', extensions: extensionsFor(onChange) }),
+    state: EditorState.create({ doc: '', extensions: extensionsFor(onChange, onPasteImage) }),
   });
 
   return {
@@ -81,7 +98,9 @@ export function createEditor({ parent, onChange }) {
     },
     /** Reset the document without emitting a change event when loading a note. */
     reset(value) {
-      view.setState(EditorState.create({ doc: value, extensions: extensionsFor(onChange) }));
+      view.setState(
+        EditorState.create({ doc: value, extensions: extensionsFor(onChange, onPasteImage) }),
+      );
     },
     focus: () => view.focus(),
     insertAtCursor(text) {

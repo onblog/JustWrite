@@ -26,6 +26,8 @@ contextBridge.exposeInMainWorld('miaomiao', {
     rename: (from, to) => ipcRenderer.invoke('notes:rename', from, to),
     remove: (path) => ipcRenderer.invoke('notes:remove', path),
     search: (query) => ipcRenderer.invoke('notes:search', query),
+    saveImage: (notePath, base64, ext) =>
+      ipcRenderer.invoke('notes:save-image', notePath, base64, ext),
     reveal: (path) => ipcRenderer.invoke('notes:reveal', path),
     menu: (path) => ipcRenderer.invoke('notes:menu', path),
   },
