@@ -190,6 +190,19 @@ function renderFolders() {
   }
 }
 
+function sortNotes(notes) {
+  const mode = state.settings?.sortBy ?? 'mtime';
+  const sorted = [...notes];
+  if (mode === 'title') {
+    sorted.sort((a, b) => (a.title || '').localeCompare(b.title || '', 'zh-CN'));
+  } else if (mode === 'ctime') {
+    sorted.sort((a, b) => (b.ctime || 0) - (a.ctime || 0));
+  } else {
+    sorted.sort((a, b) => (b.mtime || 0) - (a.mtime || 0));
+  }
+  return sorted;
+}
+
 function visibleNotes() {
   let notes = state.notes;
   if (state.activeFolder) {
@@ -204,11 +217,12 @@ function visibleNotes() {
         note.title.toLowerCase().includes(lower) || note.snippet.toLowerCase().includes(lower),
     );
   }
-  return notes;
+  return sortNotes(notes);
 }
 
 function renderNotes() {
   const notes = visibleNotes();
+  el.noteList.classList.toggle('hide-snippet', !state.settings?.showSnippet);
   el.noteList.replaceChildren();
 
   if (!notes.length) {
@@ -294,10 +308,20 @@ async function openNote(path) {
   el.emptyState.hidden = true;
   el.titleInput.value = stemOf(path.split('/').pop());
   el.contentDate.textContent = `更新于 ${formatDate(result.data.mtime)}`;
-  el.previewHost.hidden = true;
-  el.editorHost.hidden = false;
+  const wantPreview = Boolean(state?.settings?.defaultPreview);
+  if (wantPreview) {
+    el.previewHost.innerHTML = renderMarkdown(result.data.content);
+    el.previewHost.hidden = false;
+    el.editorHost.hidden = true;
+    state.previewing = true;
+    document.getElementById('btn-preview').classList.add('is-on');
+  } else {
+    el.previewHost.hidden = true;
+    el.editorHost.hidden = false;
+    state.previewing = false;
+    document.getElementById('btn-preview').classList.remove('is-on');
+  }
   el.emptyState.hidden = true;
-  state.previewing = false;
 
   if (result.data.conflicts?.length) {
     showConflict(result.data.conflicts);
@@ -480,6 +504,10 @@ function applySettings(next) {
   state.settings = next;
   document.documentElement.dataset.theme = next.theme === 'dark' ? 'dark' : 'cream';
   document.documentElement.style.setProperty('--editor-font-size', `${next.fontSize}px`);
+  document.body.classList.toggle('reduce-motion', Boolean(next.reduceMotion));
+
+  // 让列表立即反映排序与摘要设置，而不是等下次刷新
+  if (el.noteList && state.notes.length) renderNotes();
 }
 
 function openSettings() {
@@ -516,6 +544,46 @@ function openSettings() {
               <button type="button" data-value="15">中</button>
               <button type="button" data-value="17">大</button>
             </div>
+          </div>
+          <div class="settings__row">
+            <div class="settings__label">
+              <strong>减少动效</strong>
+              <span>关闭猫咪漂浮等过渡动画</span>
+            </div>
+            <button class="switch" type="button" role="switch" data-key="reduceMotion"></button>
+          </div>
+        </section>
+
+        <section class="settings__group">
+          <p class="settings__group-title">列表</p>
+          <div class="settings__row">
+            <div class="settings__label">
+              <strong>排序方式</strong>
+              <span>决定笔记列表的排列顺序</span>
+            </div>
+            <div class="segmented" data-key="sortBy">
+              <button type="button" data-value="mtime">修改</button>
+              <button type="button" data-value="ctime">创建</button>
+              <button type="button" data-value="title">标题</button>
+            </div>
+          </div>
+          <div class="settings__row">
+            <div class="settings__label">
+              <strong>显示摘要</strong>
+              <span>在标题下方显示两行正文预览</span>
+            </div>
+            <button class="switch" type="button" role="switch" data-key="showSnippet"></button>
+          </div>
+        </section>
+
+        <section class="settings__group">
+          <p class="settings__group-title">编辑器</p>
+          <div class="settings__row">
+            <div class="settings__label">
+              <strong>默认打开预览</strong>
+              <span>打开笔记时直接显示渲染结果</span>
+            </div>
+            <button class="switch" type="button" role="switch" data-key="defaultPreview"></button>
           </div>
         </section>
 
@@ -567,7 +635,9 @@ function openSettings() {
     for (const group of backdrop.querySelectorAll('.segmented')) {
       const key = group.dataset.key;
       for (const button of group.querySelectorAll('button')) {
-        const value = key === 'theme' ? button.dataset.value : Number(button.dataset.value);
+        const raw = button.dataset.value;
+        const numeric = key === 'fontSize' || key === 'autoSaveDelay';
+        const value = numeric ? Number(raw) : raw;
         button.classList.toggle('is-active', draft[key] === value);
       }
     }
@@ -590,7 +660,9 @@ function openSettings() {
     const segment = event.target.closest('.segmented button');
     if (segment) {
       const key = segment.parentElement.dataset.key;
-      draft[key] = key === 'theme' ? segment.dataset.value : Number(segment.dataset.value);
+      const raw = segment.dataset.value;
+      const numeric = key === 'fontSize' || key === 'autoSaveDelay';
+      draft[key] = numeric ? Number(raw) : raw;
       applySettings({ ...original, ...draft });
       paint();
       return;

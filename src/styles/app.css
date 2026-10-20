@@ -797,7 +797,7 @@ svg {
 
 .settings {
   width: min(460px, calc(100vw - 48px));
-  max-height: min(560px, calc(100vh - 80px));
+  max-height: min(640px, calc(100vh - 72px));
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-lg);
@@ -951,4 +951,107 @@ svg {
 .settings__actions {
   display: flex;
   gap: 8px;
+}
+
+/* ------------------------------------------------------------------ 代码块高亮 (highlight.js) */
+
+.preview-host pre,
+.preview-host pre code {
+  background: var(--code-bg);
+}
+
+.preview-host pre {
+  border: 1px solid var(--border-subtle);
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--code-comment);
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-section,
+.hljs-link {
+  color: var(--code-keyword);
+}
+
+.hljs-string,
+.hljs-title,
+.hljs-name,
+.hljs-attribute,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition,
+.hljs-template-tag,
+.hljs-template-variable {
+  color: var(--code-string);
+}
+
+.hljs-type,
+.hljs-built_in,
+.hljs-class .hljs-title,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: var(--code-type);
+}
+
+.hljs-number,
+.hljs-meta,
+.hljs-deletion {
+  color: var(--code-number);
+}
+
+.hljs-function .hljs-title,
+.hljs-title.function_,
+.hljs-title.class_,
+.hljs-attr {
+  color: var(--code-function);
+}
+
+.hljs-variable,
+.hljs-property,
+.hljs-params,
+.hljs-operator {
+  color: var(--code-attr);
+}
+
+.hljs-punctuation,
+.hljs-tag {
+  color: var(--code-punct);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------------ 减少动效 */
+
+body.reduce-motion *,
+body.reduce-motion *::before,
+body.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+body.reduce-motion .empty-state__cat {
+  animation: none;
+}
+
+/* ------------------------------------------------------------------ 列表不显示摘要 */
+
+.note-list.hide-snippet .note-item__snippet {
+  display: none;
+}
+
+.note-list.hide-snippet .note-item {
+  padding-top: 9px;
+  padding-bottom: 9px;
 }

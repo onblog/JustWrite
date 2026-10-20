@@ -208,6 +208,7 @@ function createFileService(vault) {
             title,
             snippet,
             mtime: info.mtimeMs,
+            ctime: info.birthtimeMs || info.mtimeMs,
             size: info.size,
           });
         }

@@ -102,6 +102,10 @@ const defaults = {
   autoSaveDelay: 700,
   quitOnAllWindowsClosed: false,
   restoreLastNote: true,
+  sortBy: 'mtime',
+  showSnippet: true,
+  defaultPreview: false,
+  reduceMotion: false,
 };
 
 const mockSettings = { ...defaults };

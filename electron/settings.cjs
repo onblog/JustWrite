@@ -15,6 +15,14 @@ const DEFAULTS = {
   quitOnAllWindowsClosed: false,
   /** re-open the last edited note on launch */
   restoreLastNote: true,
+  /** 'mtime' | 'ctime' | 'title' */
+  sortBy: 'mtime',
+  /** show a two-line preview under each title */
+  showSnippet: true,
+  /** open notes in preview mode by default */
+  defaultPreview: false,
+  /** disable the cat float animation and other transitions */
+  reduceMotion: false,
 };
 
 let cache = null;
@@ -39,6 +47,11 @@ function sanitize(input) {
     out.quitOnAllWindowsClosed = input.quitOnAllWindowsClosed;
   }
   if (typeof input.restoreLastNote === 'boolean') out.restoreLastNote = input.restoreLastNote;
+
+  if (['mtime', 'ctime', 'title'].includes(input.sortBy)) out.sortBy = input.sortBy;
+  if (typeof input.showSnippet === 'boolean') out.showSnippet = input.showSnippet;
+  if (typeof input.defaultPreview === 'boolean') out.defaultPreview = input.defaultPreview;
+  if (typeof input.reduceMotion === 'boolean') out.reduceMotion = input.reduceMotion;
 
   return out;
 }
