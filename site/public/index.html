@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>喵喵笔记 · 本地优先的 Markdown 笔记应用</title>
+    <meta
+      name="description"
+      content="喵喵笔记是一款只支持 macOS 的本地 Markdown 笔记应用：笔记就是 iCloud Drive 里的 .md 文件，多台 Mac 自动同步，没有账号、没有服务器、没有订阅。"
+    />
+    <meta name="theme-color" content="#fbf7f1" />
+    <meta property="og:title" content="喵喵笔记 · 本地优先的 Markdown 笔记应用" />
+    <meta
+      property="og:description"
+      content="笔记就是 iCloud Drive 里的普通 .md 文件，多台 Mac 自动同步。完全免费，不需要登录。"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/assets/icon.svg" />
+    <link rel="icon" href="/assets/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">
+        <img class="brand__icon" src="/assets/icon.svg" alt="" width="26" height="26" />
+        <span class="brand__name" data-i18n="brand">喵喵笔记</span>
+      </a>
+
+      <nav class="topbar__nav">
+        <a class="topbar__link" href="/stats" data-i18n="nav.stats">数据</a>
+        <button class="lang-toggle" id="lang-toggle" type="button" aria-label="切换语言">
+          <span id="lang-label">EN</span>
+        </button>
+        <a class="topbar__link" href="https://github.com/onblog/miaomiao-notes" target="_blank" rel="noreferrer">
+          GitHub
+        </a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <img class="hero__icon" src="/assets/icon.svg" alt="喵喵笔记图标" width="96" height="96" />
+        <h1 class="hero__title" data-i18n="hero.title">喵喵笔记</h1>
+        <p class="hero__tagline" data-i18n="hero.tagline">一只喵喵的本地 Markdown 笔记应用</p>
+        <p class="hero__desc" data-i18n="hero.desc">
+          笔记就是 iCloud Drive 里的普通 .md 文件，多台 Mac 自动同步。完全免费，不需要登录。
+        </p>
+
+        <div class="downloads" id="downloads">
+          <button class="btn btn--primary" type="button" data-arch="arm64">
+            <span class="btn__label" data-i18n="download.arm64">下载 Apple Silicon 版</span>
+            <span class="btn__meta" data-size="arm64"></span>
+          </button>
+          <button class="btn" type="button" data-arch="x64">
+            <span class="btn__label" data-i18n="download.x64">下载 Intel 版</span>
+            <span class="btn__meta" data-size="x64"></span>
+          </button>
+        </div>
+
+
+        <p class="hero__hint" data-i18n="download.hint">
+          macOS 12 及以上 · 首次打开请右键点击应用选择「打开」，之后即可正常双击启动
+        </p>
+        <p class="hero__version" id="version-line"></p>
+      </section>
+
+      <section class="shot">
+        <img
+          class="shot__image"
+          src="/assets/screenshot.png"
+          alt="喵喵笔记界面：左侧文件夹、中间笔记列表、右侧编辑与预览"
+          width="1180"
+          height="780"
+          loading="lazy"
+        />
+      </section>
+
+      <section class="features">
+        <article class="feature">
+          <h2 data-i18n="feature.layout.title">三栏布局</h2>
+          <p data-i18n="feature.layout.desc">
+            文件夹、笔记、内容三列，参考 macOS 备忘录的交互，切换笔记不丢光标位置。
+          </p>
+        </article>
+        <article class="feature">
+          <h2 data-i18n="feature.files.title">笔记就是文件</h2>
+          <p data-i18n="feature.files.desc">
+            每条笔记都是普通 Markdown 文件，随时可以用别的编辑器打开、grep、丢进 Git。
+          </p>
+        </article>
+        <article class="feature">
+          <h2 data-i18n="feature.icloud.title">iCloud 同步</h2>
+          <p data-i18n="feature.icloud.desc">
+            不接第三方同步服务，直接把笔记库放在 iCloud Drive，多台 Mac 由系统自动同步。
+          </p>
+        </article>
+      </section>
+
+      <section class="privacy">
+        <h2 data-i18n="privacy.title">关于隐私</h2>
+        <ul class="privacy__list">
+          <li data-i18n="privacy.p1">应用很干净：只发送一条匿名启动信号（随机设备 ID），可在设置里随时关闭。</li>
+          <li data-i18n="privacy.p2">这个官网没有第三方统计、没有广告、没有 Cookie。</li>
+          <li data-i18n="privacy.p3">不记录 IP、不采集设备指纹，代码全部开源，可以自己审计。</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__left">
+        <span data-i18n="footer.license">AGPL-3.0 · 商业授权</span>
+        <span class="footer__dot">·</span>
+        <a href="https://github.com/onblog/miaomiao-notes" target="_blank" rel="noreferrer">
+          GitHub
+        </a>
+      </div>
+      <div class="footer__right">
+        <span data-i18n="footer.made">为 macOS 而做</span>
+      </div>
+    </footer>
+
+    <div class="dl-backdrop" id="dl-backdrop" hidden>
+      <div class="dl-card" role="dialog" aria-modal="true" aria-labelledby="dl-title">
+        <h3 class="dl-title" id="dl-title">正在下载</h3>
+        <p class="dl-file" id="dl-file"></p>
+        <div class="dl-bar"><i id="dl-fill"></i></div>
+        <div class="dl-meta">
+          <span id="dl-percent">0%</span>
+          <span id="dl-bytes"></span>
+          <span id="dl-speed"></span>
+        </div>
+        <div class="dl-actions">
+          <button class="dl-cancel" id="dl-cancel" type="button">取消</button>
+          <a class="dl-direct" id="dl-direct" href="#" hidden>直接下载</a>
+        </div>
+      </div>
+    </div>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

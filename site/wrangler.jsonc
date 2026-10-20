@@ -1,0 +1,39 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "miaomiao-site",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-03",
+
+  "observability": {
+    "enabled": false
+  },
+
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "miaomiao-stats",
+      "database_id": "99371d55-7367-447c-8a3e-aae166f18249",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "R2_RELEASES",
+      "bucket_name": "miaomiao-releases"
+    }
+  ],
+
+  "routes": [
+    {
+      "pattern": "miao.wordtk.com",
+      "custom_domain": true
+    }
+  ]
+}

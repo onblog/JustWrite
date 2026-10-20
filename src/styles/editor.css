@@ -1,0 +1,91 @@
+/* CodeMirror 6 —— 暖色、无行号、宽松行距的写作界面 */
+
+.cm-editor {
+  height: 100%;
+  background: var(--surface-content);
+  font-family: var(--font-ui);
+  font-size: var(--editor-font-size, 15px);
+  color: var(--text-body);
+}
+
+.cm-editor.cm-focused {
+  outline: none;
+}
+
+.cm-scroller {
+  overflow: auto;
+  font-family: inherit;
+  line-height: 1.85;
+}
+
+.cm-content {
+  padding: 22px 34px 45vh;
+  caret-color: var(--accent-strong);
+  user-select: text;
+}
+
+.cm-line {
+  padding: 0;
+}
+
+.cm-gutters {
+  display: none;
+}
+
+.cm-editor .cm-activeLine,
+.cm-editor .cm-activeLineGutter {
+  background: transparent !important;
+}
+
+.cm-cursor {
+  border-left: 2px solid var(--accent-strong);
+}
+
+.cm-selectionBackground,
+.cm-focused .cm-selectionBackground,
+.cm-content ::selection {
+  background: rgba(240, 138, 93, 0.22) !important;
+}
+
+.cm-placeholder {
+  color: var(--text-faint);
+  font-style: normal;
+}
+
+/* Markdown 语法着色 */
+.cm-editor .tok-heading {
+  color: var(--text-strong);
+  font-weight: 700;
+}
+
+.cm-editor .tok-strong {
+  color: var(--text-strong);
+  font-weight: 700;
+}
+
+.cm-editor .tok-emphasis {
+  font-style: italic;
+}
+
+.cm-editor .tok-link {
+  color: var(--accent-strong);
+}
+
+.cm-editor .tok-url {
+  color: var(--text-faint);
+}
+
+.cm-editor .tok-monospace {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--accent-strong);
+}
+
+.cm-editor .tok-quote {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.cm-editor .tok-list {
+  color: var(--accent);
+}

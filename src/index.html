@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="cream">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data: https: file:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self';"
+    />
+    <title>喵喵笔记</title>
+  </head>
+
+  <body>
+    <div class="app" id="app">
+      <!-- ① 文件夹栏 -->
+      <aside class="sidebar" aria-label="文件夹">
+        <header class="sidebar__header">
+          <div class="drag-region" aria-hidden="true"></div>
+          <div class="brand">
+            <svg class="brand__paw" viewBox="0 0 24 24" aria-hidden="true">
+              <ellipse cx="7" cy="7.5" rx="2.1" ry="2.6" />
+              <ellipse cx="12" cy="6" rx="2.1" ry="2.7" />
+              <ellipse cx="17" cy="7.5" rx="2.1" ry="2.6" />
+              <path
+                d="M12 11.2c2.9 0 5.2 1.9 5.2 4.2 0 2.2-2.3 3.4-5.2 3.4s-5.2-1.2-5.2-3.4c0-2.3 2.3-4.2 5.2-4.2Z"
+              />
+            </svg>
+            <span class="brand__name" data-i18n="app.name">喵喵笔记</span>
+            <button
+              class="icon-button brand__add"
+              id="btn-new-folder"
+              type="button"
+              data-i18n-title="action.newFolder"
+              title="新建文件夹"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <nav class="folder-nav" id="folder-nav" aria-label="文件夹列表"></nav>
+
+        <footer class="sidebar__footer">
+          <button class="ghost-button" id="btn-settings" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="3.2" />
+              <path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M18 6l-1.4 1.4M7.4 16.6 6 18" />
+            </svg>
+            <span data-i18n="action.settings">设置</span>
+          </button>
+          <button class="ghost-button" id="btn-open-vault" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 7h5l2 2h9v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7Z" />
+            </svg>
+            <span data-i18n="action.reveal">在 Finder 中显示</span>
+          </button>
+          <p class="sync-hint" id="sync-hint">iCloud 同步中</p>
+        </footer>
+      </aside>
+
+      <!-- ② 笔记列表栏 -->
+      <section class="notes" aria-label="笔记列表">
+        <header class="notes__header">
+          <h1 class="notes__title" id="notes-title">全部笔记</h1>
+          <button class="icon-button" id="btn-new-note" type="button" data-i18n-title="action.newNote" title="新建笔记 (⌘N)">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </button>
+        </header>
+
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5" />
+            <path d="m16 16 4 4" />
+          </svg>
+          <input id="search-input" type="search" data-i18n-placeholder="list.search" placeholder="搜索笔记" autocomplete="off" />
+        </div>
+
+        <ul class="note-list" id="note-list" aria-label="笔记"></ul>
+      </section>
+
+      <!-- ③ 内容区 -->
+      <main class="content" aria-label="笔记内容">
+        <header class="content__header" id="content-header" hidden>
+          <div class="content__meta">
+            <input class="title-input" id="title-input" type="text" spellcheck="false" />
+            <span class="content__date" id="content-date"></span>
+          </div>
+          <div class="content__actions">
+            <button class="icon-button" id="btn-preview" type="button" data-i18n-title="action.preview" title="预览 (⌘E)">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+                <circle cx="12" cy="12" r="2.6" />
+              </svg>
+            </button>
+            <button class="icon-button" id="btn-more" type="button" data-i18n-title="action.more" title="更多操作">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="5.5" r="1.6" />
+                <circle cx="12" cy="12" r="1.6" />
+                <circle cx="12" cy="18.5" r="1.6" />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <div class="conflict-banner" id="conflict-banner" hidden>
+          <span>检测到 iCloud 冲突副本，内容不会自动合并。</span>
+          <button class="link-button" id="btn-conflict-dismiss" type="button" data-i18n="conflict.dismiss">知道了</button>
+        </div>
+
+        <div class="editor-host" id="editor-host"></div>
+        <article class="preview-host" id="preview-host" hidden></article>
+
+        <div class="empty-state" id="empty-state">
+          <svg class="empty-state__cat" viewBox="0 0 120 120" aria-hidden="true">
+            <ellipse cx="60" cy="96" rx="34" ry="7" class="cat-shadow" />
+            <path
+              class="cat-body"
+              d="M38 74c0-13 10-22 22-22s22 9 22 22c0 9-10 14-22 14s-22-5-22-14Z"
+            />
+            <path class="cat-head" d="M44 46c0-10 7-16 16-16s16 6 16 16-7 16-16 16-16-6-16-16Z" />
+            <path class="cat-ear" d="M44 40 40 26l12 7Z" />
+            <path class="cat-ear" d="M76 40 80 26 68 33Z" />
+            <circle class="cat-eye" cx="54" cy="46" r="2.2" />
+            <circle class="cat-eye" cx="66" cy="46" r="2.2" />
+            <path class="cat-mouth" d="M57 52c1.5 1.6 4.5 1.6 6 0" />
+            <path class="cat-tail" d="M82 84c8-2 12-8 10-14" />
+          </svg>
+          <p class="empty-state__title" data-i18n="empty.title">喵～还没有笔记</p>
+          <p class="empty-state__desc" data-i18n="empty.desc">点右上角「＋」新建一条，或者把 .md 文件拖进 iCloud 文件夹</p>
+          <button class="primary-button" id="btn-empty-new" type="button" data-i18n="empty.cta">新建第一条笔记</button>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

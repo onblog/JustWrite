@@ -1,0 +1,19 @@
+{
+  "name": "miaomiao-site",
+  "version": "1.0.0",
+  "description": "Official site for Miaomiao Notes. 喵喵笔记官网。",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "check": "node --check src/index.js && node --check public/app.js",
+    "release": "node scripts/publish-release.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "4.144.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

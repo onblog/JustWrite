@@ -1,0 +1,34 @@
+appId: com.onblog.miaomiao
+productName: 喵喵笔记
+copyright: Copyright © 2026 onblog
+
+directories:
+  output: release
+  buildResources: build
+
+# 直接使用 node_modules 里已解压的 Electron，避免打包时再下载一次
+electronDist: node_modules/electron/dist
+
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+  - '!**/*.map'
+
+mac:
+  icon: build/icon.icns
+  category: public.app-category.productivity
+  darkModeSupport: false
+  # 架构由命令行 --arm64 / --x64 指定，避免两个 dmg 同时制作时卷名冲突
+  target:
+    - target: dmg
+  # 签名交给 afterPack hook 做 ad-hoc（electron-builder 不认 identity: "-"）
+  identity: null
+  hardenedRuntime: false
+  gatekeeperAssess: false
+
+afterPack: scripts/after-pack.cjs
+
+dmg:
+  title: 喵喵笔记
+  artifactName: miaomiao-notes-${version}-${arch}.${ext}

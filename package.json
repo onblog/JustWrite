@@ -1,0 +1,46 @@
+{
+  "name": "miaomiao-notes",
+  "productName": "喵喵笔记",
+  "version": "1.1.8",
+  "description": "A cute, local-first Markdown notes app for macOS, synced through iCloud Drive. 一只喵喵的本地 Markdown 笔记应用，通过 iCloud Drive 同步。",
+  "main": "electron/main.cjs",
+  "author": "Martin",
+  "license": "AGPL-3.0-only",
+  "repository": "https://github.com/onblog/miaomiao-notes",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n VITE,ELECTRON -c cyan,magenta \"vite\" \"wait-on tcp:5173 && VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
+    "build": "vite build",
+    "start": "npm run build && electron .",
+    "dist": "npm run dist:arm64 && npm run dist:x64",
+    "dist:arm64": "electron-builder --mac --arm64",
+    "dist:x64": "electron-builder --mac --x64",
+    "dist:ulmo": "npm run dist:arm64 && node scripts/compress-dmg.cjs arm64 && npm run dist:x64 && node scripts/compress-dmg.cjs x64"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "highlight.js": "^11.11.1",
+    "katex": "^0.16.15",
+    "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.2.0",
+    "markdown-it-attrs": "^4.3.1",
+    "markdown-it-footnote": "^4.0.0",
+    "markdown-it-task-lists": "^2.1.1",
+    "markdown-it-texmath": "^1.0.0"
+  },
+  "devDependencies": {
+    "@codemirror/lang-markdown": "^6.3.1",
+    "codemirror": "^6.0.1",
+    "concurrently": "^9.1.2",
+    "d3-geo": "^3.1.1",
+    "electron": "33.2.1",
+    "electron-builder": "^25.1.8",
+    "i18n-iso-countries": "^7.14.0",
+    "topojson-client": "^3.1.0",
+    "vite": "^6.0.7",
+    "wait-on": "^8.0.2"
+  }
+}
