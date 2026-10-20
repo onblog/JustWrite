@@ -19,13 +19,15 @@ mac:
   icon: build/icon.icns
   category: public.app-category.productivity
   darkModeSupport: false
+  # 架构由命令行 --arm64 / --x64 指定，避免两个 dmg 同时制作时卷名冲突
   target:
     - target: dmg
-      arch:
-        - arm64
-        - x64
-  # 未签名构建：本地使用可以，分发前需要配置开发者证书
+  # 签名交给 afterPack hook 做 ad-hoc（electron-builder 不认 identity: "-"）
   identity: null
+  hardenedRuntime: false
+  gatekeeperAssess: false
+
+afterPack: scripts/after-pack.cjs
 
 dmg:
   title: 喵喵笔记

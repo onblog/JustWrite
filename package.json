@@ -15,9 +15,10 @@
     "dev": "concurrently -k -n VITE,ELECTRON -c cyan,magenta \"vite\" \"wait-on tcp:5173 && VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
     "build": "vite build",
     "start": "npm run build && electron .",
-    "dist": "npm run build && electron-builder --mac",
-    "dist:arm64": "npm run build && electron-builder --mac --arm64",
-    "dist:x64": "npm run build && electron-builder --mac --x64"
+    "dist": "npm run dist:arm64 && npm run dist:x64",
+    "dist:arm64": "electron-builder --mac --arm64",
+    "dist:x64": "electron-builder --mac --x64",
+    "dist:ulmo": "npm run dist:arm64 && node scripts/compress-dmg.cjs arm64 && npm run dist:x64 && node scripts/compress-dmg.cjs x64"
   },
   "dependencies": {
     "chokidar": "^4.0.3",
