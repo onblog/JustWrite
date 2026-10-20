@@ -5,9 +5,10 @@
  * every other request is served straight from the static asset layer, which
  * keeps the site free and fast.
  *
- * Privacy: this worker keeps no logs, stores no IP addresses, sets no
- * cookies and calls no third parties. The only state it holds is a 60 second
- * in-memory cache of the release manifest.
+ * Privacy: this worker stores no IP addresses, sets no cookies and calls no
+ * third parties. It writes standard Workers Logs for debugging (retained for
+ * a few days by Cloudflare), and its only application state is a 60 second
+ * in-memory cache of the release manifest plus the D1 launch counters.
  */
 
 const MANIFEST_KEY = 'releases/latest.json';

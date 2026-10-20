@@ -29,7 +29,7 @@ almost nothing to host.
 This site deliberately has no third-party anything:
 
 - no analytics, no ads, no cookies, no external fonts or CDNs
-- downloads are not logged by IP; the worker keeps no request logs
+- the worker writes standard Workers Logs (3 day retention) for debugging; it never stores IPs in D1
 - the only state is a 60 second in-memory cache of the release manifest
 
 ## Local development
