@@ -5,6 +5,8 @@ const path = require('node:path');
 const fs = require('node:fs');
 
 const DEFAULTS = {
+  /** 'zh' | 'en' */
+  language: 'zh',
   /** 'light' | 'dark' */
   theme: 'light',
   /** editor font size in px */
@@ -35,6 +37,7 @@ function sanitize(input) {
   const out = { ...DEFAULTS };
   if (!input || typeof input !== 'object') return out;
 
+  if (input.language === 'zh' || input.language === 'en') out.language = input.language;
   if (input.theme === 'light' || input.theme === 'dark') out.theme = input.theme;
 
   const size = Number(input.fontSize);

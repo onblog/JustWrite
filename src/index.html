@@ -25,7 +25,7 @@
                 d="M12 11.2c2.9 0 5.2 1.9 5.2 4.2 0 2.2-2.3 3.4-5.2 3.4s-5.2-1.2-5.2-3.4c0-2.3 2.3-4.2 5.2-4.2Z"
               />
             </svg>
-            <span class="brand__name">喵喵笔记</span>
+            <span class="brand__name" data-i18n="app.name">喵喵笔记</span>
           </div>
         </header>
 
@@ -37,13 +37,13 @@
               <circle cx="12" cy="12" r="3.2" />
               <path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M18 6l-1.4 1.4M7.4 16.6 6 18" />
             </svg>
-            <span>设置</span>
+            <span data-i18n="action.settings">设置</span>
           </button>
           <button class="ghost-button" id="btn-open-vault" type="button">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 7h5l2 2h9v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7Z" />
             </svg>
-            <span>在 Finder 中显示</span>
+            <span data-i18n="action.reveal">在 Finder 中显示</span>
           </button>
           <p class="sync-hint" id="sync-hint">iCloud 同步中</p>
         </footer>
@@ -53,7 +53,7 @@
       <section class="notes" aria-label="笔记列表">
         <header class="notes__header">
           <h1 class="notes__title" id="notes-title">全部笔记</h1>
-          <button class="icon-button" id="btn-new-note" type="button" title="新建笔记 (⌘N)">
+          <button class="icon-button" id="btn-new-note" type="button" data-i18n-title="action.newNote" title="新建笔记 (⌘N)">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 5v14M5 12h14" />
             </svg>
@@ -65,7 +65,7 @@
             <circle cx="11" cy="11" r="6.5" />
             <path d="m16 16 4 4" />
           </svg>
-          <input id="search-input" type="search" placeholder="搜索笔记" autocomplete="off" />
+          <input id="search-input" type="search" data-i18n-placeholder="list.search" placeholder="搜索笔记" autocomplete="off" />
         </div>
 
         <ul class="note-list" id="note-list" aria-label="笔记"></ul>
@@ -79,13 +79,13 @@
             <span class="content__date" id="content-date"></span>
           </div>
           <div class="content__actions">
-            <button class="icon-button" id="btn-preview" type="button" title="预览 (⌘E)">
+            <button class="icon-button" id="btn-preview" type="button" data-i18n-title="action.preview" title="预览 (⌘E)">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
                 <circle cx="12" cy="12" r="2.6" />
               </svg>
             </button>
-            <button class="icon-button" id="btn-more" type="button" title="更多操作">
+            <button class="icon-button" id="btn-more" type="button" data-i18n-title="action.more" title="更多操作">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="5.5" r="1.6" />
                 <circle cx="12" cy="12" r="1.6" />
@@ -97,7 +97,7 @@
 
         <div class="conflict-banner" id="conflict-banner" hidden>
           <span>检测到 iCloud 冲突副本，内容不会自动合并。</span>
-          <button class="link-button" id="btn-conflict-dismiss" type="button">知道了</button>
+          <button class="link-button" id="btn-conflict-dismiss" type="button" data-i18n="conflict.dismiss">知道了</button>
         </div>
 
         <div class="editor-host" id="editor-host"></div>
@@ -118,9 +118,9 @@
             <path class="cat-mouth" d="M57 52c1.5 1.6 4.5 1.6 6 0" />
             <path class="cat-tail" d="M82 84c8-2 12-8 10-14" />
           </svg>
-          <p class="empty-state__title">喵～还没有笔记</p>
-          <p class="empty-state__desc">点右上角「＋」新建一条，或者把 .md 文件拖进 iCloud 文件夹</p>
-          <button class="primary-button" id="btn-empty-new" type="button">新建第一条笔记</button>
+          <p class="empty-state__title" data-i18n="empty.title">喵～还没有笔记</p>
+          <p class="empty-state__desc" data-i18n="empty.desc">点右上角「＋」新建一条，或者把 .md 文件拖进 iCloud 文件夹</p>
+          <button class="primary-button" id="btn-empty-new" type="button" data-i18n="empty.cta">新建第一条笔记</button>
         </div>
       </main>
     </div>

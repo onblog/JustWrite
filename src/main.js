@@ -3,6 +3,7 @@ import './styles/app.css';
 import { createEditor } from './editor.js';
 import { renderMarkdown } from './preview.js';
 import { createMockApi } from './mock-api.js';
+import { t, setLanguage, getLanguage, applyI18n } from './i18n.js';
 
 // In a plain browser (Vite dev without Electron) fall back to in-memory data
 // so the UI can be iterated on without the desktop shell.
@@ -15,6 +16,7 @@ const state = {
   folders: [],
   activeFolder: '',
   activeNote: null,
+  currentMtime: 0,
   query: '',
   dirty: false,
   saving: false,
@@ -65,19 +67,30 @@ function relativeTime(ms) {
   const hour = 60 * minute;
   const day = 24 * hour;
 
-  if (diff < minute) return '刚刚';
-  if (diff < hour) return `${Math.floor(diff / minute)} 分钟前`;
-  if (diff < day) return `${Math.floor(diff / hour)} 小时前`;
-  if (diff < 7 * day) return `${Math.floor(diff / day)} 天前`;
+  if (diff < minute) return t('time.justNow');
+  if (diff < hour) return t('time.minutes', { n: Math.floor(diff / minute) });
+  if (diff < day) return t('time.hours', { n: Math.floor(diff / hour) });
+  if (diff < 7 * day) return t('time.days', { n: Math.floor(diff / day) });
 
   const date = new Date(ms);
-  return `${date.getMonth() + 1} 月 ${date.getDate()} 日`;
+  return t('time.date', { m: date.getMonth() + 1, d: date.getDate() });
 }
 
 function formatDate(ms) {
   if (!ms) return '';
   const date = new Date(ms);
   const pad = (n) => String(n).padStart(2, '0');
+
+  if (getLanguage() === 'en') {
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
   return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(
     date.getHours(),
   )}:${pad(date.getMinutes())}`;
@@ -94,7 +107,7 @@ function folderOf(path) {
 
 /* ---------------------------------------------------------------- modal */
 
-function askInput({ title, value = '', placeholder = '', confirmLabel = '确定' }) {
+function askInput({ title, value = '', placeholder = '', confirmLabel = t('dialog.confirm') }) {
   return new Promise((resolve) => {
     const backdrop = document.createElement('div');
     backdrop.className = 'modal-backdrop';
@@ -158,7 +171,7 @@ function collectFolders() {
 
 function renderFolders() {
   state.folders = collectFolders();
-  const items = [{ name: '全部笔记', path: '' }, ...state.folders.map((path) => ({ name: path, path }))];
+  const items = [{ name: t('list.all'), path: '' }, ...state.folders.map((path) => ({ name: path, path }))];
 
   el.folderNav.replaceChildren();
   for (const item of items) {
@@ -185,6 +198,7 @@ function renderFolders() {
       state.activeFolder = item.path;
       renderFolders();
       renderNotes();
+      el.notesTitle.textContent = item.path ? item.path.split('/').pop() : t('list.all');
     });
     el.folderNav.appendChild(button);
   }
@@ -228,7 +242,7 @@ function renderNotes() {
   if (!notes.length) {
     const empty = document.createElement('li');
     empty.className = 'list-empty';
-    empty.textContent = state.query ? '没有找到相关笔记' : '这里还没有笔记';
+    empty.textContent = state.query ? t('list.noResults') : t('list.empty');
     el.noteList.appendChild(empty);
     return;
   }
@@ -259,7 +273,7 @@ function renderNotes() {
 
     const snippet = document.createElement('div');
     snippet.className = 'note-item__snippet';
-    snippet.textContent = note.snippet || '（空白笔记）';
+    snippet.textContent = note.snippet || t('list.blank');
 
     button.append(title, meta, snippet);
     button.addEventListener('click', () => openNote(note.path));
@@ -272,12 +286,20 @@ function renderNotes() {
   }
 }
 
+function updateSyncHint() {
+  if (!state.vault) return;
+  const name = state.vault.path.split('/').pop();
+  el.syncHint.textContent = state.vault.available
+    ? t('sync.icloud', { name })
+    : t('sync.local');
+}
+
 /* ---------------------------------------------------------------- load */
 
 async function refresh() {
   const result = await api.notes.list();
   if (!result.ok) {
-    toast(result.error || '读取笔记失败', true);
+    toast(result.error || t('toast.loadFailed'), true);
     return;
   }
   state.notes = result.data;
@@ -291,11 +313,12 @@ async function openNote(path) {
 
   const result = await api.notes.read(path);
   if (!result.ok) {
-    toast(result.error || '打开失败', true);
+    toast(result.error || t('toast.openFailed'), true);
     return;
   }
 
   state.activeNote = path;
+  state.currentMtime = result.data.mtime;
   state.dirty = false;
   try {
     localStorage.setItem('miaomiao:last-note', path);
@@ -307,7 +330,7 @@ async function openNote(path) {
   el.contentHeader.hidden = false;
   el.emptyState.hidden = true;
   el.titleInput.value = stemOf(path.split('/').pop());
-  el.contentDate.textContent = `更新于 ${formatDate(result.data.mtime)}`;
+  el.contentDate.textContent = t('note.updated', { time: formatDate(result.data.mtime) });
   const wantPreview = Boolean(state?.settings?.defaultPreview);
   if (wantPreview) {
     el.previewHost.innerHTML = renderMarkdown(result.data.content);
@@ -358,11 +381,12 @@ async function save() {
   state.saving = false;
 
   if (!result.ok) {
-    toast(result.error || '保存失败', true);
+    toast(result.error || t('toast.saveFailed'), true);
     return;
   }
 
   state.dirty = false;
+  state.currentMtime = Date.now();
   const local = state.notes.find((note) => note.path === target);
   if (local) {
     local.mtime = Date.now();
@@ -387,9 +411,9 @@ async function flushSave() {
 }
 
 function showConflict(names) {
-  el.conflictBanner.querySelector('span').textContent = `检测到 iCloud 冲突副本：${names.join(
-    '、',
-  )}。内容不会自动合并，请手动处理。`;
+  el.conflictBanner.querySelector('span').textContent = `${t('conflict.message')} ${names.join(
+    ', ',
+  )}`;
   el.conflictBanner.hidden = false;
 }
 
@@ -398,10 +422,10 @@ function showConflict(names) {
 async function createNote() {
   const folder = state.activeFolder;
   const name = await askInput({
-    title: '新建笔记',
-    placeholder: '给笔记起个名字',
+    title: t('dialog.newNote.title'),
+    placeholder: t('dialog.newNote.placeholder'),
     value: '',
-    confirmLabel: '创建',
+    confirmLabel: t('action.create'),
   });
   if (!name) return;
 
@@ -411,7 +435,7 @@ async function createNote() {
   const path = folder ? `${folder}/${safe}.md` : `${safe}.md`;
   const result = await api.notes.create(path, `# ${safe}\n\n`);
   if (!result.ok) {
-    toast(result.error || '创建失败', true);
+    toast(result.error || t('toast.createFailed'), true);
     return;
   }
 
@@ -422,7 +446,7 @@ async function createNote() {
 async function renameActive() {
   if (!state.activeNote) return;
   const current = stemOf(state.activeNote.split('/').pop());
-  const next = await askInput({ title: '重命名笔记', value: current, confirmLabel: '重命名' });
+  const next = await askInput({ title: t('dialog.rename.title'), value: current, confirmLabel: t('action.rename') });
   if (!next || next === current) return;
 
   const safe = next.replace(/[\\/:*?"<>|]/g, '').trim();
@@ -432,7 +456,7 @@ async function renameActive() {
   const target = folder ? `${folder}/${safe}.md` : `${safe}.md`;
   const result = await api.notes.rename(state.activeNote, target);
   if (!result.ok) {
-    toast(result.error || '重命名失败', true);
+    toast(result.error || t('toast.renameFailed'), true);
     return;
   }
 
@@ -445,16 +469,16 @@ async function renameActive() {
 async function deleteNote(path = state.activeNote) {
   if (!path) return;
   const confirmed = await api.dialog.confirm({
-    title: '删除笔记',
-    message: `确定删除「${stemOf(path.split('/').pop())}」吗？`,
-    detail: '笔记会被移到 .trash 目录，仍然可以手动找回。',
-    confirmLabel: '删除',
+    title: t('dialog.delete.title'),
+    message: t('dialog.delete.message', { name: stemOf(path.split('/').pop()) }),
+    detail: t('dialog.delete.detail'),
+    confirmLabel: t('action.delete'),
   });
   if (!confirmed) return;
 
   const result = await api.notes.remove(path);
   if (!result.ok) {
-    toast(result.error || '删除失败', true);
+    toast(result.error || t('toast.deleteFailed'), true);
     return;
   }
 
@@ -506,8 +530,25 @@ function applySettings(next) {
   document.documentElement.style.setProperty('--editor-font-size', `${next.fontSize}px`);
   document.body.classList.toggle('reduce-motion', Boolean(next.reduceMotion));
 
-  // 让列表立即反映排序与摘要设置，而不是等下次刷新
-  if (el.noteList && state.notes.length) renderNotes();
+  if (next.language) setLanguage(next.language);
+  applyI18n();
+  updateSyncHint();
+
+  // 让列表与文件夹栏立即反映排序、摘要和语言设置
+  if (el.noteList && state.notes.length) {
+    renderFolders();
+    renderNotes();
+  }
+
+  if (el.notesTitle) {
+    el.notesTitle.textContent = state.activeFolder
+      ? state.activeFolder.split('/').pop()
+      : t('list.all');
+  }
+
+  if (state.activeNote && state.currentMtime) {
+    el.contentDate.textContent = t('note.updated', { time: formatDate(state.currentMtime) });
+  }
 }
 
 function openSettings() {
@@ -519,108 +560,118 @@ function openSettings() {
   backdrop.innerHTML = `
     <div class="settings" role="dialog" aria-modal="true">
       <header class="settings__head">
-        <h2 class="settings__title">设置</h2>
+        <h2 class="settings__title">${t('settings.title')}</h2>
       </header>
       <div class="settings__body">
         <section class="settings__group">
-          <p class="settings__group-title">外观</p>
+          <p class="settings__group-title">${t('settings.appearance')}</p>
           <div class="settings__row">
             <div class="settings__label">
-              <strong>主题</strong>
-              <span>决定界面的明暗样式</span>
+              <strong>${t('settings.theme')}</strong>
+              <span>${t('settings.theme.desc')}</span>
             </div>
             <div class="segmented" data-key="theme">
-              <button type="button" data-value="light">浅色</button>
-              <button type="button" data-value="dark">深色</button>
+              <button type="button" data-value="light">${t('settings.theme.light')}</button>
+              <button type="button" data-value="dark">${t('settings.theme.dark')}</button>
             </div>
           </div>
           <div class="settings__row">
             <div class="settings__label">
-              <strong>编辑器字号</strong>
+              <strong>${t('settings.fontSize')}</strong>
               <span class="js-size-label"></span>
             </div>
             <div class="segmented" data-key="fontSize">
-              <button type="button" data-value="13">小</button>
-              <button type="button" data-value="15">中</button>
-              <button type="button" data-value="17">大</button>
+              <button type="button" data-value="13">${t('settings.fontSize.small')}</button>
+              <button type="button" data-value="15">${t('settings.fontSize.medium')}</button>
+              <button type="button" data-value="17">${t('settings.fontSize.large')}</button>
             </div>
           </div>
           <div class="settings__row">
             <div class="settings__label">
-              <strong>减少动效</strong>
-              <span>关闭猫咪漂浮等过渡动画</span>
+              <strong>${t('settings.reduceMotion')}</strong>
+              <span>${t('settings.reduceMotion.desc')}</span>
             </div>
             <button class="switch" type="button" role="switch" data-key="reduceMotion"></button>
+          </div>
+          <div class="settings__row">
+            <div class="settings__label">
+              <strong>${t('settings.language')}</strong>
+              <span>${t('settings.language.desc')}</span>
+            </div>
+            <div class="segmented" data-key="language">
+              <button type="button" data-value="zh">${t('settings.language.zh')}</button>
+              <button type="button" data-value="en">${t('settings.language.en')}</button>
+            </div>
           </div>
         </section>
 
         <section class="settings__group">
-          <p class="settings__group-title">列表</p>
+          <p class="settings__group-title">${t('settings.list')}</p>
           <div class="settings__row">
             <div class="settings__label">
-              <strong>排序方式</strong>
-              <span>决定笔记列表的排列顺序</span>
+              <strong>${t('settings.sortBy')}</strong>
+              <span>${t('settings.sortBy.desc')}</span>
             </div>
             <div class="segmented" data-key="sortBy">
-              <button type="button" data-value="mtime">修改</button>
-              <button type="button" data-value="ctime">创建</button>
-              <button type="button" data-value="title">标题</button>
+              <button type="button" data-value="mtime">${t('settings.sort.mtime')}</button>
+              <button type="button" data-value="ctime">${t('settings.sort.ctime')}</button>
+              <button type="button" data-value="title">${t('settings.sort.title')}</button>
             </div>
           </div>
           <div class="settings__row">
             <div class="settings__label">
-              <strong>显示摘要</strong>
-              <span>在标题下方显示两行正文预览</span>
+              <strong>${t('settings.showSnippet')}</strong>
+              <span>${t('settings.showSnippet.desc')}</span>
             </div>
             <button class="switch" type="button" role="switch" data-key="showSnippet"></button>
           </div>
         </section>
 
         <section class="settings__group">
-          <p class="settings__group-title">编辑器</p>
+          <p class="settings__group-title">${t('settings.editor')}</p>
           <div class="settings__row">
             <div class="settings__label">
-              <strong>默认打开预览</strong>
-              <span>打开笔记时直接显示渲染结果</span>
+              <strong>${t('settings.defaultPreview')}</strong>
+              <span>${t('settings.defaultPreview.desc')}</span>
             </div>
             <button class="switch" type="button" role="switch" data-key="defaultPreview"></button>
           </div>
         </section>
 
         <section class="settings__group">
-          <p class="settings__group-title">行为</p>
+          <p class="settings__group-title">${t('settings.behavior')}</p>
           <div class="settings__row">
             <div class="settings__label">
-              <strong>关闭所有窗口后退出程序</strong>
-              <span>macOS 默认会在后台保留进程</span>
+              <strong>${t('settings.quit')}</strong>
+              <span>${t('settings.quit.desc')}</span>
             </div>
             <button class="switch" type="button" role="switch" data-key="quitOnAllWindowsClosed"></button>
           </div>
           <div class="settings__row">
             <div class="settings__label">
-              <strong>启动时恢复上次笔记</strong>
-              <span>关闭后改为打开列表第一条</span>
+              <strong>${t('settings.restore')}</strong>
+              <span>${t('settings.restore.desc')}</span>
             </div>
             <button class="switch" type="button" role="switch" data-key="restoreLastNote"></button>
           </div>
           <div class="settings__row">
             <div class="settings__label">
-              <strong>自动保存延迟</strong>
+              <strong>${t('settings.autoSave')}</strong>
               <span class="js-delay-label"></span>
             </div>
             <div class="segmented" data-key="autoSaveDelay">
-              <button type="button" data-value="300">快</button>
-              <button type="button" data-value="700">标准</button>
-              <button type="button" data-value="1500">慢</button>
+              <button type="button" data-value="300">${t('settings.autoSave.fast')}</button>
+              <button type="button" data-value="700">${t('settings.autoSave.normal')}</button>
+              <button type="button" data-value="1500">${t('settings.autoSave.slow')}</button>
             </div>
           </div>
         </section>
       </div>
       <footer class="settings__foot">
-        <button class="link-button" type="button" id="settings-reset">恢复默认</button>
+        <button class="link-button" type="button" id="settings-reset">${t('settings.reset')}</button>
         <div class="settings__actions">
-          <button class="modal__cancel" type="button" id="settings-cancel">取消</button>
-          <button class="modal__confirm" type="button" id="settings-save">保存</button>
+          <button class="modal__cancel" type="button" id="settings-cancel">${t('settings.cancel')}</button>
+          <button class="modal__confirm" type="button" id="settings-save">${t('settings.save')}</button>
         </div>
       </footer>
     </div>`;
@@ -759,9 +810,7 @@ async function boot() {
   const info = await api.vault.info();
   if (info.ok) {
     state.vault = info.data;
-    el.syncHint.textContent = info.data.available
-      ? `iCloud 同步 · ${info.data.path.split('/').pop()}`
-      : '未检测到 iCloud，使用本地目录';
+    updateSyncHint();
     el.syncHint.title = info.data.path;
   }
 

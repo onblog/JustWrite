@@ -95,8 +95,10 @@ function registerIpc() {
 
   handle('settings:get', () => settings.read());
   handle('settings:set', (patch) => {
+    const previous = settings.read().language;
     const next = settings.write(patch || {});
     nativeTheme.themeSource = next.theme;
+    if (next.language !== previous) buildMenu();
     for (const win of BrowserWindow.getAllWindows()) {
       win.webContents.send('settings:changed', next);
     }
@@ -157,7 +159,7 @@ function registerIpc() {
   handle('dialog:confirm', async ({ title, message, detail, confirmLabel }) => {
     const result = await dialog.showMessageBox(mainWindow, {
       type: 'question',
-      buttons: [confirmLabel || '确定', '取消'],
+      buttons: [confirmLabel || currentMenuText().ok, currentMenuText().cancel],
       defaultId: 0,
       cancelId: 1,
       title: title || '喵喵笔记',
@@ -170,77 +172,151 @@ function registerIpc() {
 
 /* ------------------------------------------------------------------ menu */
 
+const MENU_TEXT = {
+  zh: {
+    app: '喵喵笔记',
+    about: '关于喵喵笔记',
+    prefs: '偏好设置…',
+    hide: '隐藏喵喵笔记',
+    hideOthers: '隐藏其他',
+    unhide: '全部显示',
+    quit: '退出喵喵笔记',
+    file: '文件',
+    newNote: '新建笔记',
+    reveal: '在 Finder 中显示',
+    close: '关闭窗口',
+    edit: '编辑',
+    undo: '撤销',
+    redo: '重做',
+    cut: '剪切',
+    copy: '复制',
+    paste: '粘贴',
+    selectAll: '全选',
+    view: '视图',
+    reload: '重新加载',
+    devtools: '开发者工具',
+    actualSize: '实际大小',
+    zoomIn: '放大',
+    zoomOut: '缩小',
+    fullscreen: '全屏',
+    window: '窗口',
+    minimize: '最小化',
+    zoom: '缩放',
+    ok: '确定',
+    cancel: '取消',
+  },
+  en: {
+    app: 'Miaomiao Notes',
+    about: 'About Miaomiao Notes',
+    prefs: 'Settings…',
+    hide: 'Hide Miaomiao Notes',
+    hideOthers: 'Hide Others',
+    unhide: 'Show All',
+    quit: 'Quit Miaomiao Notes',
+    file: 'File',
+    newNote: 'New Note',
+    reveal: 'Show in Finder',
+    close: 'Close Window',
+    edit: 'Edit',
+    undo: 'Undo',
+    redo: 'Redo',
+    cut: 'Cut',
+    copy: 'Copy',
+    paste: 'Paste',
+    selectAll: 'Select All',
+    view: 'View',
+    reload: 'Reload',
+    devtools: 'Toggle Developer Tools',
+    actualSize: 'Actual Size',
+    zoomIn: 'Zoom In',
+    zoomOut: 'Zoom Out',
+    fullscreen: 'Toggle Full Screen',
+    window: 'Window',
+    minimize: 'Minimize',
+    zoom: 'Zoom',
+    ok: 'OK',
+    cancel: 'Cancel',
+  },
+};
+
+function currentMenuText() {
+  return MENU_TEXT[settings.read().language === 'en' ? 'en' : 'zh'];
+}
+
 function buildMenu() {
+  const m = currentMenuText();
+
   const template = [
     {
-      label: '喵喵笔记',
+      label: m.app,
       submenu: [
-        { role: 'about', label: '关于喵喵笔记' },
+        { role: 'about', label: m.about },
         { type: 'separator' },
         {
-          label: '偏好设置…',
+          label: m.prefs,
           accelerator: 'CmdOrCtrl+,',
           click: () => mainWindow?.webContents.send('menu:open-settings'),
         },
         { type: 'separator' },
-        { role: 'hide', label: '隐藏喵喵笔记' },
-        { role: 'hideOthers', label: '隐藏其他' },
-        { role: 'unhide', label: '全部显示' },
+        { role: 'hide', label: m.hide },
+        { role: 'hideOthers', label: m.hideOthers },
+        { role: 'unhide', label: m.unhide },
         { type: 'separator' },
-        { role: 'quit', label: '退出喵喵笔记' },
+        { role: 'quit', label: m.quit },
       ],
     },
     {
-      label: '文件',
+      label: m.file,
       submenu: [
         {
-          label: '新建笔记',
+          label: m.newNote,
           accelerator: 'CmdOrCtrl+N',
           click: () => mainWindow?.webContents.send('menu:new-note'),
         },
         {
-          label: '在 Finder 中显示',
+          label: m.reveal,
           click: () => shell.openPath(vaultPath()),
         },
         { type: 'separator' },
-        { role: 'close', label: '关闭窗口' },
+        { role: 'close', label: m.close },
       ],
     },
     {
-      label: '编辑',
+      label: m.edit,
       submenu: [
-        { role: 'undo', label: '撤销' },
-        { role: 'redo', label: '重做' },
+        { role: 'undo', label: m.undo },
+        { role: 'redo', label: m.redo },
         { type: 'separator' },
-        { role: 'cut', label: '剪切' },
-        { role: 'copy', label: '复制' },
-        { role: 'paste', label: '粘贴' },
-        { role: 'selectAll', label: '全选' },
+        { role: 'cut', label: m.cut },
+        { role: 'copy', label: m.copy },
+        { role: 'paste', label: m.paste },
+        { role: 'selectAll', label: m.selectAll },
       ],
     },
     {
-      label: '视图',
+      label: m.view,
       submenu: [
-        { role: 'reload', label: '重新加载' },
-        { role: 'toggleDevTools', label: '开发者工具' },
+        { role: 'reload', label: m.reload },
+        { role: 'toggleDevTools', label: m.devtools },
         { type: 'separator' },
-        { role: 'resetZoom', label: '实际大小' },
-        { role: 'zoomIn', label: '放大' },
-        { role: 'zoomOut', label: '缩小' },
+        { role: 'resetZoom', label: m.actualSize },
+        { role: 'zoomIn', label: m.zoomIn },
+        { role: 'zoomOut', label: m.zoomOut },
         { type: 'separator' },
-        { role: 'togglefullscreen', label: '全屏' },
+        { role: 'togglefullscreen', label: m.fullscreen },
       ],
     },
     {
-      label: '窗口',
-      submenu: [{ role: 'minimize', label: '最小化' }, { role: 'zoom', label: '缩放' }],
+      label: m.window,
+      submenu: [
+        { role: 'minimize', label: m.minimize },
+        { role: 'zoom', label: m.zoom },
+      ],
     },
   ];
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
-
-/* ------------------------------------------------------------------ life */
 
 app.setName('喵喵笔记');
 

@@ -97,6 +97,7 @@ function buildList(store) {
 }
 
 const defaults = {
+  language: 'zh',
   theme: 'light',
   fontSize: 15,
   autoSaveDelay: 700,
