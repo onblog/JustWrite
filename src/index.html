@@ -90,6 +90,19 @@
             <span class="content__date" id="content-date"></span>
           </div>
           <div class="content__actions">
+            <button
+              class="icon-button"
+              id="btn-insert-image"
+              type="button"
+              data-i18n-title="action.insertImage"
+              title="插入图片"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="4.5" width="18" height="15" rx="2.5" />
+                <circle cx="8.5" cy="9.5" r="1.6" />
+                <path d="m4 17 5-5 3.5 3.5L16 12l4 4.5" />
+              </svg>
+            </button>
             <button class="icon-button" id="btn-preview" type="button" data-i18n-title="action.preview" title="预览 (⌘E)">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
@@ -135,6 +148,14 @@
         </div>
       </main>
     </div>
+
+    <input
+      id="image-input"
+      type="file"
+      accept="image/png,image/jpeg,image/gif,image/webp"
+      multiple
+      hidden
+    />
 
     <script type="module" src="./main.js"></script>
   </body>

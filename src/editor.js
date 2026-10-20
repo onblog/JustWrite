@@ -61,6 +61,16 @@ function extensionsFor(onChange, onPasteImage) {
       if (update.docChanged) onChange?.(update.state.doc.toString());
     }),
     EditorView.domEventHandlers({
+      drop(event) {
+        const files = Array.from(event.dataTransfer?.files || []).filter((file) =>
+          file.type.startsWith('image/'),
+        );
+        if (!files.length) return false;
+
+        event.preventDefault();
+        onPasteImage?.(files);
+        return true;
+      },
       paste(event) {
         const items = event.clipboardData?.items;
         if (!items) return false;
@@ -71,7 +81,7 @@ function extensionsFor(onChange, onPasteImage) {
           if (!file) continue;
 
           event.preventDefault();
-          onPasteImage?.(file);
+          onPasteImage?.([file]);
           return true;
         }
         return false;

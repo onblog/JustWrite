@@ -14,6 +14,7 @@ const messages = {
 
     'action.newNote': '新建笔记 (⌘N)',
     'action.newFolder': '新建文件夹',
+    'action.insertImage': '插入图片',
     'action.preview': '预览 (⌘E)',
     'action.more': '更多操作',
     'action.settings': '设置',
@@ -154,6 +155,7 @@ const messages = {
 
     'action.newNote': 'New note (⌘N)',
     'action.newFolder': 'New folder',
+    'action.insertImage': 'Insert image',
     'action.preview': 'Preview (⌘E)',
     'action.more': 'More',
     'action.settings': 'Settings',

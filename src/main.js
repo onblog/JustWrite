@@ -44,7 +44,7 @@ const el = {
 const editor = createEditor({
   parent: el.editorHost,
   onChange: onDocChange,
-  onPasteImage: handlePasteImage,
+  onPasteImage: handleImageFiles,
 });
 
 /* ---------------------------------------------------------------- helpers */
@@ -367,31 +367,40 @@ async function openNote(path) {
 
 /* ---------------------------------------------------------------- save */
 
-/** Read a pasted image, store it next to the note and insert a Markdown link. */
-async function handlePasteImage(file) {
+/** Read pasted or dropped images, store them next to the note, insert links. */
+async function handleImageFiles(fileList) {
+  const files = Array.from(fileList || []).filter((file) => file.type.startsWith('image/'));
+  if (!files.length) return;
+
   if (!state.activeNote) {
     toast(t('toast.needNote'), true);
     return;
   }
 
-  const dataUrl = await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+  let saved = 0;
 
-  const base64 = String(dataUrl).split(',')[1] || '';
-  const subtype = (file.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
-  const result = await api.notes.saveImage(state.activeNote, base64, `.${subtype}`);
+  for (const file of files) {
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
 
-  if (!result.ok) {
-    toast(t('toast.imageFailed'), true);
-    return;
+    const base64 = String(dataUrl).split(',')[1] || '';
+    const subtype = (file.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
+    const result = await api.notes.saveImage(state.activeNote, base64, `.${subtype}`);
+
+    if (!result.ok) {
+      toast(t('toast.imageFailed'), true);
+      continue;
+    }
+
+    editor.insertAtCursor(`\n![图片](${result.data})\n`);
+    saved += 1;
   }
 
-  editor.insertAtCursor(`\n![图片](${result.data})\n`);
-  toast(t('toast.imageSaved'));
+  if (saved) toast(t('toast.imageSaved'));
 }
 
 function noteBaseDir() {
@@ -966,6 +975,16 @@ function openSettings() {
 /* ---------------------------------------------------------------- events */
 
 document.getElementById('btn-new-folder')?.addEventListener('click', createFolder);
+
+document.getElementById('btn-insert-image')?.addEventListener('click', () => {
+  document.getElementById('image-input')?.click();
+});
+
+document.getElementById('image-input')?.addEventListener('change', async (event) => {
+  const input = event.target;
+  if (input.files?.length) await handleImageFiles(input.files);
+  input.value = '';
+});
 
 document.getElementById('btn-new-note').addEventListener('click', createNote);
 document.getElementById('btn-empty-new').addEventListener('click', createNote);
