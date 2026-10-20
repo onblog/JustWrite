@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, shell, dialog, nativeTheme } = require('electron');
 const path = require('node:path');
 
 const {
@@ -10,7 +10,8 @@ const {
   isVaultReady,
   ensureVault,
 } = require('./icloud.cjs');
-const { createFileService, PathError } = require('./files.cjs');
+const { createFileService } = require('./files.cjs');
+const settings = require('./settings.cjs');
 
 // Load the Vite dev server only when explicitly asked, otherwise use dist/.
 const DEV_URL = process.env.VITE_DEV_SERVER_URL;
@@ -26,6 +27,9 @@ function bootServices() {
 }
 
 function createWindow() {
+  const current = settings.read();
+  nativeTheme.themeSource = current.theme;
+
   mainWindow = new BrowserWindow({
     width: 1180,
     height: 780,
@@ -88,6 +92,24 @@ function registerIpc() {
   }));
 
   handle('vault:open', () => shell.openPath(vaultPath()));
+
+  handle('settings:get', () => settings.read());
+  handle('settings:set', (patch) => {
+    const next = settings.write(patch || {});
+    nativeTheme.themeSource = next.theme;
+    for (const win of BrowserWindow.getAllWindows()) {
+      win.webContents.send('settings:changed', next);
+    }
+    return next;
+  });
+  handle('settings:reset', () => {
+    const next = settings.reset();
+    nativeTheme.themeSource = next.theme;
+    for (const win of BrowserWindow.getAllWindows()) {
+      win.webContents.send('settings:changed', next);
+    }
+    return next;
+  });
 
   handle('notes:tree', () => files.tree());
   handle('notes:list', () => files.list());
@@ -154,6 +176,12 @@ function buildMenu() {
       label: '喵喵笔记',
       submenu: [
         { role: 'about', label: '关于喵喵笔记' },
+        { type: 'separator' },
+        {
+          label: '偏好设置…',
+          accelerator: 'CmdOrCtrl+,',
+          click: () => mainWindow?.webContents.send('menu:open-settings'),
+        },
         { type: 'separator' },
         { role: 'hide', label: '隐藏喵喵笔记' },
         { role: 'hideOthers', label: '隐藏其他' },
@@ -228,7 +256,10 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  // macOS 默认保留进程；只有用户在设置里勾选后才退出。
+  if (process.platform !== 'darwin' || settings.read().quitOnAllWindowsClosed) {
+    app.quit();
+  }
 });
 
 process.on('uncaughtException', (error) => {

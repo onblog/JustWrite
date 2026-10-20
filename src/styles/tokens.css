@@ -1,6 +1,32 @@
 /* ------------------------------------------------------------------
-   主题：奶油猫（cream）
-   换肤只需要在这里追加 [data-theme="xxx"] 块，无需改动任何组件样式。
+   设计变量
+   1. :root 放与主题无关的「结构 + 排版」，换肤时不变
+   2. [data-theme='xxx'] 只放颜色
+   换肤只需要新增一个主题颜色块，无需改动任何组件样式。
+   ------------------------------------------------------------------ */
+
+:root {
+  /* 形状 */
+  --radius-sm: 7px;
+  --radius-md: 11px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* 排版 */
+  --font-ui: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace;
+  --font-reading: -apple-system, 'PingFang SC', 'Songti SC', serif;
+  --editor-font-size: 15px;
+
+  /* 布局 */
+  --sidebar-width: 208px;
+  --list-width: 312px;
+  --titlebar-height: 52px;
+}
+
+/* ------------------------------------------------------------------
+   主题：奶油猫（light）
    ------------------------------------------------------------------ */
 
 [data-theme='cream'] {
@@ -39,21 +65,44 @@
   --border-strong: rgba(120, 100, 85, 0.18);
   --shadow-soft: 0 1px 2px rgba(80, 60, 45, 0.04), 0 6px 18px rgba(80, 60, 45, 0.05);
   --shadow-pop: 0 10px 32px rgba(80, 60, 45, 0.14);
+}
 
-  /* 形状 */
-  --radius-sm: 7px;
-  --radius-md: 11px;
-  --radius-lg: 16px;
-  --radius-pill: 999px;
+/* ------------------------------------------------------------------
+   主题：夜猫（dark）
+   同一套语义变量，只是把「纸」换成「夜里的暖木头」。
+   ------------------------------------------------------------------ */
 
-  /* 排版 */
-  --font-ui: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
-    'Microsoft YaHei', sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace;
-  --font-reading: -apple-system, 'PingFang SC', 'Songti SC', serif;
+[data-theme='dark'] {
+  --surface-app: #171412;
+  --surface-sidebar: rgba(38, 32, 27, 0.72);
+  --surface-list: #1c1815;
+  --surface-content: #201c18;
+  --surface-raised: #2a241f;
+  --surface-hover: rgba(245, 145, 98, 0.1);
+  --surface-active: rgba(245, 145, 98, 0.17);
+  --surface-search: rgba(255, 240, 228, 0.07);
 
-  /* 布局 */
-  --sidebar-width: 208px;
-  --list-width: 312px;
-  --titlebar-height: 52px;
+  --text-strong: #f4ece4;
+  --text-body: #d8cec4;
+  --text-muted: #a99d93;
+  --text-faint: #7d726a;
+  --text-inverse: #1a1512;
+
+  --accent: #f59162;
+  --accent-strong: #ffa97d;
+  --accent-soft: #3a2a22;
+  --accent-line: #6b4432;
+
+  --danger: #e5736f;
+  --danger-soft: #3a2220;
+  --warning: #e0a95c;
+  --warning-soft: #3a2e1c;
+  --success: #7bbd8f;
+
+  --border-subtle: rgba(255, 235, 220, 0.08);
+  --border-strong: rgba(255, 235, 220, 0.16);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 18px rgba(0, 0, 0, 0.24);
+  --shadow-pop: 0 10px 32px rgba(0, 0, 0, 0.45);
+
+  color-scheme: dark;
 }

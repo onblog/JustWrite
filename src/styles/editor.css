@@ -4,7 +4,7 @@
   height: 100%;
   background: var(--surface-content);
   font-family: var(--font-ui);
-  font-size: 15px;
+  font-size: var(--editor-font-size, 15px);
   color: var(--text-body);
 }
 
@@ -32,8 +32,9 @@
   display: none;
 }
 
-.cm-activeLine {
-  background: transparent;
+.cm-editor .cm-activeLine,
+.cm-editor .cm-activeLineGutter {
+  background: transparent !important;
 }
 
 .cm-cursor {

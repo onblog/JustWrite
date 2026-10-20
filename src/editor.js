@@ -1,4 +1,4 @@
-import { EditorView, keymap, placeholder, drawSelection, highlightActiveLine } from '@codemirror/view';
+import { EditorView, keymap, placeholder, drawSelection } from '@codemirror/view';
 import { EditorState } from '@codemirror/state';
 import {
   defaultKeymap,
@@ -22,27 +22,26 @@ import { tags } from '@lezer/highlight';
  * 所以这里整套替换掉，保持「纸感」的统一。
  */
 const warmHighlight = HighlightStyle.define([
-  { tag: tags.heading1, color: '#3b3530', fontWeight: '700', fontSize: '1.32em' },
-  { tag: tags.heading2, color: '#3b3530', fontWeight: '700', fontSize: '1.18em' },
-  { tag: tags.heading3, color: '#4a433c', fontWeight: '650', fontSize: '1.08em' },
-  { tag: tags.strong, color: '#3b3530', fontWeight: '700' },
-  { tag: tags.emphasis, fontStyle: 'italic', color: '#5b524b' },
-  { tag: tags.strikethrough, textDecoration: 'line-through', color: '#b3a89f' },
-  { tag: tags.link, color: '#e76f51' },
-  { tag: tags.url, color: '#b3a89f' },
-  { tag: tags.monospace, color: '#c2603f', fontFamily: 'var(--font-mono)' },
-  { tag: tags.quote, color: '#8b8079', fontStyle: 'italic' },
-  { tag: tags.list, color: '#f08a5d' },
-  { tag: tags.processingInstruction, color: '#f0a882' },
-  { tag: tags.contentSeparator, color: '#e5d5c5' },
-  { tag: tags.comment, color: '#b3a89f' },
+  { tag: tags.heading1, color: 'var(--text-strong)', fontWeight: '700', fontSize: '1.32em' },
+  { tag: tags.heading2, color: 'var(--text-strong)', fontWeight: '700', fontSize: '1.18em' },
+  { tag: tags.heading3, color: 'var(--text-body)', fontWeight: '650', fontSize: '1.08em' },
+  { tag: tags.strong, color: 'var(--text-strong)', fontWeight: '700' },
+  { tag: tags.emphasis, fontStyle: 'italic', color: 'var(--text-muted)' },
+  { tag: tags.strikethrough, textDecoration: 'line-through', color: 'var(--text-faint)' },
+  { tag: tags.link, color: 'var(--accent-strong)' },
+  { tag: tags.url, color: 'var(--text-faint)' },
+  { tag: tags.monospace, color: 'var(--accent-strong)', fontFamily: 'var(--font-mono)' },
+  { tag: tags.quote, color: 'var(--text-muted)', fontStyle: 'italic' },
+  { tag: tags.list, color: 'var(--accent)' },
+  { tag: tags.processingInstruction, color: 'var(--accent)' },
+  { tag: tags.contentSeparator, color: 'var(--border-strong)' },
+  { tag: tags.comment, color: 'var(--text-faint)' },
 ]);
 
 function extensionsFor(onChange) {
   return [
     history(),
     drawSelection(),
-    highlightActiveLine(),
     highlightSelectionMatches(),
     bracketMatching(),
     closeBrackets(),

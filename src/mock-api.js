@@ -96,6 +96,16 @@ function buildList(store) {
   }));
 }
 
+const defaults = {
+  theme: 'light',
+  fontSize: 15,
+  autoSaveDelay: 700,
+  quitOnAllWindowsClosed: false,
+  restoreLastNote: true,
+};
+
+const mockSettings = { ...defaults };
+
 export function createMockApi() {
   const store = new Map(seed.map((note) => [note.path, note]));
 
@@ -152,6 +162,19 @@ export function createMockApi() {
       menu: async () => ({ ok: true, data: null }),
     },
     dialog: { confirm: async () => true },
+    settings: {
+      get: async () => ({ ok: true, data: { ...mockSettings } }),
+      set: async (patch) => {
+        Object.assign(mockSettings, patch);
+        return { ok: true, data: { ...mockSettings } };
+      },
+      reset: async () => {
+        Object.assign(mockSettings, defaults);
+        return { ok: true, data: { ...mockSettings } };
+      },
+    },
     onMenuNewNote: () => () => {},
+    onOpenSettings: () => () => {},
+    onSettingsChanged: () => () => {},
   };
 }

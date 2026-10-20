@@ -9,6 +9,7 @@ import { createMockApi } from './mock-api.js';
 const api = window.miaomiao ?? (import.meta.env.DEV ? createMockApi() : null);
 
 const state = {
+  settings: null,
   vault: null,
   notes: [],
   folders: [],
@@ -282,6 +283,11 @@ async function openNote(path) {
 
   state.activeNote = path;
   state.dirty = false;
+  try {
+    localStorage.setItem('miaomiao:last-note', path);
+  } catch {
+    /* storage may be unavailable, not fatal */
+  }
   editor.reset(result.data.content);
 
   el.contentHeader.hidden = false;
@@ -313,7 +319,7 @@ function onDocChange() {
   state.dirty = true;
   renderNotes();
   clearTimeout(state.saveTimer);
-  state.saveTimer = setTimeout(() => save(), 700);
+  state.saveTimer = setTimeout(() => save(), state.settings?.autoSaveDelay ?? 700);
 }
 
 async function save() {
@@ -466,6 +472,164 @@ function togglePreview() {
   document.getElementById('btn-preview').classList.toggle('is-on', state.previewing);
 }
 
+
+/* ---------------------------------------------------------------- settings */
+
+/** Apply settings to the live document. Called on boot and after every change. */
+function applySettings(next) {
+  state.settings = next;
+  document.documentElement.dataset.theme = next.theme === 'dark' ? 'dark' : 'cream';
+  document.documentElement.style.setProperty('--editor-font-size', `${next.fontSize}px`);
+}
+
+function openSettings() {
+  const original = { ...(state.settings || {}) };
+  const draft = { ...original };
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="settings" role="dialog" aria-modal="true">
+      <header class="settings__head">
+        <h2 class="settings__title">设置</h2>
+      </header>
+      <div class="settings__body">
+        <section class="settings__group">
+          <p class="settings__group-title">外观</p>
+          <div class="settings__row">
+            <div class="settings__label">
+              <strong>主题</strong>
+              <span>决定界面的明暗样式</span>
+            </div>
+            <div class="segmented" data-key="theme">
+              <button type="button" data-value="light">浅色</button>
+              <button type="button" data-value="dark">深色</button>
+            </div>
+          </div>
+          <div class="settings__row">
+            <div class="settings__label">
+              <strong>编辑器字号</strong>
+              <span class="js-size-label"></span>
+            </div>
+            <div class="segmented" data-key="fontSize">
+              <button type="button" data-value="13">小</button>
+              <button type="button" data-value="15">中</button>
+              <button type="button" data-value="17">大</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings__group">
+          <p class="settings__group-title">行为</p>
+          <div class="settings__row">
+            <div class="settings__label">
+              <strong>关闭所有窗口后退出程序</strong>
+              <span>macOS 默认会在后台保留进程</span>
+            </div>
+            <button class="switch" type="button" role="switch" data-key="quitOnAllWindowsClosed"></button>
+          </div>
+          <div class="settings__row">
+            <div class="settings__label">
+              <strong>启动时恢复上次笔记</strong>
+              <span>关闭后改为打开列表第一条</span>
+            </div>
+            <button class="switch" type="button" role="switch" data-key="restoreLastNote"></button>
+          </div>
+          <div class="settings__row">
+            <div class="settings__label">
+              <strong>自动保存延迟</strong>
+              <span class="js-delay-label"></span>
+            </div>
+            <div class="segmented" data-key="autoSaveDelay">
+              <button type="button" data-value="300">快</button>
+              <button type="button" data-value="700">标准</button>
+              <button type="button" data-value="1500">慢</button>
+            </div>
+          </div>
+        </section>
+      </div>
+      <footer class="settings__foot">
+        <button class="link-button" type="button" id="settings-reset">恢复默认</button>
+        <div class="settings__actions">
+          <button class="modal__cancel" type="button" id="settings-cancel">取消</button>
+          <button class="modal__confirm" type="button" id="settings-save">保存</button>
+        </div>
+      </footer>
+    </div>`;
+
+  const sizeLabel = backdrop.querySelector('.js-size-label');
+  const delayLabel = backdrop.querySelector('.js-delay-label');
+
+  const paint = () => {
+    sizeLabel.textContent = `${draft.fontSize}px`;
+    delayLabel.textContent = `${draft.autoSaveDelay}ms`;
+
+    for (const group of backdrop.querySelectorAll('.segmented')) {
+      const key = group.dataset.key;
+      for (const button of group.querySelectorAll('button')) {
+        const value = key === 'theme' ? button.dataset.value : Number(button.dataset.value);
+        button.classList.toggle('is-active', draft[key] === value);
+      }
+    }
+    for (const toggle of backdrop.querySelectorAll('.switch')) {
+      toggle.setAttribute('aria-checked', String(Boolean(draft[toggle.dataset.key])));
+    }
+  };
+
+  const close = (applied) => {
+    backdrop.remove();
+    document.removeEventListener('keydown', onKey);
+    if (!applied) applySettings(original);
+  };
+
+  const onKey = (event) => {
+    if (event.key === 'Escape') close(false);
+  };
+
+  backdrop.addEventListener('click', (event) => {
+    const segment = event.target.closest('.segmented button');
+    if (segment) {
+      const key = segment.parentElement.dataset.key;
+      draft[key] = key === 'theme' ? segment.dataset.value : Number(segment.dataset.value);
+      applySettings({ ...original, ...draft });
+      paint();
+      return;
+    }
+
+    const toggle = event.target.closest('.switch');
+    if (toggle) {
+      const key = toggle.dataset.key;
+      draft[key] = !draft[key];
+      paint();
+    }
+  });
+
+  backdrop.querySelector('#settings-cancel').addEventListener('click', () => close(false));
+  backdrop.querySelector('#settings-reset').addEventListener('click', async () => {
+    const result = await api.settings.reset();
+    if (result.ok) {
+      Object.assign(draft, result.data);
+      applySettings(result.data);
+      paint();
+      toast('已恢复默认设置');
+    }
+  });
+  backdrop.querySelector('#settings-save').addEventListener('click', async () => {
+    const result = await api.settings.set(draft);
+    if (!result.ok) {
+      toast(result.error || '保存设置失败', true);
+      return;
+    }
+    applySettings(result.data);
+    close(true);
+    toast('设置已保存');
+  });
+
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(backdrop);
+  paint();
+}
+
 /* ---------------------------------------------------------------- events */
 
 document.getElementById('btn-new-note').addEventListener('click', createNote);
@@ -475,6 +639,9 @@ document.getElementById('btn-more').addEventListener('click', () => {
   if (state.activeNote) noteMenu(state.activeNote);
 });
 
+document.getElementById('btn-settings').addEventListener('click', openSettings);
+api.onOpenSettings(openSettings);
+api.onSettingsChanged((next) => applySettings(next));
 document.getElementById('btn-open-vault').addEventListener('click', () => api.vault.open());
 document.getElementById('btn-conflict-dismiss').addEventListener('click', () => {
   el.conflictBanner.hidden = true;
@@ -510,6 +677,13 @@ api.onMenuNewNote(createNote);
 /* ---------------------------------------------------------------- boot */
 
 async function boot() {
+  const settingsResult = await api.settings.get();
+  applySettings(
+    settingsResult.ok
+      ? settingsResult.data
+      : { theme: 'light', fontSize: 15, autoSaveDelay: 700, restoreLastNote: true },
+  );
+
   const info = await api.vault.info();
   if (info.ok) {
     state.vault = info.data;
@@ -522,7 +696,16 @@ async function boot() {
   await refresh();
 
   if (state.notes.length) {
-    await openNote(state.notes[0].path);
+    let target = state.notes[0].path;
+    if (state.settings.restoreLastNote) {
+      try {
+        const last = localStorage.getItem('miaomiao:last-note');
+        if (last && state.notes.some((note) => note.path === last)) target = last;
+      } catch {
+        /* ignore */
+      }
+    }
+    await openNote(target);
   } else {
     el.emptyState.hidden = false;
     el.contentHeader.hidden = true;

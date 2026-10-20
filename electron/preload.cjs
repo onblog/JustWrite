@@ -32,9 +32,27 @@ contextBridge.exposeInMainWorld('miaomiao', {
     confirm: (options) => ipcRenderer.invoke('dialog:confirm', options),
   },
 
+  settings: {
+    get: () => ipcRenderer.invoke('settings:get'),
+    set: (patch) => ipcRenderer.invoke('settings:set', patch),
+    reset: () => ipcRenderer.invoke('settings:reset'),
+  },
+
   onMenuNewNote: (callback) => {
     const listener = () => callback();
     ipcRenderer.on('menu:new-note', listener);
     return () => ipcRenderer.removeListener('menu:new-note', listener);
+  },
+
+  onOpenSettings: (callback) => {
+    const listener = () => callback();
+    ipcRenderer.on('menu:open-settings', listener);
+    return () => ipcRenderer.removeListener('menu:open-settings', listener);
+  },
+
+  onSettingsChanged: (callback) => {
+    const listener = (_event, next) => callback(next);
+    ipcRenderer.on('settings:changed', listener);
+    return () => ipcRenderer.removeListener('settings:changed', listener);
   },
 });
