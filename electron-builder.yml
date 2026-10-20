@@ -16,6 +16,7 @@ files:
   - '!**/*.map'
 
 mac:
+  icon: build/icon.icns
   category: public.app-category.productivity
   darkModeSupport: false
   target:
