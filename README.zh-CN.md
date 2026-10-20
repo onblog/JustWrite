@@ -58,14 +58,24 @@ iCloud 是最终一致同步。同一篇笔记在两台 Mac 上编辑、且还�
 
 ## 项目结构
 
+这个仓库同时包含应用和官网：
+
 ```
-electron/   主进程：窗口、iCloud 路径、文件读写、原生菜单、IPC
-src/        渲染进程：三栏 UI、CodeMirror 编辑器、Markdown 预览
-src/styles/ 设计变量与主题（换肤只需新增一个 [data-theme] 块）
+electron/      应用主进程：窗口、iCloud 路径、文件读写、原生菜单、IPC
+src/           应用渲染进程：三栏 UI、CodeMirror 编辑器、Markdown 预览
+src/styles/    设计变量与主题（换肤只需新增一个 [data-theme] 块）
+build/         应用图标源文件（SVG + 生成的 icns）
+site/          官网：Cloudflare Worker + 静态资源
 ```
 
 渲染进程不直接碰文件系统，所有能力都通过 `contextBridge` 暴露的窄接口，
 并且开启了 `contextIsolation` 与 sandbox。
+
+## 官网
+
+**<https://miaomiao.wordtk.com>** —— 由 `site/` 构建，静态优先的 Cloudflare
+Worker。只有 `/api/*` 会进 Worker，安装包从 R2 流式下载并支持 Range 断点续传。
+部署步骤见 [site/README.zh-CN.md](site/README.zh-CN.md)。
 
 ## 开源协议
 

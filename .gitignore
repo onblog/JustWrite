@@ -6,3 +6,6 @@ build/icon.svg.png
 .DS_Store
 .trash
 *.log
+site/node_modules
+site/.wrangler
+site/latest.json
