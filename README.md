@@ -59,26 +59,17 @@ before syncing, iCloud creates a copy like `笔记 2.md`. Miaomiao Notes:
 - shows a warning banner in the editor
 - **never merges automatically** — silent merging loses data more often than it saves it
 
-## Repository layout
-
-This single repository holds both the app and its official website:
+## Architecture
 
 ```
-electron/       App main process: window, iCloud paths, file IO, native menu, IPC
-src/            App renderer: three-column UI, CodeMirror editor, Markdown preview
+electron/       Main process: window, iCloud paths, file IO, native menu, IPC
+src/            Renderer: three-column UI, CodeMirror editor, Markdown preview
 src/styles/     Design tokens and theme (a new theme is one [data-theme] block)
 build/          App icon sources (SVG + generated icns)
-site/           Official website: Cloudflare Worker plus static assets
 ```
 
 The renderer never touches the filesystem directly — everything goes through a
 narrow `contextBridge` surface with `contextIsolation` and sandbox enabled.
-
-## Official website
-
-**<https://miaomiao.wordtk.com>** — built from `site/`, a static-first Cloudflare
-Worker. Only `/api/*` reaches the worker; downloads stream from R2 and support
-HTTP range requests. See [site/README.md](site/README.md) for deploy steps.
 
 ## License
 
