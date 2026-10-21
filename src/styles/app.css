@@ -237,11 +237,45 @@ svg {
 /* ------------------------------------------------------------------ notes list */
 
 .notes {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 0;
   background: var(--surface-list);
   border-right: 1px solid var(--border-subtle);
+}
+
+/* 列表与写作区之间的拖拽分隔条：骑在边框上，热区 7px */
+.list-resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -3px;
+  width: 7px;
+  z-index: 3;
+  cursor: col-resize;
+  background: transparent;
+  transition: background 120ms ease;
+}
+
+.list-resizer:hover,
+.list-resizer.is-active {
+  background: var(--accent-line);
+}
+
+.list-resizer:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: -2px;
+}
+
+/* 拖拽期间关闭列宽过渡，否则会跟手不一致 */
+.app.is-resizing {
+  transition: none;
+}
+
+body.is-resizing {
+  cursor: col-resize;
+  user-select: none;
 }
 
 .notes__header {

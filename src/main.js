@@ -33,6 +33,8 @@ const el = {
   notesTitle: document.getElementById('notes-title'),
   search: document.getElementById('search-input'),
   app: document.getElementById('app'),
+  notesPane: document.getElementById('notes-pane'),
+  listResizer: document.getElementById('list-resizer'),
   sidebarToggle: document.getElementById('btn-toggle-sidebar'),
   content: document.getElementById('content'),
   viewButton: document.getElementById('btn-preview'),
@@ -652,6 +654,76 @@ function togglePreview() {
 }
 
 
+/* ------------------------------------------------- 列表宽度拖拽（不持久化） */
+
+const LIST_MIN_WIDTH = 220;
+const LIST_MAX_WIDTH = 520;
+const CONTENT_MIN_WIDTH = 360;
+const LIST_KEY_STEP = 16;
+
+function pxVar(name, fallback) {
+  const raw = parseFloat(getComputedStyle(el.app).getPropertyValue(name));
+  return Number.isFinite(raw) ? raw : fallback;
+}
+
+/** 上限还要保证写作区不被挤到看不见 */
+function listMaxWidth() {
+  const available = el.app.clientWidth - pxVar('--sidebar-width', 208) - CONTENT_MIN_WIDTH;
+  return Math.max(LIST_MIN_WIDTH, Math.min(LIST_MAX_WIDTH, available));
+}
+
+function setListWidth(width) {
+  const clamped = Math.min(Math.max(width, LIST_MIN_WIDTH), listMaxWidth());
+  el.app.style.setProperty('--list-width', `${Math.round(clamped)}px`);
+  return clamped;
+}
+
+/** 双击/回到默认：清掉内联值，让 tokens 与媒体查询重新接管 */
+function resetListWidth() {
+  el.app.style.removeProperty('--list-width');
+}
+
+function startListDrag(event) {
+  if (event.button !== 0) return;
+  event.preventDefault();
+
+  const startX = event.clientX;
+  const startWidth = el.notesPane.getBoundingClientRect().width;
+  el.listResizer.classList.add('is-active');
+  el.app.classList.add('is-resizing');
+  document.body.classList.add('is-resizing');
+  el.listResizer.setPointerCapture(event.pointerId);
+
+  const onMove = (moveEvent) => {
+    setListWidth(startWidth + (moveEvent.clientX - startX));
+  };
+
+  const onEnd = () => {
+    el.listResizer.classList.remove('is-active');
+    el.app.classList.remove('is-resizing');
+    document.body.classList.remove('is-resizing');
+    el.listResizer.removeEventListener('pointermove', onMove);
+    el.listResizer.removeEventListener('pointerup', onEnd);
+    el.listResizer.removeEventListener('pointercancel', onEnd);
+  };
+
+  el.listResizer.addEventListener('pointermove', onMove);
+  el.listResizer.addEventListener('pointerup', onEnd);
+  el.listResizer.addEventListener('pointercancel', onEnd);
+}
+
+function onResizerKey(event) {
+  const step = event.shiftKey ? LIST_KEY_STEP * 3 : LIST_KEY_STEP;
+  const current = el.notesPane.getBoundingClientRect().width;
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault();
+    setListWidth(current - step);
+  } else if (event.key === 'ArrowRight') {
+    event.preventDefault();
+    setListWidth(current + step);
+  }
+}
+
 /* ---------------------------------------------------------------- settings */
 
 /** Apply settings to the live document. Called on boot and after every change. */
@@ -1050,6 +1122,9 @@ document.getElementById('btn-new-note').addEventListener('click', createNote);
 document.getElementById('btn-empty-new').addEventListener('click', createNote);
 el.viewButton.addEventListener('click', cycleView);
 el.sidebarToggle.addEventListener('click', () => setSidebarCollapsed(!state.sidebarCollapsed));
+el.listResizer.addEventListener('pointerdown', startListDrag);
+el.listResizer.addEventListener('keydown', onResizerKey);
+el.listResizer.addEventListener('dblclick', resetListWidth);
 document.getElementById('btn-more').addEventListener('click', () => {
   if (state.activeNote) noteMenu(state.activeNote);
 });
@@ -1085,6 +1160,11 @@ window.addEventListener('keydown', (event) => {
     event.preventDefault();
     togglePreview();
   }
+});
+
+window.addEventListener('resize', () => {
+  const inline = el.app.style.getPropertyValue('--list-width');
+  if (inline) setListWidth(parseFloat(inline) || LIST_MIN_WIDTH);
 });
 
 api.onMenuNewNote(createNote);

@@ -63,7 +63,7 @@
       </aside>
 
       <!-- ② 笔记列表栏 -->
-      <section class="notes" aria-label="笔记列表">
+      <section class="notes" id="notes-pane" aria-label="笔记列表">
         <header class="notes__header">
           <button
             class="icon-button sidebar-toggle"
@@ -95,6 +95,16 @@
         </div>
 
         <ul class="note-list" id="note-list" aria-label="笔记"></ul>
+
+        <!-- 列表与写作区之间的拖拽分隔条（宽度不持久化） -->
+        <div
+          class="list-resizer"
+          id="list-resizer"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="调整笔记列表宽度"
+          tabindex="0"
+        ></div>
       </section>
 
       <!-- ③ 内容区 -->
