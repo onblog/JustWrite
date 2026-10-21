@@ -83,6 +83,16 @@ svg {
   height: 100vh;
   /* 透明背景让 macOS 的 vibrancy 毛玻璃透出来 */
   background: transparent;
+  transition: grid-template-columns 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* 折叠文件夹栏：列宽归零，内容保持原宽被裁切，形成侧滑收起 */
+.app[data-sidebar="collapsed"] {
+  --sidebar-width: 0px;
+}
+
+.app[data-sidebar="collapsed"] .sidebar__inner {
+  pointer-events: none;
 }
 
 .drag-region {
@@ -96,9 +106,18 @@ svg {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
   background: var(--surface-sidebar);
   backdrop-filter: saturate(180%) blur(20px);
   border-right: 1px solid var(--border-subtle);
+}
+
+.sidebar__inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: var(--sidebar-panel-width);
+  min-width: var(--sidebar-panel-width);
 }
 
 .sidebar__header {
@@ -229,9 +248,14 @@ svg {
   flex: none;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 6px;
   padding: 44px 16px 8px;
   -webkit-app-region: drag;
+}
+
+.sidebar-toggle {
+  flex: none;
+  margin-left: -6px;
 }
 
 .notes__header button {
@@ -239,6 +263,8 @@ svg {
 }
 
 .notes__title {
+  flex: 1;
+  min-width: 0;
   margin: 0;
   font-size: 17px;
   font-weight: 680;
@@ -516,8 +542,9 @@ svg {
 
 /* 窄窗口下的分栏：把文件夹栏和列表收窄，避免每栏不足 200px */
 @media (max-width: 1024px) {
-  .app:has(.content[data-view="split"]) {
+  .app:has(.content[data-view="split"]):not([data-sidebar="collapsed"]) {
     --sidebar-width: 180px;
+    --sidebar-panel-width: 180px;
     --list-width: 250px;
   }
 }

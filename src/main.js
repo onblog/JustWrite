@@ -23,6 +23,7 @@ const state = {
   dirty: false,
   saving: false,
   viewMode: 'edit',
+  sidebarCollapsed: false,
   saveTimer: null,
 };
 
@@ -31,6 +32,8 @@ const el = {
   noteList: document.getElementById('note-list'),
   notesTitle: document.getElementById('notes-title'),
   search: document.getElementById('search-input'),
+  app: document.getElementById('app'),
+  sidebarToggle: document.getElementById('btn-toggle-sidebar'),
   content: document.getElementById('content'),
   viewButton: document.getElementById('btn-preview'),
   editorHost: document.getElementById('editor-host'),
@@ -607,6 +610,37 @@ function applyViewMode(mode) {
   }
 }
 
+/* ------------------------------------------------------- 文件夹栏折叠 */
+
+const SIDEBAR_KEY = 'miaomiao:sidebar-collapsed';
+
+function setSidebarCollapsed(collapsed, persist = true) {
+  state.sidebarCollapsed = collapsed;
+  el.app.dataset.sidebar = collapsed ? 'collapsed' : 'expanded';
+
+  const titleKey = collapsed ? 'action.expandSidebar' : 'action.collapseSidebar';
+  el.sidebarToggle.dataset.i18nTitle = titleKey;
+  el.sidebarToggle.title = t(titleKey);
+  el.sidebarToggle.setAttribute('aria-expanded', String(!collapsed));
+
+  if (!persist) return;
+  try {
+    localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0');
+  } catch {
+    /* storage may be unavailable, not fatal */
+  }
+}
+
+function restoreSidebar() {
+  let collapsed = false;
+  try {
+    collapsed = localStorage.getItem(SIDEBAR_KEY) === '1';
+  } catch {
+    /* storage may be unavailable, not fatal */
+  }
+  setSidebarCollapsed(collapsed, false);
+}
+
 function cycleView() {
   const index = VIEW_ORDER.indexOf(state.viewMode);
   applyViewMode(VIEW_ORDER[(index + 1) % VIEW_ORDER.length]);
@@ -1015,6 +1049,7 @@ document.getElementById('image-input')?.addEventListener('change', async (event)
 document.getElementById('btn-new-note').addEventListener('click', createNote);
 document.getElementById('btn-empty-new').addEventListener('click', createNote);
 el.viewButton.addEventListener('click', cycleView);
+el.sidebarToggle.addEventListener('click', () => setSidebarCollapsed(!state.sidebarCollapsed));
 document.getElementById('btn-more').addEventListener('click', () => {
   if (state.activeNote) noteMenu(state.activeNote);
 });
@@ -1080,6 +1115,8 @@ async function boot() {
       ? settingsResult.data
       : { theme: 'light', fontSize: 15, autoSaveDelay: 700, restoreLastNote: true },
   );
+
+  restoreSidebar();
 
   const info = await api.vault.info();
   if (info.ok) {

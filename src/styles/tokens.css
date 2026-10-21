@@ -28,6 +28,8 @@
 
   /* 布局 */
   --sidebar-width: 208px;
+  /* 侧栏展开时的内容宽度：折叠时列宽归零，但内容仍按这个宽度裁切 */
+  --sidebar-panel-width: 208px;
   --list-width: 312px;
   --titlebar-height: 52px;
 }

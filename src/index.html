@@ -14,55 +14,70 @@
     <div class="app" id="app">
       <!-- ① 文件夹栏 -->
       <aside class="sidebar" aria-label="文件夹">
-        <header class="sidebar__header">
-          <div class="drag-region" aria-hidden="true"></div>
-          <div class="brand">
-            <svg class="brand__paw" viewBox="0 0 24 24" aria-hidden="true">
-              <ellipse cx="7" cy="7.5" rx="2.1" ry="2.6" />
-              <ellipse cx="12" cy="6" rx="2.1" ry="2.7" />
-              <ellipse cx="17" cy="7.5" rx="2.1" ry="2.6" />
-              <path
-                d="M12 11.2c2.9 0 5.2 1.9 5.2 4.2 0 2.2-2.3 3.4-5.2 3.4s-5.2-1.2-5.2-3.4c0-2.3 2.3-4.2 5.2-4.2Z"
-              />
-            </svg>
-            <span class="brand__name" data-i18n="app.name">喵喵笔记</span>
-            <button
-              class="icon-button brand__add"
-              id="btn-new-folder"
-              type="button"
-              data-i18n-title="action.newFolder"
-              title="新建文件夹"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 5v14M5 12h14" />
+        <div class="sidebar__inner">
+          <header class="sidebar__header">
+            <div class="drag-region" aria-hidden="true"></div>
+            <div class="brand">
+              <svg class="brand__paw" viewBox="0 0 24 24" aria-hidden="true">
+                <ellipse cx="7" cy="7.5" rx="2.1" ry="2.6" />
+                <ellipse cx="12" cy="6" rx="2.1" ry="2.7" />
+                <ellipse cx="17" cy="7.5" rx="2.1" ry="2.6" />
+                <path
+                  d="M12 11.2c2.9 0 5.2 1.9 5.2 4.2 0 2.2-2.3 3.4-5.2 3.4s-5.2-1.2-5.2-3.4c0-2.3 2.3-4.2 5.2-4.2Z"
+                />
               </svg>
+              <span class="brand__name" data-i18n="app.name">喵喵笔记</span>
+              <button
+                class="icon-button brand__add"
+                id="btn-new-folder"
+                type="button"
+                data-i18n-title="action.newFolder"
+                title="新建文件夹"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </button>
+            </div>
+          </header>
+
+          <nav class="folder-nav" id="folder-nav" aria-label="文件夹列表"></nav>
+
+          <footer class="sidebar__footer">
+            <button class="ghost-button" id="btn-settings" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="3.2" />
+                <path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M18 6l-1.4 1.4M7.4 16.6 6 18" />
+              </svg>
+              <span data-i18n="action.settings">设置</span>
             </button>
-          </div>
-        </header>
-
-        <nav class="folder-nav" id="folder-nav" aria-label="文件夹列表"></nav>
-
-        <footer class="sidebar__footer">
-          <button class="ghost-button" id="btn-settings" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="3.2" />
-              <path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M18 6l-1.4 1.4M7.4 16.6 6 18" />
-            </svg>
-            <span data-i18n="action.settings">设置</span>
-          </button>
-          <button class="ghost-button" id="btn-open-vault" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 7h5l2 2h9v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7Z" />
-            </svg>
-            <span data-i18n="action.reveal">在 Finder 中显示</span>
-          </button>
-          <p class="sync-hint" id="sync-hint">iCloud 同步中</p>
-        </footer>
+            <button class="ghost-button" id="btn-open-vault" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 7h5l2 2h9v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7Z" />
+              </svg>
+              <span data-i18n="action.reveal">在 Finder 中显示</span>
+            </button>
+            <p class="sync-hint" id="sync-hint">iCloud 同步中</p>
+          </footer>
+        </div>
       </aside>
 
       <!-- ② 笔记列表栏 -->
       <section class="notes" aria-label="笔记列表">
         <header class="notes__header">
+          <button
+            class="icon-button sidebar-toggle"
+            id="btn-toggle-sidebar"
+            type="button"
+            aria-expanded="true"
+            data-i18n-title="action.collapseSidebar"
+            title="折叠文件夹"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="4.5" width="18" height="15" rx="2.5" />
+              <path d="M9 4.5v15" />
+            </svg>
+          </button>
           <h1 class="notes__title" id="notes-title">全部笔记</h1>
           <button class="icon-button" id="btn-new-note" type="button" data-i18n-title="action.newNote" title="新建笔记 (⌘N)">
             <svg viewBox="0 0 24 24" aria-hidden="true">
