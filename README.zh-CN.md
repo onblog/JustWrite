@@ -64,7 +64,8 @@
 npm install
 npm run dev      # Vite + Electron 热更新
 npm run start    # 构建一次后启动 Electron
-npm run dist     # 打包 macOS dmg（arm64 + x64）
+npm run dist     # 打包 macOS dmg（arm64 + x64），结束后自动清理旧版本产物
+npm run clean    # 手动清理 release/，只保留当前版本
 ```
 
 ## 笔记存在哪

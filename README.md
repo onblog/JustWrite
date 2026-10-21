@@ -65,7 +65,8 @@ The build is ad-hoc signed, not notarised, so the first launch needs a right cli
 npm install
 npm run dev      # Vite + Electron with hot reload
 npm run start    # build once, then launch Electron
-npm run dist     # package macOS dmg for arm64 and x64
+npm run dist     # package macOS dmg for arm64 and x64 (prunes stale artifacts)
+npm run clean    # keep only the current version in release/
 ```
 
 ## Where notes live
