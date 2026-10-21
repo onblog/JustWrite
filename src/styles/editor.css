@@ -18,10 +18,16 @@
   line-height: 1.85;
 }
 
-.cm-content {
+/* 加 .editor-host 前缀是为了压过 CodeMirror 运行时注入的 `.cm-content{padding:4px 0}` */
+.editor-host .cm-content {
   padding: 22px 34px 45vh;
   caret-color: var(--accent-strong);
   user-select: text;
+}
+
+/* 分栏时左右各让出一点，避免文字贴着中缝 */
+.content[data-view="split"] .editor-host .cm-content {
+  padding: 16px 16px 45vh;
 }
 
 .cm-line {

@@ -22,7 +22,7 @@ const state = {
   query: '',
   dirty: false,
   saving: false,
-  previewing: false,
+  viewMode: 'edit',
   saveTimer: null,
 };
 
@@ -31,6 +31,8 @@ const el = {
   noteList: document.getElementById('note-list'),
   notesTitle: document.getElementById('notes-title'),
   search: document.getElementById('search-input'),
+  content: document.getElementById('content'),
+  viewButton: document.getElementById('btn-preview'),
   editorHost: document.getElementById('editor-host'),
   previewHost: document.getElementById('preview-host'),
   contentHeader: document.getElementById('content-header'),
@@ -340,19 +342,7 @@ async function openNote(path) {
   el.emptyState.hidden = true;
   el.titleInput.value = stemOf(path.split('/').pop());
   el.contentDate.textContent = t('note.updated', { time: formatDate(result.data.mtime) });
-  const wantPreview = Boolean(state?.settings?.defaultPreview);
-  if (wantPreview) {
-    el.previewHost.innerHTML = renderMarkdown(result.data.content, noteBaseDir());
-    el.previewHost.hidden = false;
-    el.editorHost.hidden = true;
-    state.previewing = true;
-    document.getElementById('btn-preview').classList.add('is-on');
-  } else {
-    el.previewHost.hidden = true;
-    el.editorHost.hidden = false;
-    state.previewing = false;
-    document.getElementById('btn-preview').classList.remove('is-on');
-  }
+  applyViewMode(state.settings?.defaultView ?? 'edit');
   el.emptyState.hidden = true;
 
   if (result.data.conflicts?.length) {
@@ -362,7 +352,6 @@ async function openNote(path) {
   }
 
   renderNotes();
-  editor.focus();
 }
 
 /* ---------------------------------------------------------------- save */
@@ -411,7 +400,7 @@ function noteBaseDir() {
 }
 
 function onDocChange() {
-  if (el.previewHost.hidden === false) {
+  if (state.viewMode !== 'edit') {
     el.previewHost.innerHTML = renderMarkdown(editor.getValue(), noteBaseDir());
   }
   if (!state.activeNote) return;
@@ -581,18 +570,51 @@ async function noteMenu(path) {
   }
 }
 
-function togglePreview() {
-  state.previewing = !state.previewing;
-  if (state.previewing) {
+/**
+ * 视图三态循环：只写 → 全屏预览 → 边写边读 → 只写。
+ * 一个按钮承担三态，图标与提示语跟随当前状态（见 styles/app.css 的 .view-toggle）。
+ */
+const VIEW_ORDER = ['edit', 'preview', 'split'];
+
+const VIEW_BUTTON_TITLE = {
+  edit: 'action.preview',
+  preview: 'action.split',
+  split: 'action.exitPreview',
+};
+
+function applyViewMode(mode) {
+  const next = VIEW_ORDER.includes(mode) ? mode : 'edit';
+  state.viewMode = next;
+
+  el.editorHost.hidden = next === 'preview';
+  el.previewHost.hidden = next === 'edit';
+  el.content.dataset.view = next;
+
+  if (next !== 'edit') {
     el.previewHost.innerHTML = renderMarkdown(editor.getValue(), noteBaseDir());
-    el.previewHost.hidden = false;
-    el.editorHost.hidden = true;
-  } else {
-    el.previewHost.hidden = true;
-    el.editorHost.hidden = false;
+  }
+
+  el.viewButton.dataset.view = next;
+  el.viewButton.classList.toggle('is-on', next !== 'edit');
+  const titleKey = VIEW_BUTTON_TITLE[next];
+  el.viewButton.dataset.i18nTitle = titleKey;
+  el.viewButton.title = t(titleKey);
+
+  // 分栏会改变编辑器的可用宽度，交给 CodeMirror 重新测量一次
+  if (next !== 'preview') {
+    requestAnimationFrame(() => editor.requestMeasure());
     editor.focus();
   }
-  document.getElementById('btn-preview').classList.toggle('is-on', state.previewing);
+}
+
+function cycleView() {
+  const index = VIEW_ORDER.indexOf(state.viewMode);
+  applyViewMode(VIEW_ORDER[(index + 1) % VIEW_ORDER.length]);
+}
+
+/** ⌘E 的语义保持不变：全屏预览 ↔ 只写。 */
+function togglePreview() {
+  applyViewMode(state.viewMode === 'preview' ? 'edit' : 'preview');
 }
 
 
@@ -706,10 +728,14 @@ function openSettings() {
           <p class="settings__group-title">${t('settings.editor')}</p>
           <div class="settings__row">
             <div class="settings__label">
-              <strong>${t('settings.defaultPreview')}</strong>
-              <span>${t('settings.defaultPreview.desc')}</span>
+              <strong>${t('settings.defaultView')}</strong>
+              <span>${t('settings.defaultView.desc')}</span>
             </div>
-            <button class="switch" type="button" role="switch" data-key="defaultPreview"></button>
+            <div class="segmented" data-key="defaultView">
+              <button type="button" data-value="edit">${t('settings.defaultView.edit')}</button>
+              <button type="button" data-value="preview">${t('settings.defaultView.preview')}</button>
+              <button type="button" data-value="split">${t('settings.defaultView.split')}</button>
+            </div>
           </div>
         </section>
 
@@ -988,7 +1014,7 @@ document.getElementById('image-input')?.addEventListener('change', async (event)
 
 document.getElementById('btn-new-note').addEventListener('click', createNote);
 document.getElementById('btn-empty-new').addEventListener('click', createNote);
-document.getElementById('btn-preview').addEventListener('click', togglePreview);
+el.viewButton.addEventListener('click', cycleView);
 document.getElementById('btn-more').addEventListener('click', () => {
   if (state.activeNote) noteMenu(state.activeNote);
 });
@@ -1036,6 +1062,7 @@ api.onVaultChanged(async (payload) => {
   state.dirty = false;
   editor.reset('');
   el.contentHeader.hidden = true;
+  applyViewMode('edit');
   el.editorHost.hidden = true;
   el.emptyState.hidden = false;
   await refresh();

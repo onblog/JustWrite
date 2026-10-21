@@ -83,7 +83,7 @@
       </section>
 
       <!-- ③ 内容区 -->
-      <main class="content" aria-label="笔记内容">
+      <main class="content" id="content" data-view="edit" aria-label="笔记内容">
         <header class="content__header" id="content-header" hidden>
           <div class="content__meta">
             <input class="title-input" id="title-input" type="text" spellcheck="false" />
@@ -103,10 +103,22 @@
                 <path d="m4 17 5-5 3.5 3.5L16 12l4 4.5" />
               </svg>
             </button>
-            <button class="icon-button" id="btn-preview" type="button" data-i18n-title="action.preview" title="预览 (⌘E)">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
+            <button
+              class="icon-button view-toggle"
+              id="btn-preview"
+              type="button"
+              data-view="edit"
+              data-i18n-title="action.preview"
+              title="预览 (⌘E)"
+            >
+              <!-- 图标跟随当前视图：只写/全屏预览是眼睛，边写边读是分栏 -->
+              <svg class="view-toggle__eye" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
                 <circle cx="12" cy="12" r="2.6" />
+              </svg>
+              <svg class="view-toggle__split" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="4.5" width="18" height="15" rx="2.5" />
+                <path d="M12 4.5v15" />
               </svg>
             </button>
             <button class="icon-button" id="btn-more" type="button" data-i18n-title="action.more" title="更多操作">

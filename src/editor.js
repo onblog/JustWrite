@@ -113,6 +113,8 @@ export function createEditor({ parent, onChange, onPasteImage }) {
       );
     },
     focus: () => view.focus(),
+    /** Re-measure after the container width changes (split view toggling). */
+    requestMeasure: () => view.requestMeasure(),
     insertAtCursor(text) {
       const range = view.state.selection.main;
       view.dispatch({

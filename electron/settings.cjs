@@ -29,11 +29,13 @@ const DEFAULTS = {
   sortBy: 'mtime',
   /** show a two-line preview under each title */
   showSnippet: true,
-  /** open notes in preview mode by default */
-  defaultPreview: false,
+  /** 'edit' | 'preview' | 'split' — how a note opens */
+  defaultView: 'edit',
   /** disable the cat float animation and other transitions */
   reduceMotion: false,
 };
+
+const VIEW_MODES = ['edit', 'preview', 'split'];
 
 let cache = null;
 
@@ -69,7 +71,12 @@ function sanitize(input) {
 
   if (['mtime', 'ctime', 'title'].includes(input.sortBy)) out.sortBy = input.sortBy;
   if (typeof input.showSnippet === 'boolean') out.showSnippet = input.showSnippet;
-  if (typeof input.defaultPreview === 'boolean') out.defaultPreview = input.defaultPreview;
+  if (VIEW_MODES.includes(input.defaultView)) {
+    out.defaultView = input.defaultView;
+  } else if (typeof input.defaultPreview === 'boolean') {
+    // 1.x stored a bare boolean: true meant "open in preview"
+    out.defaultView = input.defaultPreview ? 'preview' : 'edit';
+  }
   if (typeof input.reduceMotion === 'boolean') out.reduceMotion = input.reduceMotion;
 
   return out;
