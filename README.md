@@ -8,7 +8,7 @@
 <sub>A cute, local-first Markdown notes app for macOS</sub></p>
 
 <p>
-  <a href="https://miao.wordtk.com"><img src="https://img.shields.io/badge/下载-Download-ff7a45?style=for-the-badge" alt="Download" /></a>
+  <a href="https://notes.wordtk.com"><img src="https://img.shields.io/badge/下载-Download-ff7a45?style=for-the-badge" alt="Download" /></a>
   <img src="https://img.shields.io/badge/macOS-12%2B-1f2328?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 12+" />
   <img src="https://img.shields.io/badge/iCloud-Drive-3b82f6?style=for-the-badge&logo=icloud&logoColor=white" alt="iCloud Drive" />
   <img src="https://img.shields.io/badge/license-AGPL--3.0--only-6b7280?style=for-the-badge" alt="AGPL-3.0-only" />
@@ -16,7 +16,7 @@
 
 <p>
   <a href="README.zh-CN.md">🇨🇳 中文</a> ·
-  <a href="https://miao.wordtk.com/stats">📊 Usage</a>
+  <a href="https://notes.wordtk.com/stats">📊 Usage</a>
 </p>
 
 </div>
@@ -53,7 +53,7 @@ Because your notes should be **files**, not someone else's database.
 
 ## Install
 
-Download the latest build from **[miao.wordtk.com](https://miao.wordtk.com)**,
+Download the latest build from **[notes.wordtk.com](https://notes.wordtk.com)**,
 open the dmg and drag the app into Applications.
 
 The build is ad-hoc signed, not notarised, so the first launch needs a right click →

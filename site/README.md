@@ -80,7 +80,7 @@ version up within the 60 second manifest cache. The bucket is created once, by
 hand (`npx wrangler r2 bucket create miaomiao`), and is already declared as the
 `R2_RELEASES` binding in `wrangler.jsonc`.
 
-The custom domain `miao.wordtk.com` is declared in `wrangler.jsonc`; wrangler
+The custom domain `notes.wordtk.com` is declared in `wrangler.jsonc`; wrangler
 creates the DNS record and certificate on first deploy.
 
 ## Project layout

@@ -76,7 +76,7 @@ cd site && npm run release
 桶只需手动建一次（`npx wrangler r2 bucket create miaomiao`），已在
 `wrangler.jsonc` 里声明为 `R2_RELEASES` 绑定。
 
-自定义域名 `miao.wordtk.com` 写在 `wrangler.jsonc` 里，首次部署时 wrangler 会自动建 DNS 记录和证书。
+自定义域名 `notes.wordtk.com` 写在 `wrangler.jsonc` 里，首次部署时 wrangler 会自动建 DNS 记录和证书。
 
 ## 目录结构
 

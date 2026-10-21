@@ -25,7 +25,7 @@ const DEV_URL = process.env.VITE_DEV_SERVER_URL;
  * rather than the person: no hardware, no account, no IP. Users can turn this
  * off in Settings, in which case nothing is ever sent.
  */
-const SITE_URL = 'https://miao.wordtk.com';
+const SITE_URL = 'https://notes.wordtk.com';
 const STATS_URL = `${SITE_URL}/api/ping`;
 const STATS_DELAY_MS = 5000;
 

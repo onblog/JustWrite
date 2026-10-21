@@ -202,7 +202,7 @@ export function createMockApi() {
       version: async () => ({ ok: true, data: { version: '1.1.0', platform: 'darwin' } }),
       checkUpdate: async () => ({
         ok: true,
-        data: { current: '1.1.0', latest: '1.1.0', hasUpdate: false, url: 'https://miao.wordtk.com' },
+        data: { current: '1.1.0', latest: '1.1.0', hasUpdate: false, url: 'https://notes.wordtk.com' },
       }),
       openSite: async () => ({ ok: true }),
       openGithub: async () => ({ ok: true }),

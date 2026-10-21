@@ -8,7 +8,7 @@
 <sub>A cute, local-first Markdown notes app for macOS</sub></p>
 
 <p>
-  <a href="https://miao.wordtk.com"><img src="https://img.shields.io/badge/下载-Download-ff7a45?style=for-the-badge" alt="下载" /></a>
+  <a href="https://notes.wordtk.com"><img src="https://img.shields.io/badge/下载-Download-ff7a45?style=for-the-badge" alt="下载" /></a>
   <img src="https://img.shields.io/badge/macOS-12%2B-1f2328?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 12+" />
   <img src="https://img.shields.io/badge/iCloud-Drive-3b82f6?style=for-the-badge&logo=icloud&logoColor=white" alt="iCloud Drive" />
   <img src="https://img.shields.io/badge/license-AGPL--3.0--only-6b7280?style=for-the-badge" alt="AGPL-3.0-only" />
@@ -16,7 +16,7 @@
 
 <p>
   <a href="README.md">🇺🇸 English</a> ·
-  <a href="https://miao.wordtk.com/stats">📊 使用数据</a>
+  <a href="https://notes.wordtk.com/stats">📊 使用数据</a>
 </p>
 
 </div>
@@ -53,7 +53,7 @@
 
 ## 安装
 
-去 **[miao.wordtk.com](https://miao.wordtk.com)** 下载最新版，打开 dmg
+去 **[notes.wordtk.com](https://notes.wordtk.com)** 下载最新版，打开 dmg
 把应用拖进「应用程序」即可。
 
 构建用的是 ad-hoc 签名、没有公证，所以**首次打开需要右键 → 打开**。之后就能正常双击启动了。

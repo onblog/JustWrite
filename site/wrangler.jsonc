@@ -35,7 +35,7 @@
 
   "routes": [
     {
-      "pattern": "miao.wordtk.com",
+      "pattern": "notes.wordtk.com",
       "custom_domain": true
     }
   ]
