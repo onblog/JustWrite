@@ -52,7 +52,8 @@ svg {
   stroke-linejoin: round;
 }
 
-/* 滚动条：细长、圆角、主题色（颜色来自 tokens 的 --scrollbar-*） */
+/* 滚动条：视觉 1px、圆角、主题色（数值来自 tokens 的 --scrollbar-*）。
+   外框留 4px 只是为了抓得住，滑块用 content-box 裁到 1px，轨道透明。 */
 ::-webkit-scrollbar {
   width: var(--scrollbar-size);
   height: var(--scrollbar-size);
@@ -60,23 +61,18 @@ svg {
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: 99px;
-  /* 不加 border/background-clip：6px 抠掉内边距就只剩 2px，太细了 */
+  border: var(--scrollbar-inset) solid transparent;
+  background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
+  background-clip: content-box;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-corner {
   background: transparent;
-}
-
-/* 编辑器与预览（内容区）再细一档，尽量不抢文字 */
-.editor-host .cm-scroller::-webkit-scrollbar,
-.preview-host::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
 }
 
 /* ------------------------------------------------------------------ shell */
