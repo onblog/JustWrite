@@ -75,6 +75,27 @@ function sizeOf(file) {
   return fs.statSync(file).size;
 }
 
+const UPLOAD_ATTEMPTS = 3;
+
+/**
+ * R2 uploads occasionally die on a transient Cloudflare API timeout. Retrying
+ * matters most for the manifest: until it lands the site keeps announcing the
+ * previous version, even though the new dmgs are already in the bucket.
+ */
+async function upload(localFile, key) {
+  const args = ['r2', 'object', 'put', `${BUCKET}/${key}`, `--file=${localFile}`, '--remote'];
+  for (let attempt = 1; attempt <= UPLOAD_ATTEMPTS; attempt += 1) {
+    try {
+      return await runWrangler(args, /Upload complete/i);
+    } catch (error) {
+      if (attempt === UPLOAD_ATTEMPTS) throw error;
+      const first = String(error.message).split('\n').find((line) => line.trim()) || 'unknown error';
+      console.log(`  attempt ${attempt}/${UPLOAD_ATTEMPTS} failed: ${first.trim()}`);
+      await new Promise((resolve) => setTimeout(resolve, 3000 * attempt));
+    }
+  }
+}
+
 async function main() {
   if (!fs.existsSync(wranglerBin)) {
     throw new Error(`wrangler not installed; run npm install in ${siteDir}`);
@@ -93,10 +114,7 @@ async function main() {
   for (const arch of ARCHES) {
     const { key, name } = files[arch];
     console.log(`uploading ${name} (${(files[arch].size / 1024 / 1024).toFixed(1)} MB)`);
-    await runWrangler(
-      ['r2', 'object', 'put', `${BUCKET}/${key}`, `--file=${path.join(releaseDir, name)}`, '--remote'],
-      /Upload complete/i,
-    );
+    await upload(path.join(releaseDir, name), key);
   }
 
   const manifest = {
@@ -121,10 +139,7 @@ async function main() {
   fs.writeFileSync(manifestPath, body);
   console.log(`wrote ${path.relative(process.cwd(), manifestPath)}`);
 
-  await runWrangler(
-    ['r2', 'object', 'put', `${BUCKET}/releases/latest.json`, `--file=${manifestPath}`, '--remote'],
-    /Upload complete/i,
-  );
+  await upload(manifestPath, 'releases/latest.json');
 
   console.log(`published ${version}: ${ARCHES.join(', ')}`);
 }
