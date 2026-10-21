@@ -108,9 +108,31 @@ const defaults = {
   restoreLastNote: true,
   sortBy: 'mtime',
   showSnippet: true,
-  defaultPreview: false,
+  defaultView: 'edit',
   reduceMotion: false,
 };
+
+/** 目录树：把 store 里的路径折叠成 file.tree() 的同构结构 */
+function buildTree(store) {
+  const root = { children: new Map() };
+  for (const note of store.values()) {
+    const parts = note.path.split('/').slice(0, -1);
+    let node = root;
+    let acc = '';
+    for (const part of parts) {
+      acc = acc ? `${acc}/${part}` : part;
+      if (!node.children.has(part)) node.children.set(part, { path: acc, children: new Map() });
+      node = node.children.get(part);
+    }
+  }
+  const toArray = (node) =>
+    [...node.children.values()].map((child) => ({
+      type: 'dir',
+      path: child.path,
+      children: toArray(child),
+    }));
+  return toArray(root);
+}
 
 const mockSettings = { ...defaults };
 
@@ -130,9 +152,12 @@ export function createMockApi() {
         },
       }),
       open: async () => ({ ok: true }),
+      choose: async () => ({ ok: true, data: '' }),
+      switchTo: async () => ({ ok: true }),
     },
     notes: {
       list: async () => ({ ok: true, data: buildList(store) }),
+      tree: async () => ({ ok: true, data: buildTree(store) }),
       read: async (path) => {
         const note = store.get(path);
         if (!note) return { ok: false, error: 'note not found' };
@@ -196,6 +221,7 @@ export function createMockApi() {
       },
     },
     onMenuNewNote: () => () => {},
+    onVaultChanged: () => () => {},
     onOpenSettings: () => () => {},
     onSettingsChanged: () => () => {},
   };
