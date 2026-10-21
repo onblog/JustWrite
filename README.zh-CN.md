@@ -112,6 +112,6 @@ site/          官网：Cloudflare Worker + 静态资源
 - **开源** —— [AGPL-3.0-only](LICENSE)。可自由使用、修改、自行部署。
   如果你分发修改后的版本，或把它作为网络服务对外提供，AGPL 要求你同样公开对应源码。
 - **商业授权** —— 如果 AGPL 不适合你的产品（例如要发布闭源衍生版本），
-  可购买商业授权，联系 **miao@wordtk.com**。
+  可购买商业授权，联系 **hello@wordtk.com**。
 
 「喵喵笔记 / Miaomiao Notes」名称与猫脸图标不在开源授权范围内。

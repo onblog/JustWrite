@@ -810,7 +810,7 @@ function openSettings() {
             <rect x="3" y="5" width="18" height="14" rx="2.5" />
             <path d="m3.5 7 8.5 6 8.5-6" />
           </svg>
-          <span>miao@wordtk.com</span>
+          <span>hello@wordtk.com</span>
         </button>
         <button class="developer__item" type="button" id="js-github">
           <svg viewBox="0 0 24 24" aria-hidden="true" class="is-filled">

@@ -314,7 +314,7 @@ function registerIpc() {
   });
 
   handle('app:open-email', () => {
-    shell.openExternal('mailto:miao@wordtk.com');
+    shell.openExternal('mailto:hello@wordtk.com');
     return true;
   });
 
@@ -568,7 +568,7 @@ app.whenReady().then(() => {
     applicationName: '喵喵笔记',
     applicationVersion: app.getVersion(),
     copyright: '© 2026 Martin',
-    credits: 'Martin\nmiao@wordtk.com',
+    credits: 'Martin\nhello@wordtk.com',
     authors: ['Martin'],
   });
 

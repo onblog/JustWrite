@@ -117,7 +117,7 @@ Dual-licensed:
   AGPL requires you to publish the corresponding source as well.
 - **Commercial** — if AGPL does not fit your product (for example, you want to
   ship a closed-source derivative), a commercial license is available.
-  Contact **miao@wordtk.com**.
+  Contact **hello@wordtk.com**.
 
 The name "喵喵笔记 / Miaomiao Notes" and the cat icon are not covered by the
 open-source grant.
