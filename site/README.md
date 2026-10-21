@@ -43,8 +43,8 @@ The worker binds a local R2 bucket automatically. To try the download flow:
 
 ```bash
 # create a manifest and push a build into the local bucket
-npx wrangler r2 object put "miaomiao-releases/releases/latest.json" --file=latest.json --local
-npx wrangler r2 object put "miaomiao-releases/releases/miaomiao-notes-1.0.0-arm64.dmg" --file=path/to.dmg --local
+npx wrangler r2 object put "miaomiao/releases/latest.json" --file=latest.json --local
+npx wrangler r2 object put "miaomiao/releases/miaomiao-notes-1.2.1-arm64.dmg" --file=path/to.dmg --local
 ```
 
 ## Release manifest
@@ -54,11 +54,11 @@ latest version is served; uploading a new one replaces the manifest.
 
 ```json
 {
-  "version": "1.0.0",
+  "version": "1.2.1",
   "released_at": "2026-10-20",
   "files": {
-    "arm64": { "key": "releases/miaomiao-notes-1.0.0-arm64.dmg", "name": "miaomiao-notes-1.0.0-arm64.dmg", "size": 104189688 },
-    "x64":   { "key": "releases/miaomiao-notes-1.0.0-x64.dmg",   "name": "miaomiao-notes-1.0.0-x64.dmg",   "size": 104188817 }
+    "arm64": { "key": "releases/miaomiao-notes-1.2.1-arm64.dmg", "name": "miaomiao-notes-1.2.1-arm64.dmg", "size": 103825402 },
+    "x64":   { "key": "releases/miaomiao-notes-1.2.1-x64.dmg",   "name": "miaomiao-notes-1.2.1-x64.dmg",   "size": 111126987 }
   }
 }
 ```
@@ -66,14 +66,19 @@ latest version is served; uploading a new one replaces the manifest.
 ## Deploy
 
 ```bash
-# one-time
-npx wrangler r2 bucket create miaomiao-releases
-npx wrangler r2 object put "miaomiao-releases/releases/latest.json" --file=latest.json --remote
-npx wrangler r2 object put "miaomiao-releases/releases/miaomiao-notes-1.0.0-arm64.dmg" --file=… --remote
-
-# every deploy
+# shipping worker / static asset changes
 npm run deploy
+
+# shipping a new app version (dmgs + manifest, no worker deploy needed)
+cd .. && npm run dist
+cd site && npm run release
 ```
+
+`npm run release` uploads both dmgs from `../release` into the `miaomiao` bucket
+and rewrites `latest.json`, so the site and the in-app update check pick the new
+version up within the 60 second manifest cache. The bucket is created once, by
+hand (`npx wrangler r2 bucket create miaomiao`), and is already declared as the
+`R2_RELEASES` binding in `wrangler.jsonc`.
 
 The custom domain `miao.wordtk.com` is declared in `wrangler.jsonc`; wrangler
 creates the DNS record and certificate on first deploy.

@@ -6,8 +6,9 @@ directories:
   output: release
   buildResources: build
 
-# 直接使用 node_modules 里已解压的 Electron，避免打包时再下载一次
-electronDist: node_modules/electron/dist
+# 不要硬编码 electronDist：node_modules/electron/dist 只有本机架构的内核，
+# 指向它会让 --x64 也产出 arm64 的“假 x64”包。交给 electron-builder 按 arch
+# 自己取内核，已下载过的版本会命中 ~/Library/Caches/electron，不会重复下载。
 
 files:
   - dist/**/*

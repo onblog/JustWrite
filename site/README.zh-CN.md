@@ -41,8 +41,8 @@ npx wrangler dev --port 8799
 本地会自动绑定一个模拟的 R2 桶。想试下载流程：
 
 ```bash
-npx wrangler r2 object put "miaomiao-releases/releases/latest.json" --file=latest.json --local
-npx wrangler r2 object put "miaomiao-releases/releases/miaomiao-notes-1.0.0-arm64.dmg" --file=路径.dmg --local
+npx wrangler r2 object put "miaomiao/releases/latest.json" --file=latest.json --local
+npx wrangler r2 object put "miaomiao/releases/miaomiao-notes-1.2.1-arm64.dmg" --file=路径.dmg --local
 ```
 
 ## 版本清单
@@ -51,11 +51,11 @@ R2 里的 `releases/latest.json` 描述当前版本，只提供最新版；发�
 
 ```json
 {
-  "version": "1.0.0",
+  "version": "1.2.1",
   "released_at": "2026-10-20",
   "files": {
-    "arm64": { "key": "releases/miaomiao-notes-1.0.0-arm64.dmg", "name": "miaomiao-notes-1.0.0-arm64.dmg", "size": 104189688 },
-    "x64":   { "key": "releases/miaomiao-notes-1.0.0-x64.dmg",   "name": "miaomiao-notes-1.0.0-x64.dmg",   "size": 104188817 }
+    "arm64": { "key": "releases/miaomiao-notes-1.2.1-arm64.dmg", "name": "miaomiao-notes-1.2.1-arm64.dmg", "size": 103825402 },
+    "x64":   { "key": "releases/miaomiao-notes-1.2.1-x64.dmg",   "name": "miaomiao-notes-1.2.1-x64.dmg",   "size": 111126987 }
   }
 }
 ```
@@ -63,14 +63,18 @@ R2 里的 `releases/latest.json` 描述当前版本，只提供最新版；发�
 ## 部署
 
 ```bash
-# 首次
-npx wrangler r2 bucket create miaomiao-releases
-npx wrangler r2 object put "miaomiao-releases/releases/latest.json" --file=latest.json --remote
-npx wrangler r2 object put "miaomiao-releases/releases/miaomiao-notes-1.0.0-arm64.dmg" --file=… --remote
-
-# 之后每次
+# 改了 Worker 或静态资源
 npm run deploy
+
+# 发新版 App（只需上传 dmg 和清单，不用重新部署 Worker）
+cd .. && npm run dist
+cd site && npm run release
 ```
+
+`npm run release` 会把 `../release` 里的两个 dmg 传进 `miaomiao` 桶，并重写
+`latest.json`，站点和 App 内的更新检查会在清单 60 秒缓存过期后拿到新版本。
+桶只需手动建一次（`npx wrangler r2 bucket create miaomiao`），已在
+`wrangler.jsonc` 里声明为 `R2_RELEASES` 绑定。
 
 自定义域名 `miao.wordtk.com` 写在 `wrangler.jsonc` 里，首次部署时 wrangler 会自动建 DNS 记录和证书。
 
