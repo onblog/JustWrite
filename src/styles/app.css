@@ -245,7 +245,7 @@ svg {
   border-right: 1px solid var(--border-subtle);
 }
 
-/* 列表与写作区之间的拖拽分隔条：骑在边框上，热区 7px */
+/* 列表与写作区之间的拖拽分隔条：7px 透明热区，视觉只有 1px 细线 */
 .list-resizer {
   position: absolute;
   top: 0;
@@ -255,17 +255,39 @@ svg {
   z-index: 3;
   cursor: col-resize;
   background: transparent;
-  transition: background 120ms ease;
 }
 
-.list-resizer:hover,
-.list-resizer.is-active {
+.list-resizer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
   background: var(--accent-line);
+  opacity: 0;
+  transition: opacity 120ms ease, width 120ms ease;
+}
+
+.list-resizer:hover::after {
+  opacity: 1;
+}
+
+/* 键盘聚焦也走 2px，保证不用鼠标时看得出焦点在哪 */
+.list-resizer:focus-visible::after {
+  width: 2px;
+  opacity: 1;
+}
+
+/* 真正拖动时才加粗一档，提示"正在调整" */
+.list-resizer.is-active::after {
+  width: 2px;
+  opacity: 1;
 }
 
 .list-resizer:focus-visible {
-  outline: 2px solid var(--accent-line);
-  outline-offset: -2px;
+  outline: none;
 }
 
 /* 拖拽期间关闭列宽过渡，否则会跟手不一致 */
