@@ -14,6 +14,7 @@
   "scripts": {
     "dev": "concurrently -k -n VITE,ELECTRON -c cyan,magenta \"vite\" \"wait-on tcp:5173 && VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
     "build": "vite build",
+    "icon": "bash scripts/build-icon.sh",
     "start": "npm run build && electron .",
     "dist": "npm run dist:arm64 && npm run dist:x64",
     "dist:arm64": "electron-builder --mac --arm64",
