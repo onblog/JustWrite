@@ -19,6 +19,11 @@
   --font-reading: -apple-system, 'PingFang SC', 'Songti SC', serif;
   --editor-font-size: 15px;
 
+  /* 滚动条：细一点，颜色跟着主题强调色走（明暗主题自动适配） */
+  --scrollbar-size: 6px;
+  --scrollbar-thumb: color-mix(in srgb, var(--accent-strong) 32%, transparent);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--accent-strong) 60%, transparent);
+
   /* 布局 */
   --sidebar-width: 208px;
   --list-width: 312px;
