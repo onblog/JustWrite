@@ -19,9 +19,9 @@
   --font-reading: -apple-system, 'PingFang SC', 'Songti SC', serif;
   --editor-font-size: 15px;
 
-  /* 滚动条：视觉 1px，颜色跟着主题强调色走（明暗主题自动适配）。
-     外框 4px 只用来保留可抓取区域，滑块靠 content-box 裁切露 1px。 */
-  --scrollbar-size: 3px;
+  /* 滚动条：视觉 2px，颜色跟着主题强调色走（明暗主题自动适配）。
+     外框 4px 只用来保留可抓取区域，滑块靠 content-box 裁切露 2px。 */
+  --scrollbar-size: 4px;
   --scrollbar-inset: 1px;
   --scrollbar-thumb: color-mix(in srgb, var(--accent-strong) 52%, transparent);
   --scrollbar-thumb-hover: color-mix(in srgb, var(--accent-strong) 85%, transparent);
