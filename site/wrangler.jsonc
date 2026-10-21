@@ -20,8 +20,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "miaomiao-stats",
-      "database_id": "99371d55-7367-447c-8a3e-aae166f18249",
+      "database_name": "miaomiao",
+      "database_id": "f49272d0-7529-4e4b-9cdb-b699d9426bd0",
       "migrations_dir": "migrations"
     }
   ],
@@ -29,7 +29,7 @@
   "r2_buckets": [
     {
       "binding": "R2_RELEASES",
-      "bucket_name": "miaomiao-releases"
+      "bucket_name": "miaomiao"
     }
   ],
 
