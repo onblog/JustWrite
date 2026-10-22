@@ -115,6 +115,21 @@ a {
   color: var(--accent-strong);
 }
 
+/* GitHub 链接：图标与文案作为一个整体排列 */
+.topbar__link--github,
+.footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.link-icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  fill: currentColor;
+}
+
 /* ------------------------------------------------------------------ hero */
 
 main {
