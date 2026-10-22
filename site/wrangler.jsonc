@@ -17,11 +17,15 @@
     "run_worker_first": ["/api/*"]
   },
 
+  // 与 sendtk / codetk / miaomiao-bar 共用同一个 D1 库 `common`（免费额度只给 10 个库）。
+  // 本项目的表与索引一律 `notes_` 前缀（notes_launches + idx_notes_launches_*）。
+  // `d1_migrations` 是全库共用的簿记表，按文件名记账，所以 migrations/ 里的文件名必须
+  // 带项目名（现在是 0001_notes_init.sql），否则会与 sendtk 的同名迁移互相顶掉。
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "miaomiao",
-      "database_id": "f49272d0-7529-4e4b-9cdb-b699d9426bd0",
+      "database_name": "common",
+      "database_id": "ba170df9-05e6-427e-a081-099306e7fc77",
       "migrations_dir": "migrations"
     }
   ],

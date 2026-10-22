@@ -183,7 +183,7 @@ async function handlePing(request, env) {
 
   try {
     await env.DB.prepare(
-      `INSERT INTO launches (device_id, date, country, region, city, created_at)
+      `INSERT INTO notes_launches (device_id, date, country, region, city, created_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
     )
       .bind(device, utcDate(), country, region, city, Date.now())
@@ -202,16 +202,16 @@ async function handleStats(env) {
   const weekAgo = new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10);
 
   const [total, todayRow, weekRow, cities, countries, daily] = await Promise.all([
-    env.DB.prepare('SELECT COUNT(DISTINCT device_id) AS n FROM launches').first(),
-    env.DB.prepare('SELECT COUNT(DISTINCT device_id) AS n FROM launches WHERE date = ?')
+    env.DB.prepare('SELECT COUNT(DISTINCT device_id) AS n FROM notes_launches').first(),
+    env.DB.prepare('SELECT COUNT(DISTINCT device_id) AS n FROM notes_launches WHERE date = ?')
       .bind(today)
       .first(),
-    env.DB.prepare('SELECT COUNT(DISTINCT device_id) AS n FROM launches WHERE date >= ?')
+    env.DB.prepare('SELECT COUNT(DISTINCT device_id) AS n FROM notes_launches WHERE date >= ?')
       .bind(weekAgo)
       .first(),
     env.DB.prepare(
       `SELECT city, country, COUNT(DISTINCT device_id) AS devices
-       FROM launches
+       FROM notes_launches
        WHERE city IS NOT NULL AND city != ''
        GROUP BY city, country
        ORDER BY devices DESC, city ASC
@@ -219,14 +219,14 @@ async function handleStats(env) {
     ).all(),
     env.DB.prepare(
       `SELECT country, COUNT(DISTINCT device_id) AS devices
-       FROM launches
+       FROM notes_launches
        WHERE country IS NOT NULL AND country != ''
        GROUP BY country
        ORDER BY devices DESC`,
     ).all(),
     env.DB.prepare(
       `SELECT date, COUNT(DISTINCT device_id) AS uv
-       FROM launches
+       FROM notes_launches
        GROUP BY date
        ORDER BY date DESC
        LIMIT 30`,
