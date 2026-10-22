@@ -105,7 +105,8 @@
   --text-strong: #f4ece4;
   --text-body: #d8cec4;
   --text-muted: #a99d93;
-  --text-faint: #7d726a;
+  /* 3.3–3.9:1 在深色底上看不清，提到 ~5.4:1（WCAG AA） */
+  --text-faint: #9b8f86;
   --text-inverse: #1a1512;
 
   --accent: #f59162;
@@ -129,11 +130,11 @@
   --code-keyword: #f59162;
   --code-string: #9fc08a;
   --code-number: #e0b070;
-  --code-comment: #7d726a;
+  --code-comment: #9a8e85;
   --code-function: #c3a6f0;
   --code-type: #7fc8d6;
   --code-attr: #d9a07a;
-  --code-punct: #8b8079;
+  --code-punct: #9a8e85;
 
   color-scheme: dark;
 }

@@ -21,6 +21,8 @@ body {
   font-size: 14px;
   color: var(--text-body);
   background: transparent;
+  /* 输入光标统一用强调色，深色主题下也看得见（编辑器另有 .cm-cursor） */
+  caret-color: var(--accent-strong);
   -webkit-font-smoothing: antialiased;
   user-select: none;
 }

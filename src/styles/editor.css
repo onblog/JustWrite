@@ -43,7 +43,10 @@
   background: transparent !important;
 }
 
-.cm-cursor {
+/* 加 .editor-host 前缀压过 CodeMirror 注入的 `.cm-cursor{border-left:1.2px solid black}`，
+   否则深色主题下光标仍是黑色，几乎看不见 */
+.editor-host .cm-cursor,
+.editor-host .cm-dropCursor {
   border-left: 2px solid var(--accent-strong);
 }
 
