@@ -45,8 +45,9 @@ npx wrangler dev --port 8799
 本地会自动绑定一个模拟的 R2 桶。想试下载流程：
 
 ```bash
-npx wrangler r2 object put "miaomiao/releases/latest.json" --file=latest.json --local
-npx wrangler r2 object put "miaomiao/releases/miaomiao-notes-1.2.1-arm64.dmg" --file=路径.dmg --local
+# 写进本地的共用的 `common` 桶，key 带本项目 `miaomiao-notes/` 前缀
+npx wrangler r2 object put "common/miaomiao-notes/releases/latest.json" --file=latest.json --local
+npx wrangler r2 object put "common/miaomiao-notes/releases/miaomiao-notes-1.2.1-arm64.dmg" --file=路径.dmg --local
 ```
 
 ## 版本清单
@@ -79,8 +80,8 @@ cd site && npm run release
 `latest.json`，站点和 App 内的更新检查会在清单 60 秒缓存过期后拿到新版本。
 上传完成后它会**删掉上一版清单里指向的两个 dmg**，让桶里只保留当前在用的版本；
 顺序是刻意安排的：只有新清单已经生效才清理旧包，避免客户端解析到已被删除的文件。
-桶只需手动建一次（`npx wrangler r2 bucket create miaomiao`），已在
-`wrangler.jsonc` 里声明为 `R2_RELEASES` 绑定。
+桶用的是共用的 `common` 桶（手动建一次，账号下所有项目都复用它，本项目只写
+`miaomiao-notes/` 前缀下的对象），已在 `wrangler.jsonc` 里声明为 `R2_RELEASES` 绑定。
 
 自定义域名 `notes.wordtk.com` 写在 `wrangler.jsonc` 里，首次部署时 wrangler 会自动建 DNS 记录和证书。
 

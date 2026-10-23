@@ -11,7 +11,10 @@
  * in-memory cache of the release manifest plus the D1 launch counters.
  */
 
-const MANIFEST_KEY = 'releases/latest.json';
+// The bucket (`common`) is shared with the other projects, so every key carries
+// this project's prefix: common → miaomiao-notes/releases/latest.json.
+const KEY_PREFIX = 'miaomiao-notes/';
+const MANIFEST_KEY = `${KEY_PREFIX}releases/latest.json`;
 const CACHE_TTL_MS = 60_000;
 const ALLOWED_ARCH = new Set(['arm64', 'x64']);
 

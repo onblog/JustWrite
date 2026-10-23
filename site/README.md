@@ -47,8 +47,9 @@ The worker binds a local R2 bucket automatically. To try the download flow:
 
 ```bash
 # create a manifest and push a build into the local bucket
-npx wrangler r2 object put "miaomiao/releases/latest.json" --file=latest.json --local
-npx wrangler r2 object put "miaomiao/releases/miaomiao-notes-1.2.1-arm64.dmg" --file=path/to.dmg --local
+# (the shared `common` bucket, with this project's `miaomiao-notes/` prefix)
+npx wrangler r2 object put "common/miaomiao-notes/releases/latest.json" --file=latest.json --local
+npx wrangler r2 object put "common/miaomiao-notes/releases/miaomiao-notes-1.2.1-arm64.dmg" --file=path/to.dmg --local
 ```
 
 ## Release manifest
@@ -83,9 +84,10 @@ and rewrites `latest.json`, so the site and the in-app update check pick the new
 version up within the 60 second manifest cache. It then **deletes the dmgs the
 previous manifest pointed at**, so the bucket only ever holds the live version —
 the order is deliberate: prune runs only after the new manifest is in place, so
-no client can ever resolve to a file that has already been removed. The bucket is created once, by
-hand (`npx wrangler r2 bucket create miaomiao`), and is already declared as the
-`R2_RELEASES` binding in `wrangler.jsonc`.
+no client can ever resolve to a file that has already been removed. The bucket is
+the shared `common` bucket (created once by hand, reused by every project on the
+account; this one only writes under the `miaomiao-notes/` prefix), and is already
+declared as the `R2_RELEASES` binding in `wrangler.jsonc`.
 
 The custom domain `notes.wordtk.com` is declared in `wrangler.jsonc`; wrangler
 creates the DNS record and certificate on first deploy.

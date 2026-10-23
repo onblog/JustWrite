@@ -30,10 +30,12 @@
     }
   ],
 
+  // 安装包放在共用的 R2 桶 `common` 里（onblog / miaomiao-bar 也用它），
+  // 对象 key 一律带 `miaomiao-notes/` 前缀，避免与其他项目撞名。
   "r2_buckets": [
     {
       "binding": "R2_RELEASES",
-      "bucket_name": "miaomiao"
+      "bucket_name": "common"
     }
   ],
 

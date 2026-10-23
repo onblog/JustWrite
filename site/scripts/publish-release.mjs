@@ -2,9 +2,9 @@
 /**
  * Publish the packaged dmgs to R2 and point the site at the new version.
  *
- *   1. upload release/miaomiao-notes-<version>-<arch>.dmg -> R2 releases/
+ *   1. upload release/miaomiao-notes-<version>-<arch>.dmg -> R2 common/miaomiao-notes/releases/
  *   2. rewrite site/latest.json (the manifest the Worker serves)
- *   3. upload the manifest -> R2 releases/latest.json
+ *   3. upload the manifest -> R2 common/miaomiao-notes/releases/latest.json
  *   4. delete the dmgs the previous manifest pointed at (old versions)
  *
  * Run `npm run dist` first, then `npm run release` from site/. The worker code
@@ -14,6 +14,9 @@
  * R2 keeps only the live version: the bucket must not accumulate installers
  * nobody can reach any more. Pruning is driven by the manifest that is replaced
  * on disk, so it needs no bucket listing (wrangler has no `r2 object list`).
+ *
+ * The `common` bucket is shared with onblog and miaomiao-bar, so every object key
+ * carries the `miaomiao-notes/` prefix (see KEY_PREFIX below).
  */
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
@@ -23,7 +26,9 @@ const siteDir = path.resolve(import.meta.dirname, '..');
 const repoDir = path.resolve(siteDir, '..');
 const releaseDir = path.join(repoDir, 'release');
 const wranglerBin = path.join(siteDir, 'node_modules', '.bin', 'wrangler');
-const BUCKET = 'miaomiao';
+const BUCKET = 'common';
+/** Shared-bucket namespace: must match KEY_PREFIX in src/index.js. */
+const KEY_PREFIX = 'miaomiao-notes/';
 const ARCHES = ['arm64', 'x64'];
 
 const { version } = JSON.parse(
@@ -166,7 +171,7 @@ async function main() {
     if (!fs.existsSync(file)) {
       throw new Error(`missing ${file}; run "npm run dist" first`);
     }
-    files[arch] = { key: `releases/${name}`, name, size: sizeOf(file) };
+    files[arch] = { key: `${KEY_PREFIX}releases/${name}`, name, size: sizeOf(file) };
   }
 
   for (const arch of ARCHES) {
@@ -196,7 +201,7 @@ async function main() {
   fs.writeFileSync(manifestPath, body);
   console.log(`wrote ${path.relative(process.cwd(), manifestPath)}`);
 
-  await upload(manifestPath, 'releases/latest.json');
+  await upload(manifestPath, `${KEY_PREFIX}releases/latest.json`);
 
   console.log('removing older installers');
   await prune(previousKeys, Object.values(files).map((file) => file.key));
