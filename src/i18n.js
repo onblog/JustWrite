@@ -126,8 +126,8 @@ const messages = {
 
     'settings.support': '支持',
     'settings.developerProfile': '在 GitHub 上查看作者',
-    'settings.sponsor.title': '喜欢喵喵笔记？',
-    'settings.sponsor.desc': '去 GitHub 点个 Star 喵～',
+    'settings.sponsor.title': '请我喝杯咖啡？',
+    'settings.sponsor.desc': '赏一杯咖啡，喵喵就能继续写下去 喵～',
     'settings.storage': '存储',
     'settings.vault': '笔记库位置',
     'settings.vault.change': '更改位置',
@@ -275,8 +275,8 @@ const messages = {
 
     'settings.support': 'Support',
     'settings.developerProfile': 'View the author on GitHub',
-    'settings.sponsor.title': 'Enjoying Miaomiao Notes?',
-    'settings.sponsor.desc': 'Drop a star on GitHub',
+    'settings.sponsor.title': 'Buy me a coffee?',
+    'settings.sponsor.desc': 'A cup keeps the cat writing 喵～',
     'settings.storage': 'Storage',
     'settings.vault': 'Library location',
     'settings.vault.change': 'Change',
