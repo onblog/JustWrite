@@ -25,7 +25,8 @@ const DEV_URL = process.env.VITE_DEV_SERVER_URL;
  * rather than the person: no hardware, no account, no IP. Users can turn this
  * off in Settings, in which case nothing is ever sent.
  */
-const SITE_URL = 'https://notes.wordtk.com';
+// 官网地址由打包环境注入（SITE_URL），仓库里不写死线上域名。
+const SITE_URL = process.env.SITE_URL ?? '';
 const STATS_URL = `${SITE_URL}/api/ping`;
 const STATS_DELAY_MS = 5000;
 

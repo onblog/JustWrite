@@ -9,3 +9,6 @@ build/icon.svg.png
 site/node_modules
 site/.wrangler
 site/latest.json
+
+# Local environment (never commit the production domain)
+.env

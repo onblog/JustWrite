@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://notes.wordtk.com/sitemap.xml
