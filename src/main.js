@@ -936,7 +936,15 @@ function openSettings() {
         </section>
       </div>
       <div class="settings__developer">
-        <span class="developer__name">Martin</span>
+        <button
+          class="developer__name"
+          type="button"
+          id="js-profile"
+          data-i18n-title="settings.developerProfile"
+          title="在 GitHub 上查看作者"
+        >
+          Martin
+        </button>
         <button class="developer__item" type="button" id="js-email">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <rect x="3" y="5" width="18" height="14" rx="2.5" />
@@ -1035,7 +1043,11 @@ function openSettings() {
   });
 
   backdrop.querySelector('#js-sponsor')?.addEventListener('click', () => {
-    api.app.openGithub();
+    api.app.openProfile();
+  });
+
+  backdrop.querySelector('#js-profile')?.addEventListener('click', () => {
+    api.app.openProfile();
   });
 
   backdrop.querySelector('#js-email')?.addEventListener('click', () => {
@@ -1043,7 +1055,7 @@ function openSettings() {
   });
 
   backdrop.querySelector('#js-github')?.addEventListener('click', () => {
-    api.app.openGithub();
+    api.app.openProfile();
   });
 
   const vaultPathLabel = backdrop.querySelector('#js-vault-path');

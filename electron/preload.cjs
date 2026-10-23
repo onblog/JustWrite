@@ -40,7 +40,7 @@ contextBridge.exposeInMainWorld('miaomiao', {
     version: () => ipcRenderer.invoke('app:version'),
     checkUpdate: () => ipcRenderer.invoke('app:check-update'),
     openSite: () => ipcRenderer.invoke('app:open-site'),
-    openGithub: () => ipcRenderer.invoke('app:open-github'),
+    openProfile: () => ipcRenderer.invoke('app:open-profile'),
     openEmail: () => ipcRenderer.invoke('app:open-email'),
   },
 

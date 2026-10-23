@@ -125,6 +125,7 @@ const messages = {
     'settings.language.en': 'English',
 
     'settings.support': '支持',
+    'settings.developerProfile': '在 GitHub 上查看作者',
     'settings.sponsor.title': '喜欢喵喵笔记？',
     'settings.sponsor.desc': '去 GitHub 点个 Star 喵～',
     'settings.storage': '存储',
@@ -273,6 +274,7 @@ const messages = {
     'settings.language.en': 'English',
 
     'settings.support': 'Support',
+    'settings.developerProfile': 'View the author on GitHub',
     'settings.sponsor.title': 'Enjoying Miaomiao Notes?',
     'settings.sponsor.desc': 'Drop a star on GitHub',
     'settings.storage': 'Storage',

@@ -205,7 +205,7 @@ export function createMockApi() {
         data: { current: '1.1.0', latest: '1.1.0', hasUpdate: false, url: 'https://notes.wordtk.com' },
       }),
       openSite: async () => ({ ok: true }),
-      openGithub: async () => ({ ok: true }),
+      openProfile: async () => ({ ok: true }),
       openEmail: async () => ({ ok: true }),
     },
     dialog: { confirm: async () => true },

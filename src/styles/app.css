@@ -1332,6 +1332,11 @@ body.reduce-motion .empty-state__cat {
 .developer__name {
   font-weight: 650;
   color: var(--text-muted);
+  transition: color 0.14s ease;
+}
+
+.developer__name:hover {
+  color: var(--accent-strong);
 }
 
 .developer__item {

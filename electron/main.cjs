@@ -308,8 +308,9 @@ function registerIpc() {
     return true;
   });
 
-  handle('app:open-github', () => {
-    shell.openExternal('https://github.com/onblog/miaomiao-notes');
+  // 应用内的 GitHub 入口一律指向作者主页（打赏 / 赞助信息在那里）
+  handle('app:open-profile', () => {
+    shell.openExternal('https://github.com/onblog');
     return true;
   });
 
