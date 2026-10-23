@@ -25,6 +25,7 @@ const messages = {
     'download.failed': '下载失败，请改用直链',
     'download.cancel': '取消',
     'download.retry': '重试',
+    'download.unavailable': '安装包还在上传，稍后再来',
     'feature.layout.title': '三栏布局',
     'feature.layout.desc': '文件夹、笔记、内容三列，参考 macOS 备忘录的交互，切换笔记不丢光标位置。',
     'feature.files.title': '笔记就是文件',
@@ -59,6 +60,7 @@ const messages = {
     'download.failed': 'Download failed, try the direct link',
     'download.cancel': 'Cancel',
     'download.retry': 'Retry',
+    'download.unavailable': 'The build is still uploading, check back soon',
     'feature.layout.title': 'Three columns',
     'feature.layout.desc':
       'Folders, notes and content — modelled on Apple Notes, and switching notes keeps your place.',
@@ -207,8 +209,20 @@ function showToast(message, durationMs = 3400) {
 }
 
 async function handleDownload(arch) {
-  if (!lastRelease?.files?.[arch]) return;
-  const file = lastRelease.files[arch];
+  // 一次只允许一个下载，连点不会开出第二条并发流。
+  if (downloadController) return;
+
+  // 清单元数据还没到：按钮上虽然已能点，但尺寸和文件名仍未知，给一句提示。
+  if (!lastRelease) {
+    showToast(messages[currentLang]['download.preparing']);
+    return;
+  }
+
+  const file = lastRelease.files?.[arch];
+  if (!file) {
+    showToast(messages[currentLang]['download.unavailable']);
+    return;
+  }
 
   // 点一下就开始下：不弹「选择下载位置」，也不交系统二次确认，
   // 直接落到浏览器默认的「下载」文件夹。
