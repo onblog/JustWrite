@@ -77,7 +77,16 @@ export async function downloadFile(url, size, onProgress, signal) {
   return new Blob(parts, { type: 'application/octet-stream' });
 }
 
-/** Trigger a normal browser download for the assembled blob. */
+/**
+ * Save the assembled blob straight into the browser's default download
+ * location.
+ *
+ * Deliberately no `showSaveFilePicker()`, no File System Access API: that path
+ * adds one native "choose a folder" sheet (plus a second system confirmation on
+ * .dmg) before a single byte moves, which is far more friction than a download
+ * button should have. A plain anchor click downloads silently, exactly like the
+ * Miaomiao Bar site does.
+ */
 export function saveBlob(blob, fileName) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -87,23 +96,4 @@ export function saveBlob(blob, fileName) {
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30_000);
-}
-
-/** Whether the browser can stream straight to a user-picked file. */
-export function canStreamToDisk() {
-  return typeof window.showSaveFilePicker === 'function';
-}
-
-/**
- * Ask for a destination up front (inside the click gesture), then stream the
- * downloaded blob into it. Returns null when the user cancels the picker.
- */
-export async function pickDestination(fileName) {
-  if (!canStreamToDisk()) return null;
-  try {
-    return await window.showSaveFilePicker({ suggestedName: fileName });
-  } catch (error) {
-    if (error.name === 'AbortError') return null;
-    throw error;
-  }
 }

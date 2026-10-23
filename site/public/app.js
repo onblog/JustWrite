@@ -1,10 +1,4 @@
-import {
-  downloadFile,
-  saveBlob,
-  pickDestination,
-  canStreamToDisk,
-  formatBytes,
-} from '/download.js';
+import { downloadFile, saveBlob, formatBytes } from '/download.js';
 
 /**
  * 喵喵笔记官网前端：语言切换 + 版本信息。
@@ -27,6 +21,7 @@ const messages = {
     'download.preparing': '准备中…',
     'download.progress': '正在下载',
     'download.done': '下载完成',
+    'download.saved': '已存入「下载」文件夹',
     'download.failed': '下载失败，请改用直链',
     'download.cancel': '取消',
     'download.retry': '重试',
@@ -60,6 +55,7 @@ const messages = {
     'download.preparing': 'Preparing…',
     'download.progress': 'Downloading',
     'download.done': 'Download complete',
+    'download.saved': 'Saved to your Downloads folder',
     'download.failed': 'Download failed, try the direct link',
     'download.cancel': 'Cancel',
     'download.retry': 'Retry',
@@ -195,17 +191,27 @@ function paintProgress(loaded, total, startedAt) {
   dlEl('dl-speed').textContent = `${formatBytes(loaded / elapsed)}/s`;
 }
 
+/** 底部轻提示：同一时间只留一条，连点也不会叠起来。 */
+let toastTimer = null;
+
+function showToast(message, durationMs = 3400) {
+  const toast = dlEl('toast');
+  if (!toast) return;
+
+  toast.textContent = message;
+  toast.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.hidden = true;
+  }, durationMs);
+}
+
 async function handleDownload(arch) {
   if (!lastRelease?.files?.[arch]) return;
   const file = lastRelease.files[arch];
 
-  // 必须在点击手势内调用，否则浏览器会拒绝保存对话框
-  let destination = null;
-  if (canStreamToDisk()) {
-    destination = await pickDestination(file.name);
-    if (!destination) return; // 用户取消了保存对话框
-  }
-
+  // 点一下就开始下：不弹「选择下载位置」，也不交系统二次确认，
+  // 直接落到浏览器默认的「下载」文件夹。
   const backdrop = dlEl('dl-backdrop');
   backdrop.hidden = false;
   dlEl('dl-title').textContent = messages[currentLang]['download.progress'];
@@ -236,17 +242,11 @@ async function handleDownload(arch) {
     );
 
     paintProgress(file.size, file.size, startedAt);
-
-    if (destination) {
-      const writable = await destination.createWritable();
-      await writable.write(blob);
-      await writable.close();
-    } else {
-      saveBlob(blob, file.name);
-    }
+    saveBlob(blob, file.name);
 
     dlEl('dl-title').textContent = messages[currentLang]['download.done'];
     setTimeout(closeDownloadPanel, 1400);
+    showToast(`${file.name} · ${messages[currentLang]['download.saved']}`);
   } catch (error) {
     if (error.name === 'AbortError') {
       closeDownloadPanel();
