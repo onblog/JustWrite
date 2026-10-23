@@ -7,8 +7,11 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
+# 页面的 JS/CSS 走「每次都校验」（ETag 命中时仍是 304，几乎零成本）。
+# 之前给 app.js 设了 max-age=3600，结果老脚本能被缓存一小时，与新发的文件拼在
+# 一起跑，一次发版就让下载按钮失效——没版本号的静态资源不该长缓存。
 /styles.css
-  Cache-Control: public, max-age=3600
+  Cache-Control: no-cache
 
 /app.js
-  Cache-Control: public, max-age=3600
+  Cache-Control: no-cache

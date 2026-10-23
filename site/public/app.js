@@ -1,9 +1,102 @@
-import { downloadFile, saveBlob, formatBytes } from '/download.js';
+/**
+ * 喵喵笔记官网前端：语言切换 + 版本信息 + 多线程下载。
+ * 零依赖、零第三方请求，所有逻辑都在这个文件里。
+ *
+ * 下载逻辑刻意不再拆到 `/download.js`：两个文件各自被浏览器缓存、各自按自己的
+ * 规则重新校验，一次发版就会撞成「新 download.js + 旧 app.js」的组合，import 的
+ * 名字对不上，整页 JS 直接不执行。（2026-10-23 真的踩了一次。）单文件之后，
+ * 缓存只会整体偏新或整体偏旧，不会再拼出坏的中间态。
+ */
+
+/* ---------------------------------------------------------------- download */
+
+const CHUNK_COUNT_LARGE = 8;
+const CHUNK_COUNT_SMALL = 4;
+const LARGE_FILE = 50 * 1024 * 1024;
+
+function formatBytes(bytes) {
+  if (!bytes) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let value = bytes;
+  let index = 0;
+  while (value >= 1024 && index < units.length - 1) {
+    value /= 1024;
+    index += 1;
+  }
+  return `${value.toFixed(value >= 10 || index === 0 ? 0 : 1)} ${units[index]}`;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 /**
- * 喵喵笔记官网前端：语言切换 + 版本信息。
- * 零依赖、零第三方请求，所有逻辑都在这个文件里。
+ * 把 dmg 切成多段并发请求，实时上报进度，返回按顺序拼好的 Blob。
+ * 收益来自「链路利用率」而不是「突破带宽」——单连接被限速时，并发能叠加。
+ * 前提：服务端支持 Range（Worker 的 /api/download 返回 206 + Content-Range）。
  */
+async function downloadFile(url, size, onProgress, signal) {
+  const chunkCount = size >= LARGE_FILE ? CHUNK_COUNT_LARGE : CHUNK_COUNT_SMALL;
+  const chunkSize = Math.ceil(size / chunkCount);
+
+  const parts = new Array(chunkCount).fill(null);
+  let loaded = 0;
+
+  const downloadRange = async (index) => {
+    const start = index * chunkSize;
+    const end = Math.min(start + chunkSize - 1, size - 1);
+    if (start > end) return;
+
+    // 一个分片失败时重试两次，避免整次下载白费
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        const response = await fetch(url, {
+          headers: { Range: `bytes=${start}-${end}` },
+          signal,
+        });
+        if (response.status !== 206) throw new Error(`unexpected status ${response.status}`);
+
+        const reader = response.body.getReader();
+        const buffers = [];
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffers.push(value);
+          loaded += value.length;
+          onProgress?.(loaded, size);
+        }
+        parts[index] = new Blob(buffers);
+        return;
+      } catch (error) {
+        if (error.name === 'AbortError') throw error;
+        if (attempt === 2) throw error;
+        await delay(400 * (attempt + 1));
+      }
+    }
+  };
+
+  await Promise.all(Array.from({ length: chunkCount }, (_, index) => downloadRange(index)));
+
+  return new Blob(parts, { type: 'application/octet-stream' });
+}
+
+/**
+ * 直接存进浏览器默认的下载位置。
+ *
+ * 刻意不用 `showSaveFilePicker()`、不用 File System Access API：那条路在真正开始
+ * 传输之前会先弹一个系统「选择下载位置」面板（.dmg 还会再来一次确认），对一个
+ * 下载按钮来说摩擦太大。普通 a[download] 点击则是静默落盘，与喵喵吧台一致。
+ */
+function saveBlob(blob, fileName) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30_000);
+}
 
 const messages = {
   zh: {
